@@ -30,6 +30,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+		<buji-pac4j.version>3.0.0</buji-pac4j.version> 
 		<commons-codec.version>1.11</commons-codec.version>
  		<commons-lang3.version>3.5</commons-lang3.version>
  		<commons-io.version>2.6</commons-io.version>
@@ -164,6 +165,12 @@
 			<version>${shiro-biz.version}</version>
 		</dependency>
 		
+		<!-- https://mvnrepository.com/artifact/io.buji/buji-pac4j -->
+		<dependency>
+		    <groupId>io.buji</groupId>
+		    <artifactId>buji-pac4j</artifactId>
+		    <version>${buji-pac4j.version}</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.github.panchitoboy/shiro-jwt -->
 		<dependency>
 		    <groupId>com.github.panchitoboy</groupId>

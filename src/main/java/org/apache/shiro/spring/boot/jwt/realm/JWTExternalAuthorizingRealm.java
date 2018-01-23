@@ -1,4 +1,4 @@
-package org.apache.shiro.biz.protocol.jwt.realm;
+package org.apache.shiro.spring.boot.jwt.realm;
 
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;

@@ -23,11 +23,19 @@ import java.util.Map.Entry;
 import javax.servlet.Filter;
 
 import org.apache.shiro.biz.spring.ShiroFilterProxyFactoryBean;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.web.filter.AccessControlFilter;
+import org.pac4j.core.client.Clients;
+import org.pac4j.jwt.config.encryption.SecretEncryptionConfiguration;
+import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
+import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
+import org.pac4j.jwt.profile.JwtGenerator;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
 import org.springframework.util.ObjectUtils;
 
 public class ShiroBizFilterFactoryBean extends ShiroFilterProxyFactoryBean implements ApplicationContextAware  {
@@ -56,6 +64,7 @@ public class ShiroBizFilterFactoryBean extends ShiroFilterProxyFactoryBean imple
 		return filters;
 		
 	}
+	    
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

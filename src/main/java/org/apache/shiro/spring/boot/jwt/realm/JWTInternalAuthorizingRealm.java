@@ -1,14 +1,15 @@
-package org.apache.shiro.biz.protocol.jwt.realm;
+package org.apache.shiro.spring.boot.jwt.realm;
 
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
 import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
-import org.apache.shiro.biz.protocol.jwt.PrincipalJwtRepository;
-import org.apache.shiro.biz.protocol.jwt.token.JWTAuthenticationToken;
 import org.apache.shiro.biz.realm.InternalAuthorizingRealm;
+import org.apache.shiro.spring.boot.jwt.PrincipalJwtRepository;
 import org.apache.shiro.util.ByteSource;
+
+import com.github.panchitoboy.shiro.jwt.filter.JWTAuthenticationToken;
 
 public class JWTInternalAuthorizingRealm extends InternalAuthorizingRealm {
 
