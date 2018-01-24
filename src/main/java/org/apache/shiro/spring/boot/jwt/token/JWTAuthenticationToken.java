@@ -1,10 +1,10 @@
-package org.apache.shiro.biz.protocol.jwt.token;
+package org.apache.shiro.spring.boot.jwt.token;
 
 import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
 import org.apache.shiro.biz.authc.token.UsernameWithoutPwdToken;
 
 @SuppressWarnings("serial")
-public class JWTAuthenticationToken extends UsernameWithoutPwdToken implements DelegateAuthenticationToken, JwtToken  {
+public class JWTAuthenticationToken extends UsernameWithoutPwdToken implements DelegateAuthenticationToken  {
 
 	protected String token;
     protected String secret;

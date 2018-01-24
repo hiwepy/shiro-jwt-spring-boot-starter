@@ -1,4 +1,4 @@
-package org.apache.shiro.spring.boot.web.filter.authc;
+package org.apache.shiro.spring.boot.jwt.filter;
 
 import javax.servlet.ServletRequest;
 

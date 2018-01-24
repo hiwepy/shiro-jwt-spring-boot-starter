@@ -1,4 +1,4 @@
-package org.apache.shiro.biz.protocol.jwt.exception;
+package org.apache.shiro.spring.boot.jwt.exception;
 
 import org.apache.shiro.ShiroException;
 

@@ -5,14 +5,17 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
 import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
-import org.apache.shiro.biz.realm.InternalAuthorizingRealm;
-import org.apache.shiro.spring.boot.jwt.PrincipalJwtRepository;
+import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
+import org.apache.shiro.spring.boot.jwt.token.JWTAuthenticationToken;
 import org.apache.shiro.util.ByteSource;
 
-import com.github.panchitoboy.shiro.jwt.filter.JWTAuthenticationToken;
+public class JwtInternalAuthorizingRealm extends Pac4jInternalAuthorizingRealm {
 
-public class JWTInternalAuthorizingRealm extends InternalAuthorizingRealm {
-
+	@Override
+    public boolean supports(AuthenticationToken token) {
+        return token != null && token instanceof JWTAuthenticationToken;
+    }
+	
 	@Override
 	protected DelegateAuthenticationToken createDelegateAuthenticationToken(AuthenticationToken token) {
 		return (JWTAuthenticationToken) token;
@@ -22,9 +25,9 @@ public class JWTInternalAuthorizingRealm extends InternalAuthorizingRealm {
 	protected AuthenticationInfo doGetInternalAuthenticationInfo(AuthenticationToken token) {
 
 		SimpleAccount account = null;
-		if (getRepository() instanceof PrincipalJwtRepository) {
+		if (getRepository() instanceof JwtPrincipalRepository) {
 
-			PrincipalJwtRepository jwtRepository = (PrincipalJwtRepository) getRepository();
+			JwtPrincipalRepository jwtRepository = (JwtPrincipalRepository) getRepository();
 			JWTAuthenticationToken upToken = (JWTAuthenticationToken) token;
 
 			// do real thing

@@ -1,18 +1,18 @@
-package org.apache.shiro.biz.protocol.jwt.exception;
+package org.apache.shiro.spring.boot.jwt.exception;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.biz.protocol.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JWTAuthenticationToken;
 
 @SuppressWarnings("serial")
 public class JwtExpiredTokenException extends AuthenticationException {
     
-    private JwtToken token;
+    private JWTAuthenticationToken token;
 
     public JwtExpiredTokenException(String msg) {
         super(msg);
     }
 
-    public JwtExpiredTokenException(JwtToken token, String msg, Throwable t) {
+    public JwtExpiredTokenException(JWTAuthenticationToken token, String msg, Throwable t) {
         super(msg, t);
         this.token = token;
     }

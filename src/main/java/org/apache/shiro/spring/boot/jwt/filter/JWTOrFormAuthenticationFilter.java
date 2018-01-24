@@ -1,4 +1,4 @@
-package org.apache.shiro.biz.protocol.jwt.filter;
+package org.apache.shiro.spring.boot.jwt.filter;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -13,13 +13,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.biz.protocol.jwt.token.JWTAuthenticationToken;
+import org.apache.shiro.spring.boot.jwt.token.JWTAuthenticationToken;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.nimbusds.jose.JWSObject;
-
 
 public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
 
@@ -27,10 +26,13 @@ public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
      * HTTP Authorization header, equal to <code>Authorization</code>
      */
     protected static final String AUTHORIZATION_HEADER = "Authorization";
-    
     public static final String USER_NAME = "username";
     public static final String PASSWORD = "password";
-
+    
+    private String usernameParameterName = USER_NAME;
+    private String passwordParameterName = PASSWORD;
+    private String authorizationHeaderName = AUTHORIZATION_HEADER;
+    
     public JWTOrFormAuthenticationFilter() {
         setLoginUrl(DEFAULT_LOGIN_URL);
     }
@@ -67,14 +69,12 @@ public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
     	//如果是登录地址，则创建登录的Token
         if (isLoginRequest(request, response)) {
         	
-        	
-        	
             String json = IOUtils.toString(request.getInputStream(), Charset.defaultCharset());
 
             if (json != null && !json.isEmpty()) {
             	JSONObject object = JSONObject.parseObject(json);
-                String username = object.getString(USER_NAME);
-                String password = object.getString(PASSWORD);
+                String username = object.getString(getUsernameParameterName());
+                String password = object.getString(getPasswordParameterName());
                 return new UsernamePasswordToken(username, password);
             }
         }
@@ -105,7 +105,7 @@ public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
 
     protected String getAuthzHeader(ServletRequest request) {
         HttpServletRequest httpRequest = WebUtils.toHttp(request);
-        return httpRequest.getHeader(AUTHORIZATION_HEADER);
+        return httpRequest.getHeader(getAuthorizationHeaderName());
     }
 
     public JWTAuthenticationToken createToken(String token) {
@@ -124,6 +124,29 @@ public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
         }
 
     }
-    
+
+	public String getUsernameParameterName() {
+		return usernameParameterName;
+	}
+
+	public void setUsernameParameterName(String usernameParameterName) {
+		this.usernameParameterName = usernameParameterName;
+	}
+
+	public String getPasswordParameterName() {
+		return passwordParameterName;
+	}
+
+	public void setPasswordParameterName(String passwordParameterName) {
+		this.passwordParameterName = passwordParameterName;
+	}
+
+	public String getAuthorizationHeaderName() {
+		return authorizationHeaderName;
+	}
+
+	public void setAuthorizationHeaderName(String authorizationHeaderName) {
+		this.authorizationHeaderName = authorizationHeaderName;
+	}
      
 }

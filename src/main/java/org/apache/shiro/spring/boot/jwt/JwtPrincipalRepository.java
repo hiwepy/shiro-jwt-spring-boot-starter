@@ -1,4 +1,4 @@
-package org.apache.shiro.biz.protocol.jwt;
+package org.apache.shiro.spring.boot.jwt;
 
 import java.security.SecureRandom;
 import java.text.ParseException;
@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.apache.shiro.biz.principal.Principal;
 import org.apache.shiro.biz.principal.PrincipalRepository;
-import org.apache.shiro.biz.protocol.jwt.verifier.MACVerifierExtended;
+import org.apache.shiro.spring.boot.jwt.verifier.MACVerifierExtended;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -20,7 +20,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-public abstract class PrincipalJwtRepository implements PrincipalRepository {
+public abstract class JwtPrincipalRepository implements PrincipalRepository {
 
 	public byte[] generateSharedKey() {
         SecureRandom random = new SecureRandom();

@@ -1,4 +1,4 @@
-package org.apache.shiro.biz.protocol.jwt.verifier;
+package org.apache.shiro.spring.boot.jwt.verifier;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;

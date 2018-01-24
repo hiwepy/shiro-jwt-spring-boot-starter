@@ -22,12 +22,17 @@ import org.apache.shiro.biz.web.filter.authc.AbstractCaptchaAuthenticatingFilter
 import org.apache.shiro.biz.web.filter.authc.KickoutSessionControlFilter;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(ShiroBizProperties.PREFIX)
-public class ShiroBizProperties {
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm;
 
-	public static final String PREFIX = "shiro";
+@ConfigurationProperties(ShiroJwtProperties.PREFIX)
+public class ShiroJwtProperties {
+
+	public static final String PREFIX = "shiro.jwt";
 	
 	/**
      * 是否校验验证码
@@ -67,9 +72,89 @@ public class ShiroBizProperties {
     private String successUrl;
     /** 异常页面：无权限时的跳转路径 */
     private String unauthorizedUrl;
-	
+    /** jwt秘钥 */
+    private String salt;
+    private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
+    private JWEAlgorithm jweAlgorithm = JWEAlgorithm.RSA_OAEP_256;
+    private EncryptionMethod encryptionMethod = EncryptionMethod.A128CBC_HS256;
+    
+    
+    /**
+     * {@link JwtToken} will expire after this time.
+     */
+    private Integer tokenExpirationTime;
+
+    /**
+     * Token issuer.
+     */
+    private String tokenIssuer;
+    
+    /**
+     * Key is used to sign {@link JwtToken}.
+     */
+    private String tokenSigningKey;
+    
+    /**
+     * {@link JwtToken} can be refreshed during this timeframe.
+     */
+    private Integer refreshTokenExpTime;
+    
+    
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.access_token.expiration}")
+    private Long access_token_expiration;
+
+    @Value("${jwt.refresh_token.expiration}")
+    private Long refresh_token_expiration;
+    
+    
+    public Integer getRefreshTokenExpTime() {
+        return refreshTokenExpTime;
+    }
+
+    public void setRefreshTokenExpTime(Integer refreshTokenExpTime) {
+        this.refreshTokenExpTime = refreshTokenExpTime;
+    }
+
+    public Integer getTokenExpirationTime() {
+        return tokenExpirationTime;
+    }
+    
+    public void setTokenExpirationTime(Integer tokenExpirationTime) {
+        this.tokenExpirationTime = tokenExpirationTime;
+    }
+    
+    public String getTokenIssuer() {
+        return tokenIssuer;
+    }
+    public void setTokenIssuer(String tokenIssuer) {
+        this.tokenIssuer = tokenIssuer;
+    }
+    
+    public String getTokenSigningKey() {
+        return tokenSigningKey;
+    }
+    
+    public void setTokenSigningKey(String tokenSigningKey) {
+        this.tokenSigningKey = tokenSigningKey;
+    }
+    
+    
+    /** 认证IP正则表达式：可实现IP访问限制 */
+    private String ipRegexpPattern;
+    
 	private Map<String /* pattert */, String /* Chain names */> filterChainDefinitionMap = new LinkedHashMap<String, String>();
 	
+	public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
+	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -267,7 +352,30 @@ public class ShiroBizProperties {
 	public void setFilterChainDefinitionMap(Map<String, String> filterChainDefinitionMap) {
 		this.filterChainDefinitionMap = filterChainDefinitionMap;
 	}
-    
+
+	public JWSAlgorithm getJwsAlgorithm() {
+		return jwsAlgorithm;
+	}
+
+	public void setJwsAlgorithm(JWSAlgorithm jwsAlgorithm) {
+		this.jwsAlgorithm = jwsAlgorithm;
+	}
+
+	public JWEAlgorithm getJweAlgorithm() {
+		return jweAlgorithm;
+	}
+
+	public void setJweAlgorithm(JWEAlgorithm jweAlgorithm) {
+		this.jweAlgorithm = jweAlgorithm;
+	}
+
+	public EncryptionMethod getEncryptionMethod() {
+		return encryptionMethod;
+	}
+
+	public void setEncryptionMethod(EncryptionMethod encryptionMethod) {
+		this.encryptionMethod = encryptionMethod;
+	}
 
 }
 

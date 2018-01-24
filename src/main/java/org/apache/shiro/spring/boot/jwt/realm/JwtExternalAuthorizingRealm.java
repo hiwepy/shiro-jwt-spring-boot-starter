@@ -2,18 +2,17 @@ package org.apache.shiro.spring.boot.jwt.realm;
 
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
-import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
-import org.apache.shiro.biz.protocol.jwt.PrincipalJwtRepository;
-import org.apache.shiro.biz.protocol.jwt.token.JWTAuthenticationToken;
-import org.apache.shiro.biz.realm.ExternalAuthorizingRealm;
+import org.apache.shiro.spring.boot.jwt.token.JWTAuthenticationToken;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.util.ByteSource;
 
-public class JWTExternalAuthorizingRealm extends ExternalAuthorizingRealm {
+public class JwtExternalAuthorizingRealm extends Pac4jExternalAuthorizingRealm {
 
+	@Override
+    public boolean supports(AuthenticationToken token) {
+        return token != null && token instanceof JWTAuthenticationToken;
+	}
+	
 	@Override
 	protected AuthenticationInfo doGetExternalAuthenticationInfo(AuthenticationToken token) {
 		// TODO Auto-generated method stub

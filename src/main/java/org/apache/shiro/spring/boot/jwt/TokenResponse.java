@@ -1,4 +1,4 @@
-package org.apache.shiro.biz.protocol.jwt;
+package org.apache.shiro.spring.boot.jwt;
 
 import org.apache.shiro.biz.principal.Principal;
 
