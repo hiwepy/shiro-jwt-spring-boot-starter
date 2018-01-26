@@ -1,15 +1,13 @@
 package org.apache.shiro.spring.boot;
 
-import org.pac4j.cas.authorization.DefaultCasAuthorizationGenerator;
-import org.pac4j.cas.config.CasProtocol;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.DefaultAuthorizers;
 import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.Pac4jConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(ShiroJwtPac4jProperties.PREFIX)
-public class ShiroJwtPac4jProperties extends ShiroJwtProperties{
+@ConfigurationProperties(ShiroPac4jJwtProperties.PREFIX)
+public class ShiroPac4jJwtProperties extends ShiroJwtProperties{
 
 	public static final String PREFIX = "shiro.jwt";
 

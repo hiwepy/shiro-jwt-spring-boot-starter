@@ -40,8 +40,8 @@ import io.buji.pac4j.subject.Pac4jSubjectFactory;
 @AutoConfigureBefore(ShiroWebAutoConfiguration.class)
 @ConditionalOnClass()
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ ShiroJwtProperties.class, ShiroJwtPac4jProperties.class })
-public class ShiroJwtPac4jWebAutoConfiguration extends AbstractShiroWebConfiguration {
+@EnableConfigurationProperties({ ShiroJwtProperties.class, ShiroPac4jJwtProperties.class })
+public class ShiroPac4jJwtWebAutoConfiguration extends AbstractShiroWebConfiguration {
 	
 	@Autowired
 	private ShiroProperties properties;

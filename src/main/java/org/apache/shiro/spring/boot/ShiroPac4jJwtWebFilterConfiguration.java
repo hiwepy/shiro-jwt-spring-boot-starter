@@ -71,13 +71,13 @@ import io.buji.pac4j.filter.SecurityFilter;
 @AutoConfigureBefore(ShiroWebAutoConfiguration.class)
 @ConditionalOnClass(JwtConfiguration.class)
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ ShiroProperties.class, ShiroJwtPac4jProperties.class })
-public class ShiroJwtPac4jWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
+@EnableConfigurationProperties({ ShiroProperties.class, ShiroPac4jJwtProperties.class })
+public class ShiroPac4jJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
 	
 	@Autowired
 	private ShiroProperties properties;
 	@Autowired
-	private ShiroJwtPac4jProperties casProperties;
+	private ShiroPac4jJwtProperties casProperties;
 	@Autowired
 	private ServerProperties serverProperties;
 	
