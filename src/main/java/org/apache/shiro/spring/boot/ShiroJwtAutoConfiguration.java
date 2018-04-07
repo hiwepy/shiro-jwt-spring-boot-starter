@@ -19,7 +19,7 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SubjectFactory;
 import org.apache.shiro.realm.Realm;
-import org.apache.shiro.spring.boot.cache.ShiroEhCacheAutoConfiguration;
+import org.apache.shiro.spring.boot.cache.ShiroEhCacheConfiguration;
 import org.apache.shiro.spring.boot.jwt.filter.JWTOrFormAuthenticationFilter;
 import org.apache.shiro.spring.boot.template.method.ValidateCaptcha;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
@@ -28,25 +28,6 @@ import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
-import org.pac4j.cas.client.CasClient;
-import org.pac4j.cas.client.direct.DirectCasClient;
-import org.pac4j.cas.client.direct.DirectCasProxyClient;
-import org.pac4j.cas.client.rest.CasRestBasicAuthClient;
-import org.pac4j.cas.client.rest.CasRestFormClient;
-import org.pac4j.cas.config.CasConfiguration;
-import org.pac4j.cas.config.CasProtocol;
-import org.pac4j.core.authorization.generator.AuthorizationGenerator;
-import org.pac4j.core.client.Clients;
-import org.pac4j.core.config.Config;
-import org.pac4j.core.http.AjaxRequestResolver;
-import org.pac4j.core.http.DefaultAjaxRequestResolver;
-import org.pac4j.core.http.DefaultUrlResolver;
-import org.pac4j.core.http.UrlResolver;
-import org.pac4j.http.client.direct.ParameterClient;
-import org.pac4j.jwt.config.encryption.SecretEncryptionConfiguration;
-import org.pac4j.jwt.config.signature.SecretSignatureConfiguration;
-import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
-import org.pac4j.jwt.profile.JwtGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -64,12 +45,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ObjectUtils;
-
-import io.buji.pac4j.filter.CallbackFilter;
-import io.buji.pac4j.filter.LogoutFilter;
-import io.buji.pac4j.filter.SecurityFilter;
-import io.buji.pac4j.realm.Pac4jRealm;
-import io.buji.pac4j.subject.Pac4jSubjectFactory;
 
 /**
  * 默认拦截器
@@ -385,7 +360,7 @@ import io.buji.pac4j.subject.Pac4jSubjectFactory;
  */
 @Configuration
 @AutoConfigureBefore(ShiroWebAutoConfiguration.class)
-@AutoConfigureAfter(ShiroEhCacheAutoConfiguration.class)
+@AutoConfigureAfter(ShiroEhCacheConfiguration.class)
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ ShiroJwtProperties.class })
 public class ShiroJwtAutoConfiguration extends AbstractShiroWebFilterConfiguration implements ApplicationContextAware {
@@ -521,205 +496,12 @@ public class ShiroJwtAutoConfiguration extends AbstractShiroWebFilterConfigurati
 	@Value("#{ @environment['cas.callbackUrl'] ?: null }")
 	private String callbackUrl;
 
-	@Bean
+	/*@Bean
 	public Realm pac4jRealm() {
 		return new Pac4jRealm();
-	}
+	}*/
 
-	/**
-	 * cas核心过滤器，把支持的client写上，filter过滤时才会处理，clients必须在casConfig.clients已经注册
-	 * 
-	 * @return
-	 */
-	@Bean
-	public Filter casSecurityFilter() {
-		SecurityFilter filter = new SecurityFilter();
-		filter.setClients("CasClient,rest,jwt");
-		filter.setConfig(casConfig());
-		return filter;
-	}
-
-
-
-	/**
-	 * 通过rest接口可以获取tgt，获取service ticket，甚至可以获取CasProfile
-	 * 
-	 * @return
-	 */
-	@Bean
-	protected CasRestFormClient casRestFormClient() {
-		CasRestFormClient casRestFormClient = new CasRestFormClient();
-		casRestFormClient.setConfiguration(casConfiguration());
-		casRestFormClient.setName("rest");
-		return casRestFormClient;
-	}
-
-	@Bean
-	protected Clients clients() {
-		// 可以设置默认client
-		Clients clients = new Clients();
-
-		// token校验器，可以用HeaderClient更安全
-		ParameterClient parameterClient = new ParameterClient("token", jwtAuthenticator());
-		parameterClient.setSupportGetRequest(true);
-		parameterClient.setName("jwt");
-		// 支持的client全部设置进去
-		clients.setClients(casClient(), casRestFormClient(), parameterClient);
-		return clients;
-	}
 	
-	@Bean
-	public Config casConfig(CasClient casClient, DirectCasClient directCasClient,
-			DirectCasProxyClient directCasProxyClient, CasRestFormClient casRestFormClient,
-			CasRestBasicAuthClient casRestBasicAuthClient,
-			AjaxRequestResolver ajaxRequestResolver, UrlResolver urlResolver, 
-			List<AuthorizationGenerator> authorizationGenerators) {
-
-		final Clients clients = new Clients(casClient, directCasClient, directCasProxyClient, casRestFormClient,
-				casRestBasicAuthClient);
-		
-		clients.setAjaxRequestResolver(ajaxRequestResolver);
-		clients.setAuthorizationGenerator(authorizationGenerator);
-		clients.setAuthorizationGenerators(authorizationGenerators);
-		clients.setAuthorizationGenerators(authorizationGenerators);
-		
-		
-		clients.setCallbackUrl(casProperties.getCallbackUrl());
-		clients.setClientNameParameter(casProperties.getClientParameterName());
-		clients.setDefaultClient(casClient);
-		clients.setUrlResolver(urlResolver);
-		
-		final Config config = new Config(clients);
-		
-		config.setAuthorizer(authorizer);
-		config.setAuthorizers(authorizers);
-		config.setCallbackLogic(callbackLogic);
-		config.setClients(clients);
-		config.setHttpActionAdapter(httpActionAdapter);
-		config.setLogoutLogic(logoutLogic);
-		config.setMatcher(matcher);
-		config.setMatchers(matchers);
-		config.setProfileManagerFactory(profileManagerFactory);
-		config.setSecurityLogic(securityLogic);
-		config.setSessionStore(sessionStore);
-		
-		return config;
-	}
-	
-	/**
-	 * JWT Token 生成器，对CommonProfile生成然后每次携带token访问
-	 * 
-	 * @return
-	 */
-	@Bean
-	protected JwtGenerator jwtGenerator() {
-		return new JwtGenerator(new SecretSignatureConfiguration(properties.getSalt()), new SecretEncryptionConfiguration(properties.getSalt()));
-	}
-	
-	@Bean
-	protected KeyPair keyPair() {
-		return null;
-	} 
-	
-	/**
-	 * JWT校验器，也就是目前设置的ParameterClient进行的校验器，是rest/或者前后端分离的核心校验器
-	 * 
-	 * @return
-	 */
-	@Bean
-	protected JwtAuthenticator jwtAuthenticator() {
-		
-		JwtAuthenticator jwtAuthenticator = new JwtAuthenticator();
-		
-		jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(properties.getSalt(), properties.getJwsAlgorithm()));
-		jwtAuthenticator.addEncryptionConfiguration(new SecretEncryptionConfiguration(properties.getSalt(), properties.getJweAlgorithm(), properties.getEncryptionMethod()));
-		
-		/*jwtAuthenticator.addEncryptionConfiguration(new RSAEncryptionConfiguration(keyPair, algorithm, method));
-		jwtAuthenticator.addSignatureConfiguration(new RSASignatureConfiguration(keyPair, algorithm));
-		
-		ECPublicKey publicKey;
-		ECPrivateKey privateKey;
-		
-		jwtAuthenticator.addEncryptionConfiguration(new ECEncryptionConfiguration());
-		jwtAuthenticator.addSignatureConfiguration(new ECSignatureConfiguration());*/
-		
-		
-		return jwtAuthenticator;
-	}
-
-	@Bean
-	protected Config casConfig() {
-		Config config = new Config();
-		config.setClients(clients());
-		return config;
-	}
-	
-	@Bean
-	@ConditionalOnMissingBean
-	protected AjaxRequestResolver ajaxRequestResolver() {
-		return new DefaultAjaxRequestResolver();
-	}
-	
-	@Bean
-	@ConditionalOnMissingBean
-	protected UrlResolver urlResolver() {
-		return new DefaultUrlResolver();
-	}
-	
-	@Bean
-	public Config casConfig( AjaxRequestResolver ajaxRequestResolver, UrlResolver urlResolver, 
-			List<AuthorizationGenerator> authorizationGenerators) {
-
-		final Clients clients = new Clients(casClient, directCasClient, directCasProxyClient, casRestFormClient,
-				casRestBasicAuthClient);
-		
-		clients.setAjaxRequestResolver(ajaxRequestResolver);
-		clients.setAuthorizationGenerator(authorizationGenerator);
-		clients.setAuthorizationGenerators(authorizationGenerators);
-		clients.setAuthorizationGenerators(authorizationGenerators);
-		clients.setCallbackUrl(casProperties.getCallbackUrl());
-		clients.setClientNameParameter(casProperties.getClientParameterName());
-		clients.setDefaultClient(casClient);
-		clients.setUrlResolver(urlResolver);
-		
-		final Config config = new Config(clients);
-		
-		config.setAuthorizer(authorizer);
-		config.setAuthorizers(authorizers);
-		config.setCallbackLogic(callbackLogic);
-		config.setClients(clients);
-		config.setHttpActionAdapter(httpActionAdapter);
-		config.setLogoutLogic(logoutLogic);
-		config.setMatcher(matcher);
-		config.setMatchers(matchers);
-		config.setProfileManagerFactory(profileManagerFactory);
-		config.setSecurityLogic(securityLogic);
-		config.setSessionStore(sessionStore);
-		
-		return config;
-	}
-
-	/**
-	 * cas的基本设置，包括或url等等，rest调用协议等
-	 * 
-	 * @return
-	 */
-	@Bean
-	public CasConfiguration casConfiguration() {
-		CasConfiguration casConfiguration = new CasConfiguration(casLoginUrl);
-		casConfiguration.setProtocol(CasProtocol.CAS30);
-		casConfiguration.setPrefixUrl(prefixUrl);
-		return casConfiguration;
-	}
-
-	@Bean
-	public CasClient casClient() {
-		CasClient casClient = new CasClient();
-		casClient.setConfiguration(casConfiguration());
-		casClient.setCallbackUrl(callbackUrl);
-		return casClient;
-	}
-
 	/**
 	 * 路径过滤设置
 	 *

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2020, vindell (https://github.com/vindell).
+ * Copyright (c) 2017, vindell (https://github.com/vindell).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,14 +25,33 @@ import org.apache.shiro.cache.CacheManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWSAlgorithm;
-
 @ConfigurationProperties(ShiroJwtProperties.PREFIX)
 public class ShiroJwtProperties {
 
 	public static final String PREFIX = "shiro.jwt";
+	
+	// 默认HMAC签名有效期：1分钟=60000毫秒(ms)
+	protected static final Integer DEFAULT_HMAC_PERIOD = 60000;
+	// 默认HASH加密算法
+	protected static final String DEFAULT_HASH_ALGORITHM_NAME = "MD5";
+	// 默认HASH加密盐
+	protected static final String DEFAULT_HASH_SALT = "A1B2C3D4efg.5679g8e7d6c5b4a_-=_)(8.";
+	// 默认HASH加密迭代次数
+	protected static final Integer DEFAULT_HASH_ITERATIONS = 2;
+	
+	// 默认JWT加密算法
+	protected static final String DEFAULT_HMAC_ALGORITHM_NAME = "HmacMD5";
+	// HASH加密算法
+	public static final String HASH_ALGORITHM_NAME_MD5 = "MD5";
+	public static final String HASH_ALGORITHM_NAME_SHA1 = "SHA-1";
+	public static final String HASH_ALGORITHM_NAME_SHA256 = "SHA-256";
+	public static final String HASH_ALGORITHM_NAME_SHA512 = "SHA-512";
+	// HMACA签名算法
+	public static final String HMAC_ALGORITHM_NAME_MD5 = "HmacMD5";// 128位
+	public static final String HMAC_ALGORITHM_NAME_SHA1 = "HmacSHA1";// 126
+	public static final String HMAC_ALGORITHM_NAME_SHA256 = "HmacSHA256";// 256
+	public static final String HMAC_ALGORITHM_NAME_SHA512 = "HmacSHA512";// 512
+	
 	
 	/**
      * 是否校验验证码
@@ -74,10 +93,10 @@ public class ShiroJwtProperties {
     private String unauthorizedUrl;
     /** jwt秘钥 */
     private String salt;
-    private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
+  /*  private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
     private JWEAlgorithm jweAlgorithm = JWEAlgorithm.RSA_OAEP_256;
     private EncryptionMethod encryptionMethod = EncryptionMethod.A128CBC_HS256;
-    
+    */
     
     /**
      * {@link JwtToken} will expire after this time.
@@ -353,7 +372,7 @@ public class ShiroJwtProperties {
 		this.filterChainDefinitionMap = filterChainDefinitionMap;
 	}
 
-	public JWSAlgorithm getJwsAlgorithm() {
+	/*public JWSAlgorithm getJwsAlgorithm() {
 		return jwsAlgorithm;
 	}
 
@@ -375,7 +394,7 @@ public class ShiroJwtProperties {
 
 	public void setEncryptionMethod(EncryptionMethod encryptionMethod) {
 		this.encryptionMethod = encryptionMethod;
-	}
+	}*/
 
 }
 
