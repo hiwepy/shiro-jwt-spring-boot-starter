@@ -1,8 +1,6 @@
 package org.apache.shiro.spring.boot;
 
-import java.security.KeyPair;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +11,13 @@ import javax.servlet.Filter;
 import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.biz.realm.PrincipalRealmListener;
 import org.apache.shiro.biz.spring.ShiroFilterProxyFactoryBean;
-import org.apache.shiro.biz.web.filter.authc.LoginListener;
-import org.apache.shiro.biz.web.filter.authc.LogoutListener;
+import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
+import org.apache.shiro.biz.web.filter.authc.listener.LogoutListener;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SubjectFactory;
-import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.boot.cache.ShiroEhCacheConfiguration;
 import org.apache.shiro.spring.boot.jwt.filter.JWTOrFormAuthenticationFilter;
-import org.apache.shiro.spring.boot.template.method.ValidateCaptcha;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
@@ -371,13 +367,6 @@ public class ShiroJwtAutoConfiguration extends AbstractShiroWebFilterConfigurati
 	@Autowired
 	private ShiroJwtProperties properties;
 
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnProperty(prefix = "spring.freemarker", value = "enabled", havingValue = "true")
-	public ValidateCaptcha validateCaptcha() {
-		return new ValidateCaptcha();
-	}
-
 	/**
 	 * 登录监听：实现该接口可监听账号登录失败和成功的状态，从而做业务系统自己的事情，比如记录日志
 	 */
@@ -546,8 +535,8 @@ public class ShiroJwtAutoConfiguration extends AbstractShiroWebFilterConfigurati
 	
 	@Bean("authc")
 	@ConditionalOnMissingBean(name = "authc")
-	public FilterRegistrationBean casFilter(){
-		FilterRegistrationBean registration = new FilterRegistrationBean(); 
+	public FilterRegistrationBean<JWTOrFormAuthenticationFilter> casFilter(){
+		FilterRegistrationBean<JWTOrFormAuthenticationFilter> registration = new FilterRegistrationBean<JWTOrFormAuthenticationFilter>(); 
 		JWTOrFormAuthenticationFilter casSsoFilter = new JWTOrFormAuthenticationFilter();
 		//casSsoFilter.setFailureUrl(properties.getFailureUrl());
 		registration.setFilter(casSsoFilter);

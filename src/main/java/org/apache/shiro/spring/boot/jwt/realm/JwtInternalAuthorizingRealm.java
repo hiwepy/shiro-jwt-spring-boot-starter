@@ -5,20 +5,21 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
 import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
+import org.apache.shiro.biz.realm.InternalAuthorizingRealm;
 import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
-import org.apache.shiro.spring.boot.jwt.token.JWTAuthenticationToken;
+import org.apache.shiro.spring.boot.jwt.token.StatelessToken;
 import org.apache.shiro.util.ByteSource;
 
-public class JwtInternalAuthorizingRealm extends Pac4jInternalAuthorizingRealm {
+public class JwtInternalAuthorizingRealm extends InternalAuthorizingRealm {
 
 	@Override
     public boolean supports(AuthenticationToken token) {
-        return token != null && token instanceof JWTAuthenticationToken;
+        return token != null && token instanceof StatelessToken;
     }
 	
 	@Override
 	protected DelegateAuthenticationToken createDelegateAuthenticationToken(AuthenticationToken token) {
-		return (JWTAuthenticationToken) token;
+		return (StatelessToken) token;
 	}
 
 	@Override
@@ -28,7 +29,7 @@ public class JwtInternalAuthorizingRealm extends Pac4jInternalAuthorizingRealm {
 		if (getRepository() instanceof JwtPrincipalRepository) {
 
 			JwtPrincipalRepository jwtRepository = (JwtPrincipalRepository) getRepository();
-			JWTAuthenticationToken upToken = (JWTAuthenticationToken) token;
+			StatelessToken upToken = (StatelessToken) token;
 
 			// do real thing
 			// new delegate authentication token and invoke doAuthc method

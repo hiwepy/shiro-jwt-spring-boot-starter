@@ -18,10 +18,10 @@ package org.apache.shiro.spring.boot;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.shiro.biz.web.filter.authc.AbstractCaptchaAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.KickoutSessionControlFilter;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
+import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -51,23 +51,9 @@ public class ShiroJwtProperties {
 	public static final String HMAC_ALGORITHM_NAME_SHA1 = "HmacSHA1";// 126
 	public static final String HMAC_ALGORITHM_NAME_SHA256 = "HmacSHA256";// 256
 	public static final String HMAC_ALGORITHM_NAME_SHA512 = "HmacSHA512";// 512
-	
-	
+		
 	/**
-     * 是否校验验证码
-     */
-	protected boolean validateCaptcha = false;
-	/**
-     * 验证码在Session中存储值的key
-     */
-	protected String sessoionCaptchaKey = AbstractCaptchaAuthenticatingFilter.DEFAULT_SESSION_CAPTCHA_KEY;
-	/**
-     * Session控制过滤器使用的缓存数据对象名称
-     */
-	protected String sessionControlCacheName = KickoutSessionControlFilter.DEFAULT_SESSION_CONTROL_CACHE_NAME;
-	
-	/**
-	 * Enable Shiro.
+	 * Enable Shiro JWT.
 	 */
 	private boolean enabled = false;
 	
@@ -182,30 +168,6 @@ public class ShiroJwtProperties {
 		this.enabled = enabled;
 	}
 	
-	public boolean isValidateCaptcha() {
-		return validateCaptcha;
-	}
-
-	public void setValidateCaptcha(boolean validateCaptcha) {
-		this.validateCaptcha = validateCaptcha;
-	}
-
-	public String getSessoionCaptchaKey() {
-		return sessoionCaptchaKey;
-	}
-
-	public void setSessoionCaptchaKey(String sessoionCaptchaKey) {
-		this.sessoionCaptchaKey = sessoionCaptchaKey;
-	}
-
-	public String getSessionControlCacheName() {
-		return sessionControlCacheName;
-	}
-
-	public void setSessionControlCacheName(String sessionControlCacheName) {
-		this.sessionControlCacheName = sessionControlCacheName;
-	}
-
 	public String getAuthorizationCacheName() {
         return authorizationCacheName;
     }

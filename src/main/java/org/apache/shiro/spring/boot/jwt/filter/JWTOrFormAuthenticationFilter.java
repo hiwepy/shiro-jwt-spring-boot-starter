@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.spring.boot.jwt.token.JWTAuthenticationToken;
+import org.apache.shiro.spring.boot.jwt.token.StatelessToken;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
 
@@ -108,7 +108,7 @@ public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
         return httpRequest.getHeader(getAuthorizationHeaderName());
     }
 
-    public JWTAuthenticationToken createToken(String token) {
+    public StatelessToken createToken(String token) {
         try {
             
         	JWSObject jwsObject = JWSObject.parse(token);
@@ -117,7 +117,7 @@ public final class JWTOrFormAuthenticationFilter extends AuthenticatingFilter {
             JSONObject object = JSONObject.parseObject(decrypted);
 
             String userId = object.getString("sub");
-            return new JWTAuthenticationToken(userId, token, "");
+            return new StatelessToken(userId, token, "");
             
         } catch (ParseException ex) {
             throw new AuthenticationException(ex);

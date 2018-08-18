@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.authc.credential.AllowAllCredentialsMatcher;
 import org.apache.shiro.biz.realm.PrincipalRealmListener;
-import org.apache.shiro.biz.web.filter.authc.LoginListener;
-import org.apache.shiro.biz.web.filter.authc.LogoutListener;
+import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
+import org.apache.shiro.biz.web.filter.authc.listener.LogoutListener;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
 import org.apache.shiro.spring.boot.jwt.realm.JwtInternalAuthorizingRealm;
@@ -42,16 +42,16 @@ import org.springframework.util.ObjectUtils;
 @AutoConfigureBefore(ShiroWebAutoConfiguration.class)
 @ConditionalOnClass()
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ ShiroProperties.class, ShiroJwtProperties.class })
+@EnableConfigurationProperties({ ShiroBizProperties.class, ShiroJwtProperties.class })
 public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration implements ApplicationContextAware {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShiroJwtWebAutoConfiguration.class);
 	private ApplicationContext applicationContext;
 	
 	@Autowired
-	private ShiroProperties properties;
+	private ShiroBizProperties properties;
 	@Autowired
-	private ShiroJwtProperties casProperties;
+	private ShiroJwtProperties jwtProperties;
 	@Autowired
 	private ServerProperties serverProperties;
 	
@@ -119,31 +119,31 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	public Realm jwtRealm(@Qualifier("jwtRepository") JwtPrincipalRepository repository,
 			List<PrincipalRealmListener> realmsListeners) {
 		
-		JwtInternalAuthorizingRealm casRealm = new JwtInternalAuthorizingRealm();
+		JwtInternalAuthorizingRealm jwtRealm = new JwtInternalAuthorizingRealm();
 		//认证账号信息提供实现：认证信息、角色信息、权限信息；业务系统需要自己实现该接口
-		casRealm.setRepository(repository);
+		jwtRealm.setRepository(repository);
 		//凭证匹配器：该对象主要做密码校验
-		casRealm.setCredentialsMatcher(new AllowAllCredentialsMatcher());
+		jwtRealm.setCredentialsMatcher(new AllowAllCredentialsMatcher());
 		//Realm 执行监听：实现该接口可监听认证失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-		casRealm.setRealmsListeners(realmsListeners);
+		jwtRealm.setRealmsListeners(realmsListeners);
 		//缓存相关的配置：采用提供的默认配置即可
-		casRealm.setCachingEnabled(properties.isCachingEnabled());
+		jwtRealm.setCachingEnabled(properties.isCachingEnabled());
 		//认证缓存配置
-		casRealm.setAuthenticationCachingEnabled(properties.isAuthenticationCachingEnabled());
-		casRealm.setAuthenticationCacheName(properties.getAuthenticationCacheName());
+		jwtRealm.setAuthenticationCachingEnabled(properties.isAuthenticationCachingEnabled());
+		jwtRealm.setAuthenticationCacheName(properties.getAuthenticationCacheName());
 		//授权缓存配置
-		casRealm.setAuthorizationCachingEnabled(properties.isAuthorizationCachingEnabled());
-		casRealm.setAuthorizationCacheName(properties.getAuthorizationCacheName());
+		jwtRealm.setAuthorizationCachingEnabled(properties.isAuthorizationCachingEnabled());
+		jwtRealm.setAuthorizationCacheName(properties.getAuthorizationCacheName());
 		
-		//设置cas认证地址和应用服务地址
-		/*casRealm.setCasServerUrlPrefix(properties.getCasServerUrlPrefix());
+		//设置jwt认证地址和应用服务地址
+		/*jwtRealm.setCasServerUrlPrefix(properties.getCasServerUrlPrefix());
 		if(StringUtils.hasText(properties.getServerName())) {	
-			casRealm.setCasService(properties.getServerName());
+			jwtRealm.setCasService(properties.getServerName());
 		} else {
-			casRealm.setCasService(properties.getService());
+			jwtRealm.setCasService(properties.getService());
 		}*/
 		
-		return casRealm;
+		return jwtRealm;
 	}
 	
 	/**

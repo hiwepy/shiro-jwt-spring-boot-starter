@@ -1,9 +1,5 @@
 package org.apache.shiro.spring.boot;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.shiro.spring.boot.jwt.ShiroJwtFilterFactoryBean;
 import org.apache.shiro.spring.boot.jwt.filter.JWTOrFormAuthenticationFilter;
 import org.apache.shiro.spring.boot.jwt.filter.JwtLogoutFilter;
@@ -11,8 +7,8 @@ import org.apache.shiro.spring.boot.jwt.filter.JwtTokenValidationFilter;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
-import org.apache.shiro.web.filter.authc.AuthenticationFilter;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
+import org.jsets.shiro.config.ShiroProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -29,7 +25,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 
 
 @Configuration
@@ -37,7 +32,7 @@ import org.springframework.util.StringUtils;
 @AutoConfigureBefore(ShiroWebAutoConfiguration.class)
 @ConditionalOnClass()
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ ShiroProperties.class, ShiroJwtProperties.class })
+@EnableConfigurationProperties({ ShiroBizProperties.class, ShiroJwtProperties.class })
 public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration implements ApplicationContextAware {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShiroJwtWebFilterConfiguration.class);
