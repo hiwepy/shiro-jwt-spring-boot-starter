@@ -40,7 +40,7 @@ import io.jsonwebtoken.SignatureException;
  * @author wangjie (https://github.com/wj596)
  * @date 2016年6月31日
  */
-public class JsetsJwtMatcher implements CredentialsMatcher {
+public class JwtCredentialsMatcher implements CredentialsMatcher {
 	
 	private  ShiroProperties properties;
 	private  MessageConfig messages;

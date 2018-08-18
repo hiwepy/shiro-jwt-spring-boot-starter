@@ -51,7 +51,7 @@ public class ShiroJwtProperties {
 	public static final String HMAC_ALGORITHM_NAME_SHA1 = "HmacSHA1";// 126
 	public static final String HMAC_ALGORITHM_NAME_SHA256 = "HmacSHA256";// 256
 	public static final String HMAC_ALGORITHM_NAME_SHA512 = "HmacSHA512";// 512
-		
+    
 	/**
 	 * Enable Shiro JWT.
 	 */
@@ -68,7 +68,7 @@ public class ShiroJwtProperties {
 
 	private boolean authenticationCachingEnabled;
 	private String authenticationCacheName;
-
+	 
 	/** 登录地址：会话不存在时访问的地址 */
 	private String loginUrl;
 	/** 重定向地址：会话注销后的重定向地址 */
@@ -269,7 +269,7 @@ public class ShiroJwtProperties {
         }
     }
     
-    /**
+	/**
      * Returns {@code true} if caching should be used if a {@link CacheManager} has been
      * {@link #setCacheManager(org.apache.shiro.cache.CacheManager) configured}, {@code false} otherwise.
      * <p/>

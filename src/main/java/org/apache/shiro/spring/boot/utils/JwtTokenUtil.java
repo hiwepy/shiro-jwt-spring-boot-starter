@@ -23,6 +23,8 @@ import java.util.UUID;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.shiro.biz.utils.StringUtils;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.JwtBuilder;
@@ -205,5 +207,7 @@ class JwtTokenUtil {
 				.signWith(signatureAlgorithm, secret) // 设置算法（必须）
 				.compact();
 	}
+	
+	
 
 }

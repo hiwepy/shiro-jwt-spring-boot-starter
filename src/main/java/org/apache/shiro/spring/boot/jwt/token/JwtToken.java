@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, vindell (https://github.com/vindell).
+ * Copyright (c) 2018, vindell (https://github.com/vindell).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,38 +13,44 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-/**
- * 
- */
 package org.apache.shiro.spring.boot.jwt.token;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.HostAuthenticationToken;
 
 /**
- * * JWT令牌 *
- * 
- * @author wangjie (http://www.jianshu.com/u/ffa3cba4c604) *
- * @date 2016年6月24日 下午2:55:15
+ * JWT(json web token) Token
+ * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtToken implements AuthenticationToken {
-	
-	private String jwt;
-	// json web token
-	private String host;// 客户端IP
+@SuppressWarnings("serial")
+public class JwtToken implements HostAuthenticationToken {
 
-	public JwtToken(String jwt, String host) {
-		this.jwt = jwt;
+	// 客户端IP
+	private String host;
+	// JWT(json web token)令牌
+	private String token;
+	
+	public JwtToken(String host, String token) {
 		this.host = host;
+		this.token = token;
 	}
 
 	@Override
 	public Object getPrincipal() {
-		return this.jwt;
+		return this.token;
 	}
 
 	@Override
 	public Object getCredentials() {
 		return Boolean.TRUE;
+	}
+	
+	@Override
+	public String getHost() {
+		return host;
+	}
+
+	public String getToken() {
+		return token;
 	}
 	
 }

@@ -12,8 +12,8 @@ import org.apache.shiro.biz.realm.PrincipalRealmListener;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.biz.web.filter.authc.listener.LogoutListener;
 import org.apache.shiro.realm.Realm;
-import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
 import org.apache.shiro.spring.boot.jwt.realm.JwtInternalAuthorizingRealm;
+import org.apache.shiro.spring.boot.jwt.token.JwtFactory;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.config.AbstractShiroWebConfiguration;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -116,7 +116,7 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	}
 	
 	@Bean
-	public Realm jwtRealm(@Qualifier("jwtRepository") JwtPrincipalRepository repository,
+	public Realm jwtRealm(@Qualifier("jwtRepository") JwtFactory repository,
 			List<PrincipalRealmListener> realmsListeners) {
 		
 		JwtInternalAuthorizingRealm jwtRealm = new JwtInternalAuthorizingRealm();
