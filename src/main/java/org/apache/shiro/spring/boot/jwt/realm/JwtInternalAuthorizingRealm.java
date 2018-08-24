@@ -6,7 +6,7 @@ import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
 import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
 import org.apache.shiro.biz.realm.InternalAuthorizingRealm;
-import org.apache.shiro.spring.boot.jwt.token.JwtFactory;
+import org.apache.shiro.spring.boot.jwt.token.JwtRepository;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.util.ByteSource;
 
@@ -26,16 +26,16 @@ public class JwtInternalAuthorizingRealm extends InternalAuthorizingRealm {
 	protected AuthenticationInfo doGetInternalAuthenticationInfo(AuthenticationToken token) {
 
 		SimpleAccount account = null;
-		if (getRepository() instanceof JwtFactory) {
+		if (getRepository() instanceof JwtRepository) {
 
-			JwtFactory jwtRepository = (JwtFactory) getRepository();
+			JwtRepository jwtRepository = (JwtRepository) getRepository();
 			JwtToken upToken = (JwtToken) token;
 
 			// do real thing
 			// new delegate authentication token and invoke doAuthc method
 			DelegateAuthenticationInfo delegateAuthcInfo = getRepository()
 					.getAuthenticationInfo(this.createDelegateAuthenticationToken(token));
-			if (delegateAuthcInfo != null && jwtRepository.validateToken(upToken.getToken())) {
+			if (delegateAuthcInfo != null && jwtRepository.valideJwt(upToken.getToken(), authorizationCacheName)) {
 				account = new SimpleAccount(delegateAuthcInfo.getPrincipal(), delegateAuthcInfo.getCredentials(),
 						ByteSource.Util.bytes(delegateAuthcInfo.getCredentialsSalt()), getName());
 			}

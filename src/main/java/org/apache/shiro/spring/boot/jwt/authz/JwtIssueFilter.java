@@ -11,7 +11,7 @@ import javax.servlet.ServletResponse;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
-import org.apache.shiro.spring.boot.jwt.token.JwtFactory;
+import org.apache.shiro.spring.boot.jwt.token.JwtRepository;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 
@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
  */
 public final class JwtIssueFilter extends AccessControlFilter {
 
-	private JwtFactory jwtFactory;
+	private JwtRepository jwtFactory;
 	private String signingKey;
 	private String issuer;
 	

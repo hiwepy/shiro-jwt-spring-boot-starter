@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * TODO
@@ -27,7 +28,9 @@ public class JwtPlayload {
 	private String clientId;// 客户标识（用户名、账号）
 	private String issuer;// 签发者(JWT令牌此项有值)
 	private Date issuedAt;// 签发时间
-	private String audience;// 接收方(JWT令牌此项有值)
+	private Date expiration;// 过期时间
+	private Date notBefore;// not-before 时间
+	private List<String> audience;// 接收方(JWT令牌此项有值)
 	private String roles;// 访问主张-角色(JWT令牌此项有值)
 	private String perms;// 访问主张-资源(JWT令牌此项有值)
 	private String host;// 客户地址
@@ -63,12 +66,28 @@ public class JwtPlayload {
 	public void setIssuedAt(Date issuedAt) {
 		this.issuedAt = issuedAt;
 	}
+	
+	public Date getExpiration() {
+		return expiration;
+	}
 
-	public String getAudience() {
+	public void setExpiration(Date expiration) {
+		this.expiration = expiration;
+	}
+
+	public Date getNotBefore() {
+		return notBefore;
+	}
+
+	public void setNotBefore(Date notBefore) {
+		this.notBefore = notBefore;
+	}
+
+	public List<String> getAudience() {
 		return audience;
 	}
 
-	public void setAudience(String audience) {
+	public void setAudience(List<String> audience) {
 		this.audience = audience;
 	}
 
