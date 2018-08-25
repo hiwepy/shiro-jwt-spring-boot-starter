@@ -35,6 +35,9 @@ public class JwtInternalAuthorizingRealm extends InternalAuthorizingRealm {
 			// new delegate authentication token and invoke doAuthc method
 			DelegateAuthenticationInfo delegateAuthcInfo = getRepository()
 					.getAuthenticationInfo(this.createDelegateAuthenticationToken(token));
+			
+			jwtRepository.verify(signingKey, token)
+			
 			if (delegateAuthcInfo != null && jwtRepository.valideJwt(upToken.getToken(), authorizationCacheName)) {
 				account = new SimpleAccount(delegateAuthcInfo.getPrincipal(), delegateAuthcInfo.getCredentials(),
 						ByteSource.Util.bytes(delegateAuthcInfo.getCredentialsSalt()), getName());

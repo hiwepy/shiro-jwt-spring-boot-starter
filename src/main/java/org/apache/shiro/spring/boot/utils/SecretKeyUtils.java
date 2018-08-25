@@ -50,6 +50,8 @@ public class SecretKeyUtils {
 	 */
 	public final static String KEY_RSA  = "RSA";
 	
+	public final static String KEY_ECDSA  = "ECDSA";
+	
 	/** 密钥大小 */
 	public static final int KEY_SIZE = 128;
 	public static final int CACHE_SIZE = 1024;

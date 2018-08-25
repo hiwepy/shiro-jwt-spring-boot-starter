@@ -1,11 +1,9 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 
-public interface JwtRepository<S> extends ShiroPrincipalRepository<ShiroPrincipal> {
+public interface JwtNestedRepository<S,E> {
 
 	/**
 	 * 
@@ -22,12 +20,12 @@ public interface JwtRepository<S> extends ShiroPrincipalRepository<ShiroPrincipa
      * @return json web token 
 	 * @throws Exception
 	 */
-	public abstract String issueJwt(S signingKey, String id, String subject, String issuer, Long period,
+	public abstract String issueJwt(S signingKey, E encryptKey, String id, String subject, String issuer, Long period,
 			String roles, String permissions, String algorithm) throws AuthenticationException;
 
 	
-	public abstract JwtPlayload getPlayload(S signingKey, String jwt) throws AuthenticationException;
+	public abstract JwtPlayload getPlayload(S signingKey, E encryptKey, String jwt) throws AuthenticationException;
 	
-	public abstract boolean verify(S signingKey, String token) throws AuthenticationException;
+	public abstract boolean verify(S signingKey, E encryptKey, String token) throws AuthenticationException;
 	
 }

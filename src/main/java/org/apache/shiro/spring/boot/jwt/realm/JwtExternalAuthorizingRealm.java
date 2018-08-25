@@ -23,11 +23,11 @@ import com.google.common.collect.Sets;
  * 
  * @author <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtExternalAuthorizingRealm extends ExternalAuthorizingRealm {
+public class JwtExternalAuthorizingRealm<S> extends ExternalAuthorizingRealm {
 
 	private ShiroJwtProperties jwtProperties;
 	
-	private JwtRepository jwtRepository;
+	private JwtRepository<S> jwtRepository;
 	
 	public Class<?> getAuthenticationTokenClass() {
 		return JwtToken.class;// 此Realm只支持JwtToken

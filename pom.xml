@@ -454,6 +454,7 @@
 		    <groupId>io.jsonwebtoken</groupId>
 		    <artifactId>jjwt</artifactId>
 		    <version>${jjwt.version}</version>
+		    <scope>provided</scope>
 		</dependency>
 		
 		<!-- https://github.com/vindell/spring-boot-starter-shiro-biz -->

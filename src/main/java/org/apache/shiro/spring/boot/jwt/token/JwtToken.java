@@ -41,7 +41,7 @@ public class JwtToken implements HostAuthenticationToken {
 
 	@Override
 	public Object getCredentials() {
-		return Boolean.TRUE;
+		return this.token;
 	}
 	
 	@Override

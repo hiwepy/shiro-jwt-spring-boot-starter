@@ -15,25 +15,17 @@
  */
 package org.apache.shiro.spring.boot.jwt.token;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
 import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.utils.JJwtUtils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
@@ -42,7 +34,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
 
-public class JwtJJwtRepository implements JwtRepository {
+public class JwtJJwtRepository implements JwtRepository<String> {
 
 	/**
 	 * TODO
@@ -57,44 +49,9 @@ public class JwtJJwtRepository implements JwtRepository {
 	 * @return
 	 */
 	@Override
-	public String issueJwt(String signingKey,String id, String subject, String issuer, Long period, String roles, String permissions,
+	public String issueJwt(String base64Secret,String id, String subject, String issuer, Long period, String roles, String permissions,
 			String algorithm)  throws AuthenticationException {
-		
-		// 当前时间戳
-		long currentTimeMillis = System.currentTimeMillis();
-		JwtBuilder jwt = Jwts.builder();
-		// Jwt主键ID
-		if (StringUtils.hasText(id)) {
-			jwt.setId(id);
-		}
-		// 用户名主题
-		jwt.setSubject(subject);
-		// 签发者
-		if (StringUtils.hasText(issuer)) {
-			jwt.setIssuer(issuer);
-		}
-		// 签发时间
-		jwt.setIssuedAt(new Date(currentTimeMillis));
-		if (null != period) {
-			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period);
-			jwt.setExpiration(expiration);
-		}
-		// 角色
-		if (StringUtils.hasText(roles)) {
-			jwt.claim("roles", roles);
-		}
-		// 权限
-		if (StringUtils.hasText(permissions)) {
-			jwt.claim("perms", permissions);
-		}
-		// 压缩，可选GZIP
-		jwt.compressWith(CompressionCodecs.DEFLATE);
-		// 秘钥
-		byte[] secretKeyBytes = Base64.decodeBase64(signingKey);
-		// 加密设置
-		jwt.signWith(SignatureAlgorithm.forName(algorithm), secretKeyBytes);
-		return jwt.compact();
+		return JJwtUtils.genToken(base64Secret, id, subject, issuer, period, roles, permissions, algorithm);
 	}
 	
 	/**
@@ -105,21 +62,9 @@ public class JwtJJwtRepository implements JwtRepository {
 	 * @throws Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(String signingKey, String jwt)  throws AuthenticationException {
-		JwtPlayload jwtPlayload;
+	public JwtPlayload getPlayload(String base64Secret, String token)  throws AuthenticationException {
 		try {
-			Claims claims = Jwts.parser().setSigningKey(Base64.decodeBase64(signingKey))
-					.parseClaimsJws(jwt).getBody();
-			jwtPlayload = new JwtPlayload();
-			jwtPlayload.setTokenId(claims.getId());
-			jwtPlayload.setClientId(claims.getSubject());// 用户名
-			jwtPlayload.setIssuer(claims.getIssuer());// 签发者
-			jwtPlayload.setIssuedAt(claims.getIssuedAt());// 签发时间
-			jwtPlayload.setExpiration(claims.getExpiration()); // 过期时间
-			jwtPlayload.setNotBefore(claims.getNotBefore());
-			jwtPlayload.setAudience(Arrays.asList(claims.getAudience()));// 接收方
-			jwtPlayload.setRoles(claims.get("roles", String.class));// 访问主张-角色
-			jwtPlayload.setPerms(claims.get("perms", String.class));// 访问主张-权限
+			return JJwtUtils.playload(base64Secret, token);
 		} catch (ExpiredJwtException e) {
 			throw new AuthenticationException("JWT 令牌过期:" + e.getMessage());
 		} catch (UnsupportedJwtException e) {
@@ -133,20 +78,6 @@ public class JwtJJwtRepository implements JwtRepository {
 		} catch (Exception e) {
 			throw new AuthenticationException("JWT 令牌错误:" + e.getMessage());
 		}
-		return jwtPlayload;
-	}
-
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param token
-	 * @return
-	 */
-	@Override
-	public boolean valideJwt(String signingKey, String token) throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	/**
@@ -156,6 +87,7 @@ public class JwtJJwtRepository implements JwtRepository {
 	 * @return
 	 * @throws AuthenticationException
 	 */
+	
 	@Override
 	public DelegateAuthenticationInfo getAuthenticationInfo(DelegateAuthenticationToken token)
 			throws AuthenticationException {
@@ -214,5 +146,22 @@ public class JwtJJwtRepository implements JwtRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	/**
+	 * TODO
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param base64Secret
+	 * @param token
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	
+	@Override
+	public boolean verify(String base64Secret, String token) throws AuthenticationException {
+		// TODO Auto-generated method stub
+		return JJwtUtils.isTokenExpired(base64Secret, token);
+	}
+
+
 	
 }

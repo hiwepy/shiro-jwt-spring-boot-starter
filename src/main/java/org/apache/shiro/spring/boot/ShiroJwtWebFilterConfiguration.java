@@ -1,14 +1,13 @@
 package org.apache.shiro.spring.boot;
 
-import org.apache.shiro.spring.boot.jwt.ShiroJwtFilterFactoryBean;
-import org.apache.shiro.spring.boot.jwt.filter.JWTOrFormAuthenticationFilter;
-import org.apache.shiro.spring.boot.jwt.filter.JwtLogoutFilter;
-import org.apache.shiro.spring.boot.jwt.filter.JwtTokenValidationFilter;
+import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
+import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticatingFilter;
+import org.apache.shiro.spring.boot.jwt.authz.JwtAuthorizationFilter;
+import org.apache.shiro.spring.boot.jwt.authz.JwtIssueFilter;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
-import org.jsets.shiro.config.ShiroProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -39,78 +38,55 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
 	private ApplicationContext applicationContext;
 	
 	@Autowired
-	private ShiroProperties properties;
+	private ShiroBizProperties properties;
 	@Autowired
 	private ShiroJwtProperties casProperties;
 	@Autowired
 	private ServerProperties serverProperties;
 
 	/**
-	 * Jwt Authentication Filter </br>
+	 * JSON Web Token (JWT) Authentication Filter </br>
 	 * 该过滤器负责用户的认证工作
 	 */
 	@Bean("authc")
 	@ConditionalOnMissingBean(name = "authc")
-	public FilterRegistrationBean authenticationFilter(ShiroJwtProperties properties){
-		FilterRegistrationBean registration = new FilterRegistrationBean(); 
-		JWTOrFormAuthenticationFilter authenticationFilter = new JWTOrFormAuthenticationFilter();
+	public FilterRegistrationBean<JwtAuthorizationFilter> authenticationFilter(ShiroJwtProperties properties){
+		FilterRegistrationBean<JwtAuthorizationFilter> registration = new FilterRegistrationBean<JwtAuthorizationFilter>(); 
+		JwtAuthorizationFilter authenticationFilter = new JwtAuthorizationFilter();
 		//authenticationFilter.setFailureUrl(properties.getFailureUrl());
 		registration.setFilter(authenticationFilter);
 	    registration.setEnabled(false); 
 	    return registration;
 	}
-
+	
 	/**
-	 * Jwt Token Validation Filter </br>
+	 * JSON Web Token (JWT) Issue Filter </br>
 	 * 该过滤器负责对Token的校验工作
 	 */
-	@Bean("tokenValid")
-	@ConditionalOnMissingBean(name = "tokenValid")
-	public FilterRegistrationBean tokenValidationFilter(ShiroJwtProperties properties) {
-		FilterRegistrationBean filterRegistration = new FilterRegistrationBean();
-		filterRegistration.setFilter(new JwtTokenValidationFilter());
-		filterRegistration.setEnabled(false); 
-		 
-		// JwtTokenValidationFilter
-		/*filterRegistration.addInitParameter(ConfigurationKeys.ENCODE_SERVICE_URL.getName(), Boolean.toString(properties.isEncodeServiceUrl()));
-		if(StringUtils.hasText(properties.getEncoding())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.ENCODING.getName(), properties.getEncoding());
-		}
-		filterRegistration.addInitParameter(ConfigurationKeys.EXCEPTION_ON_VALIDATION_FAILURE.getName(), Boolean.toString(properties.isExceptionOnValidationFailure()));
-		filterRegistration.addInitParameter(ConfigurationKeys.CAS_SERVER_LOGIN_URL.getName(), properties.getCasServerLoginUrl());
-		filterRegistration.addInitParameter(ConfigurationKeys.CAS_SERVER_URL_PREFIX.getName(), properties.getCasServerUrlPrefix());
-		if(StringUtils.hasText(properties.getHostnameVerifier())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.HOSTNAME_VERIFIER.getName(), properties.getHostnameVerifier());
-		}
-		if(StringUtils.hasText(properties.getHostnameVerifierConfig())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.HOSTNAME_VERIFIER_CONFIG.getName(), properties.getHostnameVerifierConfig());
-		}
-		filterRegistration.addInitParameter(ConfigurationKeys.REDIRECT_AFTER_VALIDATION.getName(), Boolean.toString(properties.isRedirectAfterValidation()));
-		//filterRegistration.addInitParameter(ConfigurationKeys.RENEW.getName(), Boolean.toString(properties.isRenew()));
-		if(StringUtils.hasText(properties.getServerName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.SERVER_NAME.getName(), properties.getServerName());
-		} else if(StringUtils.hasText(properties.getService())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.SERVICE.getName(), properties.getService());
-		}
-		if(StringUtils.hasText(properties.getSslConfigFile())) {
-			filterRegistration.addInitParameter(ConfigurationKeys.SSL_CONFIG_FILE.getName(), properties.getSslConfigFile());
-		}
-		filterRegistration.addInitParameter(ConfigurationKeys.USE_SESSION.getName(), Boolean.toString(properties.isUseSession()));
-		*/
-		
-	    return filterRegistration;
+	@Bean("issue")
+	@ConditionalOnMissingBean(name = "issue")
+	public FilterRegistrationBean<JwtIssueFilter> jwtIssueFilter(ShiroJwtProperties properties){
+		FilterRegistrationBean<JwtIssueFilter> registration = new FilterRegistrationBean<JwtIssueFilter>(); 
+		JwtIssueFilter jwtIssueFilter = new JwtIssueFilter();
+		//jwtIssueFilter.setFailureUrl(properties.getFailureUrl());
+		registration.setFilter(jwtIssueFilter);
+	    registration.setEnabled(false); 
+	    return registration;
 	}
-
+	
 	/**
-	 * Jwt Logout Filter </br>
+	 * JSON Web Token (JWT) Validation Filter </br>
+	 * 该过滤器负责对Token的校验工作
 	 */
-	@Bean("logout")
-	@ConditionalOnMissingBean(name = "logout")
-	public FilterRegistrationBean logoutFilter(ShiroJwtProperties properties) {
-		FilterRegistrationBean filterRegistration = new FilterRegistrationBean();
-		filterRegistration.setFilter(new JwtLogoutFilter());
-		filterRegistration.setEnabled(false);
-		return filterRegistration;
+	@Bean("token")
+	@ConditionalOnMissingBean(name = "token")
+	public FilterRegistrationBean<JwtAuthenticatingFilter> authenticatingFilter(ShiroJwtProperties properties){
+		FilterRegistrationBean<JwtAuthenticatingFilter> registration = new FilterRegistrationBean<JwtAuthenticatingFilter>(); 
+		JwtAuthenticatingFilter authenticatingFilter = new JwtAuthenticatingFilter();
+		//authenticatingFilter.setFailureUrl(properties.getFailureUrl());
+		registration.setFilter(authenticatingFilter);
+	    registration.setEnabled(false); 
+	    return registration;
 	}
 	
 	@Bean
@@ -118,7 +94,7 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
     @Override
     protected ShiroFilterFactoryBean shiroFilterFactoryBean() {
 		
-		ShiroFilterFactoryBean filterFactoryBean = new ShiroJwtFilterFactoryBean();
+		ShiroFilterFactoryBean filterFactoryBean = new ShiroBizFilterFactoryBean();
 		//系统主页：登录成功后跳转路径
         filterFactoryBean.setSuccessUrl(properties.getSuccessUrl());
         //异常页面：无权限时的跳转路径
@@ -135,9 +111,9 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
 
     @Bean(name = "filterShiroFilterRegistrationBean")
     @ConditionalOnMissingBean
-    protected FilterRegistrationBean filterShiroFilterRegistrationBean() throws Exception {
+    protected FilterRegistrationBean<AbstractShiroFilter> filterShiroFilterRegistrationBean() throws Exception {
 
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        FilterRegistrationBean<AbstractShiroFilter> filterRegistrationBean = new FilterRegistrationBean<AbstractShiroFilter>();
         filterRegistrationBean.setFilter((AbstractShiroFilter) shiroFilterFactoryBean().getObject());
         filterRegistrationBean.setOrder(Integer.MAX_VALUE);
 
