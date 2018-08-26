@@ -27,8 +27,6 @@ public class JwtExternalAuthorizingRealm<S> extends ExternalAuthorizingRealm {
 
 	private ShiroJwtProperties jwtProperties;
 	
-	private JwtRepository<S> jwtRepository;
-	
 	public Class<?> getAuthenticationTokenClass() {
 		return JwtToken.class;// 此Realm只支持JwtToken
 	}
@@ -72,14 +70,5 @@ public class JwtExternalAuthorizingRealm<S> extends ExternalAuthorizingRealm {
 	public void setJwtProperties(ShiroJwtProperties jwtProperties) {
 		this.jwtProperties = jwtProperties;
 	}
-
-	public JwtRepository getJwtRepository() {
-		return jwtRepository;
-	}
-
-	public void setJwtRepository(JwtRepository jwtRepository) {
-		this.jwtRepository = jwtRepository;
-	}
-
 	
 }

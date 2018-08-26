@@ -11,6 +11,7 @@ import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
+import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
 import org.apache.shiro.spring.boot.jwt.token.JwtRepository;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
@@ -23,10 +24,7 @@ import com.google.common.collect.Maps;
  */
 public final class JwtIssueFilter extends AccessControlFilter {
 
-	private JwtRepository jwtFactory;
-	private String signingKey;
-	private String issuer;
-	private ShiroPrincipalRepository<ShiroPrincipal> principalRepository;
+	private JwtPrincipalRepository principalRepository;
 	
 	@Override
 	public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
@@ -44,6 +42,9 @@ public final class JwtIssueFilter extends AccessControlFilter {
 	        data.put("status", HttpStatus.SC_OK);
 	        data.put("jwt", jwt);
 			
+	        getPrincipalRepository().getAuthenticationInfo(token)
+	        
+	        
 			if (WebUtils.isAjaxRequest(request)) {
 				// 响应成功状态信息
 		        WebUtils.writeJSONString(response, data);
@@ -63,5 +64,13 @@ public final class JwtIssueFilter extends AccessControlFilter {
 	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
 		return false;
 	}
-    
+
+	public JwtPrincipalRepository getPrincipalRepository() {
+		return principalRepository;
+	}
+
+	public void setPrincipalRepository(JwtPrincipalRepository principalRepository) {
+		this.principalRepository = principalRepository;
+	}
+	
 }

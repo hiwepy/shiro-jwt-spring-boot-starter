@@ -18,7 +18,7 @@ package org.apache.shiro.spring.boot.jwt.token;
 import org.apache.shiro.authc.HostAuthenticationToken;
 
 /**
- * JWT(json web token) Token
+ * JSON Web Token (JWT) Token
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
 @SuppressWarnings("serial")
@@ -26,7 +26,7 @@ public class JwtToken implements HostAuthenticationToken {
 
 	// 客户端IP
 	private String host;
-	// JWT(json web token)令牌
+	// JSON Web Token (JWT) 令牌
 	private String token;
 	
 	public JwtToken(String host, String token) {
