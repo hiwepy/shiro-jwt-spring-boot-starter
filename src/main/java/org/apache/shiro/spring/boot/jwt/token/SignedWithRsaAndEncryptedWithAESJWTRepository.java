@@ -17,7 +17,8 @@ package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
 
-import org.apache.commons.codec.binary.Base64;
+import javax.crypto.SecretKey;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
@@ -34,23 +35,24 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jose.crypto.RSADecrypter;
-import com.nimbusds.jose.crypto.RSAEncrypter;
+import com.nimbusds.jose.crypto.DirectDecrypter;
+import com.nimbusds.jose.crypto.DirectEncrypter;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 /**
- * JSON Web Token (JWT) with HMAC signature and RSA encryption <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-hmac <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption <br/>
+ * JSON Web Token (JWT) with RSA signature and RSA encryption <br/>
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-signature <br/>
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwe-with-shared-key <br/>
  * https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
  */
-public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNestedRepository<String, RSAKey> {
-
+public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedRepository<RSAKey, SecretKey> {
+	
 	/**
+	 * @author ：<a href="https://github.com/vindell">vindell</a>
 	 * @param id
 	 * @param subject
 	 * @param issuer
@@ -58,44 +60,46 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	 * @param roles
 	 * @param permissions
 	 * @param algorithm: <br/>
-	 * 	HS256 - HMAC with SHA-256, requires 256+ bit secret<br/>
-     * 	HS384 - HMAC with SHA-384, requires 384+ bit secret<br/>
-     * 	HS512 - HMAC with SHA-512, requires 512+ bit secret<br/>
+	 * 	RS256 - RSA PKCS#1 signature with SHA-256 <br/>
+	 * 	RS384 - RSA PKCS#1 signature with SHA-384 <br/>
+	 * 	RS512 - RSA PKCS#1 signature with SHA-512 <br/>
+	 * 	PS256 - RSA PSS signature with SHA-256 <br/>
+	 * 	PS384 - RSA PSS signature with SHA-384 <br/>
+	 * 	PS512 - RSA PSS signature with SHA-512 <br/>
 	 * @return JSON Web Token (JWT)
 	 * @throws Exception 
 	 */
 	@Override
-	public String issueJwt(String signingKey, RSAKey encryptKey, String id, String subject, String issuer, Long period, String roles,
+	public String issueJwt(RSAKey signingKey, SecretKey encryptKey, String id, String subject, String issuer, Long period, String roles,
 			String permissions, String algorithm)  throws AuthenticationException {
-
+		 
 		try {
 			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
-						
-			//-------------------- Setup 1：Hamc Signature --------------------
 			
-			// Request JWS Header with HMAC JWSAlgorithm
-			JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(algorithm));
+			//-------------------- Setup 1：RSA Signature --------------------
+			
+			// Request JWS Header with RSA JWSAlgorithm
+			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(signingKey.getKeyID()).build();
 			SignedJWT signedJWT = new SignedJWT(jwsHeader, claimsSet);
 			
-			// Create HMAC signer
-			byte[] secret = Base64.decodeBase64(signingKey);
-			JWSSigner signer = new MACSigner(secret);
+			// Create RSA-signer with the private key
+			JWSSigner signer = new RSASSASigner(signingKey);
 			
-			// Compute the HMAC signature
+			// Compute the RSA signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 2：RSA Encrypt ----------------------
+			//-------------------- Setup 2：AES Encrypt ----------------------
 			
-			// Request JWT encrypted with RSA-OAEP-256 and 256-bit AES/GCM
-			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM);
+			// Request JWT encrypted with DIR and 128-bit AES/GCM
+			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
 			
 			// Create JWE object with signed JWT as payload
 			JWEObject jweObject = new JWEObject( jweHeader, new Payload(signedJWT));
 			
-			// Create an encrypter with the specified public RSA key
-			JWEEncrypter encrypter = new RSAEncrypter(encryptKey.toPublicJWK());
+			// Create an encrypter with the specified public AES key
+			JWEEncrypter encrypter = new DirectEncrypter(encryptKey);
 						
 			// Do the actual encryption
 			jweObject.encrypt(encrypter);
@@ -111,26 +115,25 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public boolean verify(String signingKey, RSAKey encryptKey, String token) throws AuthenticationException {
+	public boolean verify(RSAKey signingKey, SecretKey encryptKey, String token) throws AuthenticationException {
 
 		try {
 			
-			//-------------------- Setup 1：RSA Decrypt ----------------------
+			//-------------------- Setup 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
 			
-			// Decrypt with private key
-			jweObject.decrypt(new RSADecrypter(encryptKey));
+			// Decrypt with AES key
+			jweObject.decrypt(new DirectDecrypter(encryptKey));
 			
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：Hamc Verify --------------------
+			//-------------------- Setup 2：RSA Verify --------------------
 			
-			// Create HMAC verifier
-			byte[] secret = Base64.decodeBase64(signingKey);
-			JWSVerifier verifier = new MACVerifier(secret); 
+			// Create RSA verifier
+			JWSVerifier verifier = new RSASSAVerifier(signingKey.toPublicJWK());
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return NimbusdsUtils.verify(signedJWT, verifier);
@@ -145,16 +148,16 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(String signingKey, RSAKey encryptKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(RSAKey signingKey, SecretKey encryptKey, String token)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：RSA Decrypt ----------------------
+			//-------------------- Setup 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
 			
-			// Decrypt with private key
-			jweObject.decrypt(new RSADecrypter(encryptKey));
+			// Decrypt with AES key
+			jweObject.decrypt(new DirectDecrypter(encryptKey));
 			
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();

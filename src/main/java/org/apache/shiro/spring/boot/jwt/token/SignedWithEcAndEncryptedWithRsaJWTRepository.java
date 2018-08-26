@@ -44,8 +44,8 @@ import com.nimbusds.jwt.SignedJWT;
 
 /**
  * JSON Web Token (JWT) with HMAC signature and RSA encryption <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-hmac
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-ec-signature <br/>
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption <br/>
  * https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
  */
 public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRepository<ECKey,RSAKey> {

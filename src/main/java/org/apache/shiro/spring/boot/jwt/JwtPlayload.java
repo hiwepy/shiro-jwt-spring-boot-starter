@@ -114,5 +114,5 @@ public class JwtPlayload {
 	public void setHost(String host) {
 		this.host = host;
 	}
-
+	
 }

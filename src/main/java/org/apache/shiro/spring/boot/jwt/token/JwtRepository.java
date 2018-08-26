@@ -1,11 +1,9 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 
-public interface JwtRepository<S> extends ShiroPrincipalRepository<ShiroPrincipal> {
+public interface JwtRepository<S>{
 
 	/**
 	 * 

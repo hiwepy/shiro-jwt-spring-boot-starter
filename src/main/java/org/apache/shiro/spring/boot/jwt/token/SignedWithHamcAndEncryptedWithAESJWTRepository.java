@@ -17,6 +17,8 @@ package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
 
+import javax.crypto.SecretKey;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
@@ -34,21 +36,20 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.DirectDecrypter;
+import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jose.crypto.RSADecrypter;
-import com.nimbusds.jose.crypto.RSAEncrypter;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 /**
  * JSON Web Token (JWT) with HMAC signature and RSA encryption <br/>
  * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-hmac <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption <br/>
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwe-with-shared-key <br/>
  * https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
  */
-public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNestedRepository<String, RSAKey> {
+public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNestedRepository<String, SecretKey> {
 
 	/**
 	 * @param id
@@ -65,7 +66,7 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	 * @throws Exception 
 	 */
 	@Override
-	public String issueJwt(String signingKey, RSAKey encryptKey, String id, String subject, String issuer, Long period, String roles,
+	public String issueJwt(String signingKey, SecretKey encryptKey, String id, String subject, String issuer, Long period, String roles,
 			String permissions, String algorithm)  throws AuthenticationException {
 
 		try {
@@ -88,14 +89,14 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 			
 			//-------------------- Setup 2：RSA Encrypt ----------------------
 			
-			// Request JWT encrypted with RSA-OAEP-256 and 256-bit AES/GCM
-			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM);
+			// Request JWT encrypted with DIR and 128-bit AES/GCM
+			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
 			
 			// Create JWE object with signed JWT as payload
 			JWEObject jweObject = new JWEObject( jweHeader, new Payload(signedJWT));
 			
-			// Create an encrypter with the specified public RSA key
-			JWEEncrypter encrypter = new RSAEncrypter(encryptKey.toPublicJWK());
+			// Create an encrypter with the specified public AES key
+			JWEEncrypter encrypter = new DirectEncrypter(encryptKey);
 						
 			// Do the actual encryption
 			jweObject.encrypt(encrypter);
@@ -111,17 +112,17 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public boolean verify(String signingKey, RSAKey encryptKey, String token) throws AuthenticationException {
+	public boolean verify(String signingKey, SecretKey encryptKey, String token) throws AuthenticationException {
 
 		try {
 			
-			//-------------------- Setup 1：RSA Decrypt ----------------------
+			//-------------------- Setup 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
 			
-			// Decrypt with private key
-			jweObject.decrypt(new RSADecrypter(encryptKey));
+			// Decrypt with AES key
+			jweObject.decrypt(new DirectDecrypter(encryptKey));
 			
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
@@ -145,16 +146,16 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(String signingKey, RSAKey encryptKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(String signingKey, SecretKey encryptKey, String token)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：RSA Decrypt ----------------------
+			//-------------------- Setup 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
 			
-			// Decrypt with private key
-			jweObject.decrypt(new RSADecrypter(encryptKey));
+			// Decrypt with AES key
+			jweObject.decrypt(new DirectDecrypter(encryptKey));
 			
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();

@@ -1,7 +1,5 @@
 package org.apache.shiro.spring.boot.jwt.authz;
 
-import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -9,13 +7,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.token.JwtRepository;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 
 /**
@@ -27,6 +26,7 @@ public final class JwtIssueFilter extends AccessControlFilter {
 	private JwtRepository jwtFactory;
 	private String signingKey;
 	private String issuer;
+	private ShiroPrincipalRepository<ShiroPrincipal> principalRepository;
 	
 	@Override
 	public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {

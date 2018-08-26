@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
@@ -35,10 +34,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * TODO
- * 
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
-
 public class JJwtUtils {
 
 	public static final String ROLE_REFRESH_TOKEN = "ROLE_REFRESH_TOKEN";
@@ -48,28 +45,15 @@ public class JJwtUtils {
 	public static final String CLAIM_KEY_ACCOUNT_NON_LOCKED = "non_locked";
 	public static final String CLAIM_KEY_ACCOUNT_NON_EXPIRED = "non_expired";
 
-	public static String genToken(String signatureAlgorithm, String base64Secret, String subject,
-			Map<String, Object> claims, long expiration) {
-		return Jwts.builder().setClaims(claims)
-				.setSubject(subject) // 设置主题
-				.setHeaderParam("typ", "JWT")
-				.setId(UUID.randomUUID().toString())
-				.setIssuedAt(new Date())
-				.setExpiration(generateExpirationDate(expiration))
-				.compressWith(CompressionCodecs.DEFLATE)
-				.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret) // 设置算法（必须）
-				.compact();
-	}
-
-	public static String genToken(String base64Secret, String id, String subject, String issuer, Long period,
-			String roles, String permissions, String signatureAlgorithm) {
+	public static String genToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
+			String issuer, Map<String, Object> claims, long period) {
 
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
-		JwtBuilder jwt = Jwts.builder();
+		JwtBuilder jwt = Jwts.builder().setClaims(claims).setHeaderParam("typ", "JWT");
 		// Jwt主键ID
-		if (StringUtils.hasText(id)) {
-			jwt.setId(id);
+		if (StringUtils.hasText(uid)) {
+			jwt.setId(uid);
 		}
 		// 用户名主题
 		jwt.setSubject(subject);
@@ -81,7 +65,38 @@ public class JJwtUtils {
 		Date now = new Date(currentTimeMillis);
 		jwt.setIssuedAt(now);
 		// Token过期时间
-		if (null != period) {
+		if (period >= 0) {
+			// 有效时间
+			jwt.setExpiration(genExpirationDate(period)).setNotBefore(now);
+		}
+		// 压缩，可选GZIP
+		jwt.compressWith(CompressionCodecs.DEFLATE);
+		// 设置算法（必须）
+		jwt.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret);
+		return jwt.compact();
+	}
+
+	public static String genToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
+			String issuer, long period, String roles, String permissions) {
+
+		// 当前时间戳
+		long currentTimeMillis = System.currentTimeMillis();
+		JwtBuilder jwt = Jwts.builder().setHeaderParam("typ", "JWT");
+		// Jwt主键ID
+		if (StringUtils.hasText(uid)) {
+			jwt.setId(uid);
+		}
+		// 用户名主题
+		jwt.setSubject(subject);
+		// 签发者
+		if (StringUtils.hasText(issuer)) {
+			jwt.setIssuer(issuer);
+		}
+		// 签发时间
+		Date now = new Date(currentTimeMillis);
+		jwt.setIssuedAt(now);
+		// Token过期时间
+		if (period >= 0) {
 			// 有效时间
 			Date expiration = new Date(currentTimeMillis + period);
 			jwt.setExpiration(expiration).setNotBefore(now);
@@ -96,7 +111,7 @@ public class JJwtUtils {
 		}
 		// 压缩，可选GZIP
 		jwt.compressWith(CompressionCodecs.DEFLATE);
-		// 加密设置
+		// 设置算法（必须）
 		jwt.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret);
 		return jwt.compact();
 	}
@@ -131,14 +146,14 @@ public class JJwtUtils {
 		return claims;
 	}
 
-	public String genAccessToken(String signatureAlgorithm, String base64Secret, String subject,
-			Map<String, Object> claims, long access_token_expiration) {
-		return genToken(signatureAlgorithm, base64Secret, subject, claims, access_token_expiration);
+	public String genAccessToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
+			String issuer, Map<String, Object> claims, long access_token_expiration) {
+		return genToken(signatureAlgorithm, base64Secret, uid, subject, issuer, claims, access_token_expiration);
 	}
 
-	public String genRefreshToken(String signatureAlgorithm, String base64Secret, String subject,
-			Map<String, Object> claims, long refresh_token_expiration) {
-		return genToken(signatureAlgorithm, base64Secret, subject, claims, refresh_token_expiration);
+	public String genRefreshToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
+			String issuer, Map<String, Object> claims, long refresh_token_expiration) {
+		return genToken(signatureAlgorithm, base64Secret, uid, subject, issuer, claims, refresh_token_expiration);
 	}
 
 	public Boolean canTokenBeRefreshed(String base64Secret, String token, Date lastPasswordReset) {
@@ -157,9 +172,9 @@ public class JJwtUtils {
 				Entry<String, Object> entry = ite.next();
 				claimMap.put(entry.getKey(), entry.getValue());
 			}
+			refreshedToken = genAccessToken(signatureAlgorithm, base64Secret, claims.getId(), claims.getSubject(),
 
-			refreshedToken = genAccessToken(signatureAlgorithm, base64Secret, claims.getSubject(), claimMap,
-					access_token_expiration);
+					claims.getIssuer(), claimMap, access_token_expiration);
 		} catch (Exception e) {
 			refreshedToken = null;
 		}
@@ -210,7 +225,7 @@ public class JJwtUtils {
 		return expiration;
 	}
 
-	public static Date generateExpirationDate(long expiration) {
+	public static Date genExpirationDate(long expiration) {
 		return new Date(System.currentTimeMillis() + expiration * 1000);
 	}
 

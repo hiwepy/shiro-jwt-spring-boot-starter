@@ -16,12 +16,8 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
-import java.util.Set;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
-import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -125,73 +121,6 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 		} catch (ParseException e) {
 			throw new AuthenticationException(e);
 		}
-	}
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param token
-	 * @return
-	 * @throws AuthenticationException
-	 */
-	
-	@Override
-	public DelegateAuthenticationInfo getAuthenticationInfo(DelegateAuthenticationToken token)
-			throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principal
-	 * @return
-	 */
-	
-	@Override
-	public Set<String> getRoles(ShiroPrincipal principal) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principals
-	 * @return
-	 */
-	
-	@Override
-	public Set<String> getRoles(Set<ShiroPrincipal> principals) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principal
-	 * @return
-	 */
-	
-	@Override
-	public Set<String> getPermissions(ShiroPrincipal principal) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principals
-	 * @return
-	 */
-	
-	@Override
-	public Set<String> getPermissions(Set<ShiroPrincipal> principals) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
