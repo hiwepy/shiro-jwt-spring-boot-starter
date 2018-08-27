@@ -17,71 +17,77 @@ package org.apache.shiro.spring.boot.jwt;
 
 import java.util.Set;
 
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.biz.authc.DelegateAuthenticationInfo;
-import org.apache.shiro.biz.authc.token.DelegateAuthenticationToken;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
+import org.apache.shiro.biz.utils.StringUtils;
+import org.apache.shiro.spring.boot.ShiroJwtProperties;
+import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+
+import com.google.common.collect.Sets;
 
 /**
- * TODO
+ * Abstract JSON Web Token (JWT) Principal Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPlayload> {
+public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPlayload> {
 
+	private ShiroJwtProperties jwtProperties;
+	
+	public abstract String getToken();
+	
+	public abstract JwtPlayload getPlayload(JwtToken jwtToken);
+	
 	@Override
-	public DelegateAuthenticationInfo getAuthenticationInfo(DelegateAuthenticationToken token)
-			throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
+	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+		
+		JwtToken jwtToken = (JwtToken) token;
+		
+		String jwt = (String) jwtToken.getPrincipal();
+		
+		JwtPlayload playload = this.getPlayload(jwtToken);
+		
+		// 如果要使token只能使用一次，此处可以过滤并缓存jwtPlayload.getId()
+		// 可以做接收方验证
+		return new SimpleAuthenticationInfo(playload, jwt, "JWT");
+
 	}
 
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principal
-	 * @return
-	 */
 	@Override
 	public Set<String> getRoles(JwtPlayload principal) {
-		// TODO Auto-generated method stub
-		return null;
+		return Sets.newHashSet(StringUtils.tokenizeToStringArray(principal.getRoles()));
 	}
 
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principals
-	 * @return
-	 */
 	@Override
 	public Set<String> getRoles(Set<JwtPlayload> principals) {
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> sets = Sets.newHashSet();
+		for (JwtPlayload jwtPlayload : principals) {
+			sets.addAll(Sets.newHashSet(StringUtils.tokenizeToStringArray(jwtPlayload.getRoles())));
+		}
+		return sets;
 	}
 
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principal
-	 * @return
-	 */
 	@Override
 	public Set<String> getPermissions(JwtPlayload principal) {
-		// TODO Auto-generated method stub
-		return null;
+		return Sets.newHashSet(StringUtils.tokenizeToStringArray(principal.getPerms()));
 	}
-
-	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param principals
-	 * @return
-	 */
 
 	@Override
 	public Set<String> getPermissions(Set<JwtPlayload> principals) {
-		// TODO Auto-generated method stub
-		return null;
+		Set<String> sets = Sets.newHashSet();
+		for (JwtPlayload jwtPlayload : principals) {
+			sets.addAll(Sets.newHashSet(StringUtils.tokenizeToStringArray(jwtPlayload.getPerms())));
+		}
+		return sets;
+	}
+
+	public ShiroJwtProperties getJwtProperties() {
+		return jwtProperties;
+	}
+
+	public void setJwtProperties(ShiroJwtProperties jwtProperties) {
+		this.jwtProperties = jwtProperties;
 	}
 
 }

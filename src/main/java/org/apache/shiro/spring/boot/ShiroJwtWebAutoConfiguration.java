@@ -9,12 +9,9 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.authc.credential.AllowAllCredentialsMatcher;
 import org.apache.shiro.biz.realm.PrincipalRealmListener;
-import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
-import org.apache.shiro.biz.web.filter.authc.listener.LogoutListener;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
-import org.apache.shiro.spring.boot.jwt.realm.JwtInternalAuthorizingRealm;
-import org.apache.shiro.spring.boot.jwt.token.JwtRepository;
+import org.apache.shiro.spring.boot.jwt.realm.JwtExternalAuthorizingRealm;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.config.AbstractShiroWebConfiguration;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -57,26 +54,6 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	private ServerProperties serverProperties;
 	
 	/**
-	 * 登录监听：实现该接口可监听账号登录失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-	 */
-	@Bean("loginListeners")
-	@ConditionalOnMissingBean(name = "loginListeners")
-	public List<LoginListener> loginListeners() {
-
-		List<LoginListener> loginListeners = new ArrayList<LoginListener>();
-		
-		Map<String, LoginListener> beansOfType = getApplicationContext().getBeansOfType(LoginListener.class);
-		if (!ObjectUtils.isEmpty(beansOfType)) {
-			Iterator<Entry<String, LoginListener>> ite = beansOfType.entrySet().iterator();
-			while (ite.hasNext()) {
-				loginListeners.add(ite.next().getValue());
-			}
-		}
-		
-		return loginListeners;
-	}
-	
-	/**
 	 * Realm 执行监听：实现该接口可监听认证失败和成功的状态，从而做业务系统自己的事情，比如记录日志
 	 */
 	@Bean("realmListeners")
@@ -96,31 +73,11 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 		return realmListeners;
 	}
 	
-	/**
-	 * 注销监听：实现该接口可监听账号注销失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-	 */
-	@Bean("logoutListeners")
-	@ConditionalOnMissingBean(name = "logoutListeners")
-	public List<LogoutListener> logoutListeners() {
-
-		List<LogoutListener> logoutListeners = new ArrayList<LogoutListener>();
-		
-		Map<String, LogoutListener> beansOfType = getApplicationContext().getBeansOfType(LogoutListener.class);
-		if (!ObjectUtils.isEmpty(beansOfType)) {
-			Iterator<Entry<String, LogoutListener>> ite = beansOfType.entrySet().iterator();
-			while (ite.hasNext()) {
-				logoutListeners.add(ite.next().getValue());
-			}
-		}
-		
-		return logoutListeners;
-	}
-	
 	@Bean
 	public Realm jwtRealm(@Qualifier("jwtRepository") JwtPrincipalRepository repository,
 			List<PrincipalRealmListener> realmsListeners) {
 		
-		JwtInternalAuthorizingRealm jwtRealm = new JwtInternalAuthorizingRealm();
+		JwtExternalAuthorizingRealm jwtRealm = new JwtExternalAuthorizingRealm();
 		//认证账号信息提供实现：认证信息、角色信息、权限信息；业务系统需要自己实现该接口
 		jwtRealm.setRepository(repository);
 		//凭证匹配器：该对象主要做密码校验
