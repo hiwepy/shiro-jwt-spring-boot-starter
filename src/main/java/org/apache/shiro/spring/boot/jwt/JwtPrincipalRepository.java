@@ -35,8 +35,6 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
 
 	private ShiroJwtProperties jwtProperties;
 	
-	public abstract String getToken();
-	
 	public abstract JwtPlayload getPlayload(JwtToken jwtToken);
 	
 	@Override
