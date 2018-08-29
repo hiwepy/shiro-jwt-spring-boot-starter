@@ -25,8 +25,8 @@ import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
+import org.apache.shiro.codec.Base64;
+import org.apache.shiro.codec.Hex;
 
 /**
  * 
@@ -200,7 +200,7 @@ public class SecretKeyUtils {
  
 
 	public static String genSecretKeyHex(String seed, String algorithm, int keySize) throws Exception {
-		return Hex.encodeHexString(SecretKeyUtils.genBinarySecretKey(seed, algorithm, keySize));
+		return Hex.encodeToString(SecretKeyUtils.genBinarySecretKey(seed, algorithm, keySize));
 	}
  
 	public static byte[] genBinarySecretKey(String algorithm) throws GeneralSecurityException {
@@ -213,11 +213,11 @@ public class SecretKeyUtils {
  
 
 	public static String genSecretKeyHex(String algorithm, int keySize) throws Exception {
-		return Hex.encodeHexString(SecretKeyUtils.genBinarySecretKey(algorithm, keySize));
+		return Hex.encodeToString(SecretKeyUtils.genBinarySecretKey(algorithm, keySize));
 	}
 
 	public static String genSecretKeyBase64(String algorithm, int keySize) throws Exception {
-		return Base64.encodeBase64String(SecretKeyUtils.genBinarySecretKey(algorithm, keySize));
+		return Base64.encodeToString(SecretKeyUtils.genBinarySecretKey(algorithm, keySize));
 	}
 
 	/**
@@ -370,11 +370,11 @@ public class SecretKeyUtils {
 		KeyPair key = SecretKeyUtils.genKeyPair("123456789456", KEY_RSA, 512);
 
 		PublicKey pubKey = key.getPublic();
-		String pub_key = Base64.encodeBase64String(pubKey.getEncoded());
+		String pub_key = Base64.encodeToString(pubKey.getEncoded());
 		System.out.println("公钥: " + pub_key);
 
 		PrivateKey priKey = key.getPrivate();
-		String pri_key = Base64.encodeBase64String(priKey.getEncoded());
+		String pri_key = Base64.encodeToString(priKey.getEncoded());
 		System.out.println("私钥: " + pri_key);
 
 		// System.out.println(Hex.encodeHexString(SecretKeyUtils.genRandomKey(32)));

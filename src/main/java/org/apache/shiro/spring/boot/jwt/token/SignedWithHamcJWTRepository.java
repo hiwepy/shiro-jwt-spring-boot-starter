@@ -17,8 +17,8 @@ package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -65,7 +65,7 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 			
 			// Create HMAC signer
-			byte[] secret = Base64.decodeBase64(signingKey);
+			byte[] secret = Base64.decode(signingKey);
 			JWSSigner signer = new MACSigner(secret);
 			
 			// Request JWS Header with HMAC JWSAlgorithm
@@ -100,7 +100,7 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			// On the consumer side, parse the JWS and verify its HMAC
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			// Create HMAC verifier
-			byte[] secret = Base64.decodeBase64(signingKey);
+			byte[] secret = Base64.decode(signingKey);
 			JWSVerifier verifier = new MACVerifier(secret); 
 			// Retrieve / verify the JWT claims according to the app requirements
 			return NimbusdsUtils.verify(signedJWT, verifier);

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 import org.junit.Test;
 
@@ -48,7 +48,7 @@ public class JWTTest {
 		ES384：使用P-384和SHA-384的ECDSA
 		ES512：使用P-521和SHA-512的ECDSA
 	*/
-	private String base64Secret = Base64.encodeBase64String("123456".getBytes());
+	private String base64Secret = Base64.encodeToString("123456".getBytes());
 	
 	@Test 
 	public void applyToken1() throws Exception{ 
