@@ -21,14 +21,10 @@ import java.util.Date;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 
 /**
- * TODO
- * 
+ * 基于Nimbusds组件的jwt工具对象
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
 public class NimbusdsUtils {
@@ -70,19 +66,6 @@ public class NimbusdsUtils {
 		}
 
 		return builder.build();
-	}
-
-	public static boolean verify(SignedJWT signedJWT, JWSVerifier verifier) throws JOSEException, ParseException {
-		// Retrieve / verify the JWT claims according to the app requirements
-		if (signedJWT.verify(verifier)) {
-			// Gets the claims set of the JSON Web Token (JWT).
-			JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
-			// Not expired
-			if (new Date().before(claimsSet.getExpirationTime())) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public static JwtPlayload playload(JWTClaimsSet jwtClaims) throws ParseException {

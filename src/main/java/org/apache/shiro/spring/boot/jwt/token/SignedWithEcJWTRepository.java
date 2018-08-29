@@ -19,6 +19,7 @@ import java.text.ParseException;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.verifier.ExtendedECDSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
 import com.nimbusds.jose.JOSEException;
@@ -91,7 +92,7 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 	 * @return
 	 */
 	@Override
-	public boolean verify(ECKey signingKey, String token) throws AuthenticationException {
+	public boolean verify(ECKey signingKey, String token, boolean checkExpiry) throws AuthenticationException {
 
 		try {
 			
@@ -99,10 +100,10 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
 			// Create EC verifier
-			JWSVerifier verifier = new ECDSAVerifier(signingKey);
+			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
-			return NimbusdsUtils.verify(signedJWT, verifier);
+			return signedJWT.verify(verifier);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {

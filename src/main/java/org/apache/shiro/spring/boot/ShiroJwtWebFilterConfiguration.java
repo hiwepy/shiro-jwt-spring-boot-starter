@@ -3,7 +3,6 @@ package org.apache.shiro.spring.boot;
 import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
 import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticatingFilter;
 import org.apache.shiro.spring.boot.jwt.authz.JwtAuthorizationFilter;
-import org.apache.shiro.spring.boot.jwt.authz.JwtIssueFilter;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
@@ -55,21 +54,6 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
 		JwtAuthorizationFilter authenticationFilter = new JwtAuthorizationFilter();
 		//authenticationFilter.setFailureUrl(properties.getFailureUrl());
 		registration.setFilter(authenticationFilter);
-	    registration.setEnabled(false); 
-	    return registration;
-	}
-	
-	/**
-	 * JSON Web Token (JWT) Issue Filter </br>
-	 * 该过滤器负责对Token的校验工作
-	 */
-	@Bean("issue")
-	@ConditionalOnMissingBean(name = "issue")
-	public FilterRegistrationBean<JwtIssueFilter> jwtIssueFilter(ShiroJwtProperties properties){
-		FilterRegistrationBean<JwtIssueFilter> registration = new FilterRegistrationBean<JwtIssueFilter>(); 
-		JwtIssueFilter jwtIssueFilter = new JwtIssueFilter();
-		//jwtIssueFilter.setFailureUrl(properties.getFailureUrl());
-		registration.setFilter(jwtIssueFilter);
 	    registration.setEnabled(false); 
 	    return registration;
 	}

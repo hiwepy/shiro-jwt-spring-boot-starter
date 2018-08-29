@@ -33,7 +33,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
- * TODO
+ * 基于JJwt组件的jwt工具对象
+ * 
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
 public class JJwtUtils {
@@ -45,80 +46,70 @@ public class JJwtUtils {
 	public static final String CLAIM_KEY_ACCOUNT_NON_LOCKED = "non_locked";
 	public static final String CLAIM_KEY_ACCOUNT_NON_EXPIRED = "non_expired";
 
-	public static String genToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
-			String issuer, Map<String, Object> claims, long period) {
+	public static JwtBuilder jwtBuilder(String uid, String subject, String issuer, Map<String, Object> claims,
+			long period) {
 
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
-		JwtBuilder jwt = Jwts.builder().setClaims(claims).setHeaderParam("typ", "JWT");
+		JwtBuilder builder = Jwts.builder().setClaims(claims).setHeaderParam("typ", "JWT");
 		// Jwt主键ID
 		if (StringUtils.hasText(uid)) {
-			jwt.setId(uid);
+			builder.setId(uid);
 		}
 		// 用户名主题
-		jwt.setSubject(subject);
+		builder.setSubject(subject);
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
-			jwt.setIssuer(issuer);
+			builder.setIssuer(issuer);
 		}
 		// 签发时间
 		Date now = new Date(currentTimeMillis);
-		jwt.setIssuedAt(now);
+		builder.setIssuedAt(now);
 		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			jwt.setExpiration(genExpirationDate(period)).setNotBefore(now);
+			builder.setExpiration(genExpirationDate(period)).setNotBefore(now);
 		}
-		// 压缩，可选GZIP
-		jwt.compressWith(CompressionCodecs.DEFLATE);
-		// 设置算法（必须）
-		jwt.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret);
-		return jwt.compact();
+		return builder;
 	}
 
-	public static String genToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
+	public static JwtBuilder jwtBuilder(String uid, String subject,
 			String issuer, long period, String roles, String permissions) {
 
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
-		JwtBuilder jwt = Jwts.builder().setHeaderParam("typ", "JWT");
+		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT");
 		// Jwt主键ID
 		if (StringUtils.hasText(uid)) {
-			jwt.setId(uid);
+			builder.setId(uid);
 		}
 		// 用户名主题
-		jwt.setSubject(subject);
+		builder.setSubject(subject);
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
-			jwt.setIssuer(issuer);
+			builder.setIssuer(issuer);
 		}
 		// 签发时间
 		Date now = new Date(currentTimeMillis);
-		jwt.setIssuedAt(now);
+		builder.setIssuedAt(now);
 		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
 			Date expiration = new Date(currentTimeMillis + period);
-			jwt.setExpiration(expiration).setNotBefore(now);
+			builder.setExpiration(expiration).setNotBefore(now);
 		}
 		// 角色
 		if (StringUtils.hasText(roles)) {
-			jwt.claim("roles", roles);
+			builder.claim("roles", roles);
 		}
 		// 权限
 		if (StringUtils.hasText(permissions)) {
-			jwt.claim("perms", permissions);
+			builder.claim("perms", permissions);
 		}
-		// 压缩，可选GZIP
-		jwt.compressWith(CompressionCodecs.DEFLATE);
-		// 设置算法（必须）
-		jwt.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret);
-		return jwt.compact();
+		return builder;
 	}
 
-	public static JwtPlayload playload(String base64Secret, String token) throws ParseException {
-
-		Claims claims = parseJWT(base64Secret, token);
+	public static JwtPlayload playload(Claims claims) throws ParseException {
 
 		JwtPlayload jwtPlayload = new JwtPlayload();
 		jwtPlayload.setTokenId(claims.getId());
@@ -138,7 +129,7 @@ public class JJwtUtils {
 		Claims claims;
 		try {
 			// 解析jwt串 :其中parseClaimsJws验证jwt字符串失败可能会抛出异常，需要捕获异常
-			claims = Jwts.parser().setSigningKey(base64Secret).parseClaimsJws(token).getBody(); // 得到body后我们可以从body中获取我们需要的信息
+			claims = Jwts.parser().setSigningKey(base64Secret).parseClaimsJws(token).getBody();
 		} catch (Exception e) {
 			// jwt 解析错误
 			claims = null;
@@ -148,12 +139,20 @@ public class JJwtUtils {
 
 	public String genAccessToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
 			String issuer, Map<String, Object> claims, long access_token_expiration) {
-		return genToken(signatureAlgorithm, base64Secret, uid, subject, issuer, claims, access_token_expiration);
+		return jwtBuilder(uid, subject, issuer, claims, access_token_expiration)
+				// 压缩，可选GZIP
+				.compressWith(CompressionCodecs.DEFLATE)
+				// 设置算法（必须）
+				.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret).compact();
 	}
 
 	public String genRefreshToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
 			String issuer, Map<String, Object> claims, long refresh_token_expiration) {
-		return genToken(signatureAlgorithm, base64Secret, uid, subject, issuer, claims, refresh_token_expiration);
+		return jwtBuilder(uid, subject, issuer, claims, refresh_token_expiration)
+				// 压缩，可选GZIP
+				.compressWith(CompressionCodecs.DEFLATE)
+				// 设置算法（必须）
+				.signWith(SignatureAlgorithm.forName(signatureAlgorithm), base64Secret).compact();
 	}
 
 	public Boolean canTokenBeRefreshed(String base64Secret, String token, Date lastPasswordReset) {

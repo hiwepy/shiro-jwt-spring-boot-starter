@@ -20,6 +20,7 @@ import java.text.ParseException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.verifier.ExtendedMACVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -111,7 +112,7 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public boolean verify(String signingKey, RSAKey encryptKey, String token) throws AuthenticationException {
+	public boolean verify(String signingKey, RSAKey encryptKey, String token, boolean checkExpiry) throws AuthenticationException {
 
 		try {
 			
@@ -130,10 +131,10 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 			
 			// Create HMAC verifier
 			byte[] secret = Base64.decode(signingKey);
-			JWSVerifier verifier = new MACVerifier(secret); 
+			JWSVerifier verifier = checkExpiry ? new ExtendedMACVerifier(secret, signedJWT.getJWTClaimsSet()) : new MACVerifier(secret) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
-			return NimbusdsUtils.verify(signedJWT, verifier);
+			return signedJWT.verify(verifier);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {

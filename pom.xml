@@ -449,7 +449,6 @@
 		    <groupId>io.jsonwebtoken</groupId>
 		    <artifactId>jjwt</artifactId>
 		    <version>${jjwt.version}</version>
-		    <scope>test</scope>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->

@@ -19,6 +19,7 @@ import java.text.ParseException;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.verifier.ExtendedRSASSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
 import com.nimbusds.jose.JOSEException;
@@ -99,7 +100,7 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	 * @return
 	 */
 	@Override
-	public boolean verify(RSAKey signingKey, String token) throws AuthenticationException {
+	public boolean verify(RSAKey signingKey, String token, boolean checkExpiry) throws AuthenticationException {
 
 		try {
 			
@@ -107,10 +108,10 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
 			// Create RSA verifier
-			JWSVerifier verifier = new RSASSAVerifier(signingKey);
+			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
-			return NimbusdsUtils.verify(signedJWT, verifier);
+			return signedJWT.verify(verifier);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {

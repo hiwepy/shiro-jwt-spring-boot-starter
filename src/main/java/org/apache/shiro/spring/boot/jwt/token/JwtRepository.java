@@ -26,6 +26,6 @@ public interface JwtRepository<S>{
 	
 	public abstract JwtPlayload getPlayload(S signingKey, String jwt) throws AuthenticationException;
 	
-	public abstract boolean verify(S signingKey, String token) throws AuthenticationException;
+	public abstract boolean verify(S signingKey, String token, boolean checkExpiry) throws AuthenticationException;
 	
 }

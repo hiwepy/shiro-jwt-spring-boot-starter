@@ -26,6 +26,6 @@ public interface JwtNestedRepository<S,E> {
 	
 	public abstract JwtPlayload getPlayload(S signingKey, E encryptKey, String jwt) throws AuthenticationException;
 	
-	public abstract boolean verify(S signingKey, E encryptKey, String token) throws AuthenticationException;
+	public abstract boolean verify(S signingKey, E encryptKey, String token, boolean checkExpiry) throws AuthenticationException;
 	
 }

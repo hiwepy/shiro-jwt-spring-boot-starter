@@ -21,6 +21,7 @@ import javax.crypto.SecretKey;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.verifier.ExtendedRSASSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -115,7 +116,7 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 	}
 	
 	@Override
-	public boolean verify(RSAKey signingKey, SecretKey encryptKey, String token) throws AuthenticationException {
+	public boolean verify(RSAKey signingKey, SecretKey encryptKey, String token, boolean checkExpiry) throws AuthenticationException {
 
 		try {
 			
@@ -133,10 +134,10 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 			//-------------------- Setup 2：RSA Verify --------------------
 			
 			// Create RSA verifier
-			JWSVerifier verifier = new RSASSAVerifier(signingKey.toPublicJWK());
+			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
-			return NimbusdsUtils.verify(signedJWT, verifier);
+			return signedJWT.verify(verifier);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {
