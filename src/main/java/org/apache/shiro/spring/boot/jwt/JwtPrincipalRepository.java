@@ -17,12 +17,12 @@ package org.apache.shiro.spring.boot.jwt;
 
 import java.util.Set;
 
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.spring.boot.ShiroJwtProperties;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 
 import com.google.common.collect.Sets;
@@ -33,23 +33,32 @@ import com.google.common.collect.Sets;
  */
 public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPlayload> {
 
-	private ShiroJwtProperties jwtProperties;
+	 /**
+     * If Check JWT Validity.
+     */
+    private boolean checkExpiry;
 	
 	public abstract JwtPlayload getPlayload(JwtToken jwtToken);
 	
+	public abstract boolean verify(JwtToken jwtToken, boolean checkExpiry);
+	
 	@Override
-	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) {
+	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		
 		JwtToken jwtToken = (JwtToken) token;
 		
 		String jwt = (String) jwtToken.getPrincipal();
 		
-		JwtPlayload playload = this.getPlayload(jwtToken);
-		
-		// 如果要使token只能使用一次，此处可以过滤并缓存jwtPlayload.getId()
-		// 可以做接收方验证
-		return new SimpleAuthenticationInfo(playload, jwt, "JWT");
-
+		if(this.verify(jwtToken, isCheckExpiry())) {
+			
+			JwtPlayload playload = this.getPlayload(jwtToken);
+			
+			// 如果要使token只能使用一次，此处可以过滤并缓存jwtPlayload.getId()
+			// 可以做接收方验证
+			return new SimpleAuthenticationInfo(playload, jwt, "JWT");
+			
+		}
+		throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) ； Host： %s,JWT: %s", jwtToken.getHost(), jwtToken.getToken()))  ;
 	}
 
 	@Override
@@ -80,12 +89,12 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
 		return sets;
 	}
 
-	public ShiroJwtProperties getJwtProperties() {
-		return jwtProperties;
+	public boolean isCheckExpiry() {
+		return checkExpiry;
 	}
 
-	public void setJwtProperties(ShiroJwtProperties jwtProperties) {
-		this.jwtProperties = jwtProperties;
+	public void setCheckExpiry(boolean checkExpiry) {
+		this.checkExpiry = checkExpiry;
 	}
 
 }

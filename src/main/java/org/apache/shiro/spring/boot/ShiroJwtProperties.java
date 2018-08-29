@@ -85,6 +85,11 @@ public class ShiroJwtProperties {
     */
     
     /**
+     * If Check JWT Validity.
+     */
+    private boolean checkExpiry;
+    
+    /**
      * {@link JwtToken} will expire after this time.
      */
     private Integer tokenExpirationTime;
@@ -158,6 +163,14 @@ public class ShiroJwtProperties {
 
 	public void setSalt(String salt) {
 		this.salt = salt;
+	}
+	
+	public boolean isCheckExpiry() {
+		return checkExpiry;
+	}
+
+	public void setCheckExpiry(boolean checkExpiry) {
+		this.checkExpiry = checkExpiry;
 	}
 
 	public boolean isEnabled() {
