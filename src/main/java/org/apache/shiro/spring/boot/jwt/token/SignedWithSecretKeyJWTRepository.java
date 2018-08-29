@@ -92,7 +92,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public boolean verify(Key key, String token, boolean checkExpiry) throws AuthenticationException {
+	public boolean verify(Key secretKey, String token, boolean checkExpiry) throws AuthenticationException {
 			
 		try {
 			
@@ -103,7 +103,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 				jwtParser.setAllowedClockSkewSeconds(getAllowedClockSkewSeconds());	
 			}
 			
-			Jws<Claims> jws = jwtParser.setSigningKey(key).parseClaimsJws(token);
+			Jws<Claims> jws = jwtParser.setSigningKey(secretKey).parseClaimsJws(token);
 
 			Claims claims = jws.getBody();
 
@@ -132,7 +132,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(Key key, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(Key secretKey, String token)  throws AuthenticationException {
 		try {
 			
 			// Retrieve JWT claims
@@ -146,7 +146,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 				jwtParser.setCompressionCodecResolver(getCompressionCodecResolver());
 			}
 			
-			Jws<Claims> jws = jwtParser.setSigningKey(key).parseClaimsJws(token);
+			Jws<Claims> jws = jwtParser.setSigningKey(secretKey).parseClaimsJws(token);
 			
 			return JJwtUtils.playload(jws.getBody());
 		} catch (ParseException e) {
