@@ -43,15 +43,15 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 	private CompressionCodec compressWith = CompressionCodecs.DEFLATE;
     private CompressionCodecResolver compressionCodecResolver;
 	    
-	/**
-	 * 
+    /**
+	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param id
-	 * @param subject
-	 * @param issuer
-	 * @param period
-	 * @param roles
-	 * @param permissions
+	 * @param id Jwt Id
+	 * @param subject Jwt Subject
+	 * @param issuer Jwt Issuer
+	 * @param period Jwt Expiration Cycle
+	 * @param roles The Roles
+	 * @param permissions The Perms
 	 * @param algorithm: <br/>
 	 *  HS256: HMAC using SHA-256 <br/>
 	 *  HS384: HMAC using SHA-384 <br/>
@@ -66,7 +66,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
      *  PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 <br/>
      *  PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 <br/>
 	 * @return JSON Web Token (JWT)
-	 * @throws Exception 
+	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
 	public String issueJwt(Key key, String id, String subject, String issuer, Long period, String roles,
@@ -80,6 +80,17 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 		return token;
 	}
 
+	/**
+	 * Verify the validity of JWT
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param secretKey ：  <br/>
+	 * If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. <br/>
+	 * If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser. 
+	 * @param token  JSON Web Token (JWT)
+	 * @param checkExpiry If Check validity.
+	 * @return If Validity
+	 * @throws AuthenticationException Authentication Exception
+	 */
 	@Override
 	public boolean verify(Key key, String token, boolean checkExpiry) throws AuthenticationException {
 			
@@ -110,6 +121,16 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 		
 	}
 
+	/**
+	 * 
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param secretKey ：  <br/>
+	 * If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. <br/>
+	 * If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser. 
+	 * @param token JSON Web Token (JWT)
+	 * @return JwtPlayload {@link JwtPlayload}
+	 * @throws AuthenticationException Authentication Exception
+	 */
 	@Override
 	public JwtPlayload getPlayload(Key key, String token)  throws AuthenticationException {
 		try {

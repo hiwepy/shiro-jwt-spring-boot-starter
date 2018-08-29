@@ -42,15 +42,15 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	private CompressionCodec compressWith = CompressionCodecs.DEFLATE;
     private CompressionCodecResolver compressionCodecResolver;
     
-	/**
-	 * 
+    /**
+	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param id
-	 * @param subject
-	 * @param issuer
-	 * @param period
-	 * @param roles
-	 * @param permissions
+	 * @param id Jwt Id
+	 * @param subject Jwt Subject
+	 * @param issuer Jwt Issuer
+	 * @param period Jwt Expiration Cycle
+	 * @param roles The Roles
+	 * @param permissions The Perms
 	 * @param algorithm: <br/>
 	 *  HS256: HMAC using SHA-256 <br/>
 	 *  HS384: HMAC using SHA-384 <br/>
@@ -65,7 +65,7 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
      *  PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 <br/>
      *  PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 <br/>
 	 * @return JSON Web Token (JWT)
-	 * @throws Exception 
+	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
 	public String issueJwt(String base64Secret, String id, String subject, String issuer, Long period, String roles,
@@ -79,6 +79,15 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 		return token;
 	}
 
+	/**
+	 * Verify the validity of JWT
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param secretKey ：  If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. <br/>
+	 * @param token  JSON Web Token (JWT)
+	 * @param checkExpiry If Check validity.
+	 * @return If Validity
+	 * @throws AuthenticationException Authentication Exception
+	 */
 	@Override
 	public boolean verify(String base64Secret, String token, boolean checkExpiry) throws AuthenticationException {
 			
@@ -113,6 +122,14 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 		
 	}
 
+	/**
+	 * 
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param secretKey ：   If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. <br/>
+	 * @param token JSON Web Token (JWT)
+	 * @return JwtPlayload {@link JwtPlayload}
+	 * @throws AuthenticationException Authentication Exception
+	 */
 	@Override
 	public JwtPlayload getPlayload(String base64Secret, String token)  throws AuthenticationException {
 		try {
