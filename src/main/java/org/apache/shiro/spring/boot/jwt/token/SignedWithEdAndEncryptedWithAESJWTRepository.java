@@ -142,7 +142,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(OctetKeyPair signingKey, SecretKey encryptKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(OctetKeyPair signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Setup 1：AES Decrypt ----------------------

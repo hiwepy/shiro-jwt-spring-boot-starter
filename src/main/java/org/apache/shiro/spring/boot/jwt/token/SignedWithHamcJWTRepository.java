@@ -62,8 +62,12 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 		
 		try {
 			
+			//-------------------- Setup 1：Get ClaimsSet --------------------
+			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
+			
+			//-------------------- Setup 2：Hamc Signature --------------------
 			
 			// Create HMAC signer
 			byte[] secret = Base64.decode(signingKey);
@@ -98,14 +102,21 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 
 		try {
 			
+			//-------------------- Setup 1：JWT Parse --------------------
+			
 			// On the consumer side, parse the JWS and verify its HMAC
 			SignedJWT signedJWT = SignedJWT.parse(token);
+			
+			//-------------------- Setup 2：Hamc Verify --------------------
+			
 			// Create HMAC verifier
 			byte[] secret = Base64.decode(signingKey);
 			JWSVerifier verifier = checkExpiry ? new ExtendedMACVerifier(secret, signedJWT.getJWTClaimsSet()) : new MACVerifier(secret) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {
@@ -124,15 +135,36 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 	 */
 	
 	@Override
-	public JwtPlayload getPlayload(String signingKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(String signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
+			
+			//-------------------- Setup 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS and verify its HMAC
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
+			//-------------------- Setup 2：Hamc Verify --------------------
+			
+			// Create HMAC verifier
+			byte[] secret = Base64.decode(signingKey);
+			JWSVerifier verifier = checkExpiry ? new ExtendedMACVerifier(secret, signedJWT.getJWTClaimsSet()) : new MACVerifier(secret) ;
+						
+			// Retrieve / verify the JWT claims according to the app requirements
+			if(!signedJWT.verify(verifier)) {
+				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
+			}
+			
+			//-------------------- Setup 3：Gets The Claims ---------------
+			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
+		} catch (NumberFormatException e) {
+			throw new AuthenticationException(e);
 		} catch (ParseException e) {
+			throw new AuthenticationException(e);
+		} catch (JOSEException e) {
 			throw new AuthenticationException(e);
 		}
 	}

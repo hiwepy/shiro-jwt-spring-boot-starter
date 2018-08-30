@@ -127,11 +127,12 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	 * @author 		：<a href="https://github.com/vindell">vindell</a>
 	 * @param secretKey ：   If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. <br/>
 	 * @param token JSON Web Token (JWT)
+	 * @param checkExpiry If Check validity.
 	 * @return JwtPlayload {@link JwtPlayload}
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(String base64Secret, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(String base64Secret, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			// Retrieve JWT claims

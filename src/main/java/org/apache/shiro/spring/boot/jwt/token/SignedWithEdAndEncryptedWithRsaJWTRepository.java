@@ -71,10 +71,12 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 
 		try {
 			
+			//-------------------- Setup 1：Get ClaimsSet --------------------
+			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
-			//-------------------- Setup 1：EdDSA Signature --------------------
+			//-------------------- Setup 2：EdDSA Signature --------------------
 			
 			// Request JWS Header with EdDSA JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(signingKey.getKeyID()).build();
@@ -86,7 +88,7 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			// Compute the EC signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 2：RSA Encrypt ----------------------
+			//-------------------- Setup 3：RSA Encrypt ----------------------
 			
 			// Request JWT encrypted with RSA-OAEP-256 and 256-bit AES/GCM
 			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM);
@@ -144,7 +146,7 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(OctetKeyPair signingKey, RSAKey encryptKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(OctetKeyPair signingKey, RSAKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Setup 1：RSA Decrypt ----------------------

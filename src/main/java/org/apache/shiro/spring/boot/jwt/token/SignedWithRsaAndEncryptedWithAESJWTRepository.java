@@ -76,10 +76,12 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 		 
 		try {
 			
+			//-------------------- Setup 1：Get ClaimsSet --------------------
+			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 			
-			//-------------------- Setup 1：RSA Signature --------------------
+			//-------------------- Setup 2：RSA Signature --------------------
 			
 			// Request JWS Header with RSA JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(signingKey.getKeyID()).build();
@@ -91,7 +93,7 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 			// Compute the RSA signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 2：AES Encrypt ----------------------
+			//-------------------- Setup 3：AES Encrypt ----------------------
 			
 			// Request JWT encrypted with DIR and 128-bit AES/GCM
 			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
@@ -138,6 +140,8 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {
@@ -149,7 +153,7 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(RSAKey signingKey, SecretKey encryptKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(RSAKey signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Setup 1：AES Decrypt ----------------------
@@ -163,10 +167,24 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：Gets The Claims ---------------
+			//-------------------- Setup 2：RSA Verify --------------------
+			
+			// Create RSA verifier
+			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
+			
+			// Retrieve / verify the JWT claims according to the app requirements
+			if(!signedJWT.verify(verifier)) {
+				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
+			}
+			
+			//-------------------- Setup 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
+		} catch (NumberFormatException e) {
+			throw new AuthenticationException(e);
 		} catch (ParseException e) {
 			throw new AuthenticationException(e);
 		} catch (JOSEException e) {

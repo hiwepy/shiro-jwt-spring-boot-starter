@@ -71,10 +71,12 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 
 		try {
 			
+			//-------------------- Setup 1：Get ClaimsSet --------------------
+			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
-			//-------------------- Setup 1：Hamc Signature --------------------
+			//-------------------- Setup 2：Hamc Signature --------------------
 			
 			// Request JWS Header with HMAC JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(algorithm));
@@ -87,7 +89,7 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 			// Compute the HMAC signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 2：RSA Encrypt ----------------------
+			//-------------------- Setup 3：RSA Encrypt ----------------------
 			
 			// Request JWT encrypted with RSA-OAEP-256 and 256-bit AES/GCM
 			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM);
@@ -146,7 +148,7 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(String signingKey, RSAKey encryptKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(String signingKey, RSAKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Setup 1：RSA Decrypt ----------------------
@@ -160,7 +162,18 @@ public class SignedWithHamcAndEncryptedWithRsaJWTRepository implements JwtNested
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：Gets The Claims ---------------
+			//-------------------- Setup 2：Hamc Verify --------------------
+			
+			// Create HMAC verifier
+			byte[] secret = Base64.decode(signingKey);
+			JWSVerifier verifier = checkExpiry ? new ExtendedMACVerifier(secret, signedJWT.getJWTClaimsSet()) : new MACVerifier(secret) ;
+						
+			// Retrieve / verify the JWT claims according to the app requirements
+			if(!signedJWT.verify(verifier)) {
+				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
+			}
+			
+			//-------------------- Setup 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());

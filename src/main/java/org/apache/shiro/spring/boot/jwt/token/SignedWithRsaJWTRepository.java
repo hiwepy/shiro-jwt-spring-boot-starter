@@ -66,9 +66,13 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 		
 		try {
 			
+			//-------------------- Setup 1：Get ClaimsSet --------------------
+			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
+			//-------------------- Setup 2：RSA Signature --------------------
+			
 			// Create RSA-signer with the private key
 			JWSSigner signer = new RSASSASigner(signingKey);
 			
@@ -104,14 +108,20 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 
 		try {
 			
-			// On the consumer side, parse the JWS and verify its RSA signature
+			//-------------------- Setup 1：JWT Parse --------------------
+			
+			// On the consumer side, parse the JWS
 			SignedJWT signedJWT = SignedJWT.parse(token);
+			
+			//-------------------- Setup 2：RSA Verify --------------------
 			
 			// Create RSA verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {
@@ -129,15 +139,36 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	 * @throws Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(RSAKey signingKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(RSAKey signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			// On the consumer side, parse the JWS and verify its HMAC
+			//-------------------- Setup 1：JWT Parse --------------------
+			
+			// On the consumer side, parse the JWS
 			SignedJWT signedJWT = SignedJWT.parse(token);
+			
+			
+			//-------------------- Setup 2：RSA Verify --------------------
+			
+			// Create RSA verifier
+			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
+			
+			// Retrieve / verify the JWT claims according to the app requirements
+			if(!signedJWT.verify(verifier)) {
+				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
+			}
+			
+			//-------------------- Setup 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
+		} catch (NumberFormatException e) {
+			throw new AuthenticationException(e);
 		} catch (ParseException e) {
+			throw new AuthenticationException(e);
+		} catch (JOSEException e) {
 			throw new AuthenticationException(e);
 		}
 	}

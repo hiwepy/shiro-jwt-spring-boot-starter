@@ -128,11 +128,12 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 	 * If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. <br/>
 	 * If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser. 
 	 * @param token JSON Web Token (JWT)
+	 * @param checkExpiry If Check validity.
 	 * @return JwtPlayload {@link JwtPlayload}
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(Key secretKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(Key secretKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			// Retrieve JWT claims

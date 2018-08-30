@@ -59,9 +59,13 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 		
 		try {
 			
+			//-------------------- Setup 1：Get ClaimsSet --------------------
+			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
+			//-------------------- Setup 2：EdDSA Signature --------------------
+			
 			// Request JWS Header with EdDSA JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(signingKey.getKeyID()).build();
 			SignedJWT signedJWT = new SignedJWT(jwsHeader, claimsSet);
@@ -93,14 +97,20 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 
 		try {
 			
+			//-------------------- Setup 1：JWT Parse --------------------
+			
 			// On the consumer side, parse the JWS and verify its EdDSA signature
 			SignedJWT signedJWT = SignedJWT.parse(token);
+			
+			//-------------------- Setup 2：EdDSA Verify --------------------
 			
 			// Create Ed25519 verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedEd25519Verifier(signingKey.toPublicJWK(), signedJWT.getJWTClaimsSet()) : new Ed25519Verifier(signingKey.toPublicJWK());
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
 		} catch (NumberFormatException e) {
 			throw new AuthenticationException(e);
 		} catch (ParseException e) {
@@ -111,15 +121,35 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 	}
 
 	@Override
-	public JwtPlayload getPlayload(OctetKeyPair signingKey, String token)  throws AuthenticationException {
+	public JwtPlayload getPlayload(OctetKeyPair signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			// On the consumer side, parse the JWS and verify its EC
+			//-------------------- Setup 1：JWT Parse --------------------
+			
+			// On the consumer side, parse the JWS and verify its EdDSA signature
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
+			//-------------------- Setup 2：EdDSA Verify --------------------
+			
+			// Create Ed25519 verifier
+			JWSVerifier verifier = checkExpiry ? new ExtendedEd25519Verifier(signingKey.toPublicJWK(), signedJWT.getJWTClaimsSet()) : new Ed25519Verifier(signingKey.toPublicJWK());
+						
+			// Retrieve / verify the JWT claims according to the app requirements
+			if(!signedJWT.verify(verifier)) {
+				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
+			}
+			
+			//-------------------- Setup 3：Gets The Claims ---------------
+						
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+		} catch (IllegalStateException e) {
+			throw new AuthenticationException(e);
+		} catch (NumberFormatException e) {
+			throw new AuthenticationException(e);
 		} catch (ParseException e) {
+			throw new AuthenticationException(e);
+		} catch (JOSEException e) {
 			throw new AuthenticationException(e);
 		}
 	}
