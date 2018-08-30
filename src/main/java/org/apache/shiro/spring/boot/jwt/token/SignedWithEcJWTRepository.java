@@ -62,12 +62,12 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 		
 		try {
 			
-			//-------------------- Setup 1：Get ClaimsSet --------------------
+			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 			
-			//-------------------- Setup 2：ECDSA Signature --------------------
+			//-------------------- Step 2：ECDSA Signature --------------------
 			
 			// Request JWS Header with JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.parse(algorithm)).build();
@@ -100,12 +100,12 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 
 		try {
 			
-			//-------------------- Setup 1：JWT Parse --------------------
+			//-------------------- Step 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS and verify its EC signature
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
-			//-------------------- Setup 2：ECDSA Verify --------------------
+			//-------------------- Step 2：ECDSA Verify --------------------
 			
 			// Create EC verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
@@ -127,12 +127,12 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 	public JwtPlayload getPlayload(ECKey signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：JWT Parse --------------------
+			//-------------------- Step 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS and verify its EC
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
-			//-------------------- Setup 2：ECDSA Verify --------------------
+			//-------------------- Step 2：ECDSA Verify --------------------
 			
 			// Create EC verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
@@ -142,7 +142,7 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
 			}
 			
-			//-------------------- Setup 3：Gets The Claims ---------------
+			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());

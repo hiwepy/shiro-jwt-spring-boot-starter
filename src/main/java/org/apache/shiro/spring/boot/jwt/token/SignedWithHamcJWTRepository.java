@@ -62,12 +62,12 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 		
 		try {
 			
-			//-------------------- Setup 1：Get ClaimsSet --------------------
+			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 			
-			//-------------------- Setup 2：Hamc Signature --------------------
+			//-------------------- Step 2：Hamc Signature --------------------
 			
 			// Create HMAC signer
 			byte[] secret = Base64.decode(signingKey);
@@ -102,12 +102,12 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 
 		try {
 			
-			//-------------------- Setup 1：JWT Parse --------------------
+			//-------------------- Step 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS and verify its HMAC
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
-			//-------------------- Setup 2：Hamc Verify --------------------
+			//-------------------- Step 2：Hamc Verify --------------------
 			
 			// Create HMAC verifier
 			byte[] secret = Base64.decode(signingKey);
@@ -138,12 +138,12 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 	public JwtPlayload getPlayload(String signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：JWT Parse --------------------
+			//-------------------- Step 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS and verify its HMAC
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
-			//-------------------- Setup 2：Hamc Verify --------------------
+			//-------------------- Step 2：Hamc Verify --------------------
 			
 			// Create HMAC verifier
 			byte[] secret = Base64.decode(signingKey);
@@ -154,7 +154,7 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
 			}
 			
-			//-------------------- Setup 3：Gets The Claims ---------------
+			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());

@@ -71,12 +71,12 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 
 		try {
 			
-			//-------------------- Setup 1：Get ClaimsSet --------------------
+			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
-			//-------------------- Setup 2：ECDSA Signature --------------------
+			//-------------------- Step 2：ECDSA Signature --------------------
 			
 			// Request JWS Header with JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.parse(algorithm)).build();
@@ -88,7 +88,7 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			// Compute the EC signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 3：RSA Encrypt ----------------------
+			//-------------------- Step 3：RSA Encrypt ----------------------
 			
 			// Request JWT encrypted with RSA-OAEP-256 and 256-bit AES/GCM
 			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM);
@@ -117,7 +117,7 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 
 		try {
 			
-			//-------------------- Setup 1：RSA Decrypt ----------------------
+			//-------------------- Step 1：RSA Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
@@ -128,7 +128,7 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：ECDSA Verify --------------------
+			//-------------------- Step 2：ECDSA Verify --------------------
 			
 			// Create EC verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
@@ -151,7 +151,7 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 	public JwtPlayload getPlayload(ECKey signingKey, RSAKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：RSA Decrypt ----------------------
+			//-------------------- Step 1：RSA Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
@@ -163,7 +163,7 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
 			
-			//-------------------- Setup 2：ECDSA Verify --------------------
+			//-------------------- Step 2：ECDSA Verify --------------------
 			
 			// Create EC verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
@@ -173,7 +173,7 @@ public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
 			}
 			
-			//-------------------- Setup 3：Gets The Claims ---------------
+			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());

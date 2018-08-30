@@ -72,12 +72,12 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 
 		try {
 			
-			//-------------------- Setup 1：Get ClaimsSet --------------------
+			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
-			//-------------------- Setup 2：Hamc Signature --------------------
+			//-------------------- Step 2：Hamc Signature --------------------
 			
 			// Request JWS Header with HMAC JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.parse(algorithm));
@@ -90,7 +90,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			// Compute the HMAC signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 3：RSA Encrypt ----------------------
+			//-------------------- Step 3：RSA Encrypt ----------------------
 			
 			// Request JWT encrypted with DIR and 128-bit AES/GCM
 			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
@@ -121,7 +121,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 
 		try {
 			
-			//-------------------- Setup 1：AES Decrypt ----------------------
+			//-------------------- Step 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
@@ -132,7 +132,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：Hamc Verify --------------------
+			//-------------------- Step 2：Hamc Verify --------------------
 			
 			// Create HMAC verifier
 			byte[] secret = Base64.decode(signingKey);
@@ -154,7 +154,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 	public JwtPlayload getPlayload(String signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：AES Decrypt ----------------------
+			//-------------------- Step 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
@@ -165,7 +165,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：Hamc Verify --------------------
+			//-------------------- Step 2：Hamc Verify --------------------
 			
 			// Create HMAC verifier
 			byte[] secret = Base64.decode(signingKey);
@@ -176,7 +176,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
 			}
 			
-			//-------------------- Setup 3：Gets The Claims ---------------
+			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());

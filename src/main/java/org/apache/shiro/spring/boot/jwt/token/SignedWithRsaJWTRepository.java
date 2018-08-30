@@ -66,12 +66,12 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 		
 		try {
 			
-			//-------------------- Setup 1：Get ClaimsSet --------------------
+			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
-			//-------------------- Setup 2：RSA Signature --------------------
+			//-------------------- Step 2：RSA Signature --------------------
 			
 			// Create RSA-signer with the private key
 			JWSSigner signer = new RSASSASigner(signingKey);
@@ -108,12 +108,12 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 
 		try {
 			
-			//-------------------- Setup 1：JWT Parse --------------------
+			//-------------------- Step 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
-			//-------------------- Setup 2：RSA Verify --------------------
+			//-------------------- Step 2：RSA Verify --------------------
 			
 			// Create RSA verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
@@ -142,13 +142,13 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	public JwtPlayload getPlayload(RSAKey signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：JWT Parse --------------------
+			//-------------------- Step 1：JWT Parse --------------------
 			
 			// On the consumer side, parse the JWS
 			SignedJWT signedJWT = SignedJWT.parse(token);
 			
 			
-			//-------------------- Setup 2：RSA Verify --------------------
+			//-------------------- Step 2：RSA Verify --------------------
 			
 			// Create RSA verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedRSASSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new RSASSAVerifier(signingKey) ;
@@ -158,7 +158,7 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
 			}
 			
-			//-------------------- Setup 3：Gets The Claims ---------------
+			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());

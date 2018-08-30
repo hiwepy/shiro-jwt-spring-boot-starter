@@ -72,7 +72,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 			// Prepare JWT with claims set
 			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
 						
-			//-------------------- Setup 1：EdDSA Signature --------------------
+			//-------------------- Step 1：EdDSA Signature --------------------
 			
 			// Request JWS Header with EdDSA JWSAlgorithm
 			JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(signingKey.getKeyID()).build();
@@ -84,7 +84,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 			// Compute the EC signature
 			signedJWT.sign(signer);
 			
-			//-------------------- Setup 2：AES Encrypt ----------------------
+			//-------------------- Step 2：AES Encrypt ----------------------
 			
 			// Request JWT encrypted with DIR and 128-bit AES/GCM
 			JWEHeader jweHeader = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
@@ -113,7 +113,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 
 		try {
 			
-			//-------------------- Setup 1：AES Decrypt ----------------------
+			//-------------------- Step 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
@@ -124,7 +124,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：EdDSA Verify --------------------
+			//-------------------- Step 2：EdDSA Verify --------------------
 			
 			// Create Ed25519 verifier
 			JWSVerifier verifier = checkExpiry ? new ExtendedEd25519Verifier(signingKey.toPublicJWK(), signedJWT.getJWTClaimsSet()) : new Ed25519Verifier(signingKey.toPublicJWK());
@@ -145,7 +145,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 	public JwtPlayload getPlayload(OctetKeyPair signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
-			//-------------------- Setup 1：AES Decrypt ----------------------
+			//-------------------- Step 1：AES Decrypt ----------------------
 			
 			// Parse the JWE string
 			JWEObject jweObject = JWEObject.parse(token);
@@ -156,7 +156,7 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 			
-			//-------------------- Setup 2：Gets The Claims ---------------
+			//-------------------- Step 2：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
