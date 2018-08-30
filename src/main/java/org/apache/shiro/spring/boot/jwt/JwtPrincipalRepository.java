@@ -38,9 +38,7 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
      */
     private boolean checkExpiry;
 	
-	public abstract JwtPlayload getPlayload(JwtToken jwtToken);
-	
-	public abstract boolean verify(JwtToken jwtToken, boolean checkExpiry);
+	public abstract JwtPlayload getPlayload(JwtToken jwtToken, boolean checkExpiry);
 	
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
@@ -48,17 +46,12 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
 		JwtToken jwtToken = (JwtToken) token;
 		
 		String jwt = (String) jwtToken.getPrincipal();
+			
+		JwtPlayload playload = this.getPlayload(jwtToken, isCheckExpiry());
 		
-		if(this.verify(jwtToken, isCheckExpiry())) {
-			
-			JwtPlayload playload = this.getPlayload(jwtToken);
-			
-			// 如果要使token只能使用一次，此处可以过滤并缓存jwtPlayload.getId()
-			// 可以做接收方验证
-			return new SimpleAuthenticationInfo(playload, jwt, "JWT");
-			
-		}
-		throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) ； Host： %s,JWT: %s", jwtToken.getHost(), jwtToken.getToken()))  ;
+		// 如果要使token只能使用一次，此处可以过滤并缓存jwtPlayload.getId()
+		// 可以做接收方验证
+		return new SimpleAuthenticationInfo(playload, jwt, "JWT");
 	}
 
 	@Override
