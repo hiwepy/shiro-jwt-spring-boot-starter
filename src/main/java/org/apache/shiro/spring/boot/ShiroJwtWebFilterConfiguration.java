@@ -1,10 +1,6 @@
 package org.apache.shiro.spring.boot;
 
-import java.util.List;
-
-import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
-import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticatingFilter;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
@@ -29,28 +25,6 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
 	
 	@Autowired
 	private ShiroBizProperties properties;
-
-	/**
-	 * JSON Web Token (JWT) Authentication Filter </br>
-	 * 该过滤器负责用户的认证工作
-	 */
-	@Bean("authc")
-	@ConditionalOnMissingBean(name = "authc")
-	public FilterRegistrationBean<JwtAuthenticatingFilter> authenticationFilter(
-			@Autowired(required = false) List<LoginListener> loginListeners){
-		
-		JwtAuthenticatingFilter authenticationFilter = new JwtAuthenticatingFilter();
-		//登录监听：实现该接口可监听账号登录失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-		authenticationFilter.setLoginListeners(loginListeners);
-		
-		/* * 自定义Filter通过@Bean注解后，被Spring Boot自动注册到了容器的Filter chain中，这样导致的结果是，所有URL都会被自定义Filter过滤，
-		 * 而不是Shiro中配置的一部分URL。下面方式可以解决该问题*/
-		 
-		FilterRegistrationBean<JwtAuthenticatingFilter> registration = new FilterRegistrationBean<JwtAuthenticatingFilter>();
-		registration.setFilter(authenticationFilter);
-	    registration.setEnabled(false); 
-	    return registration;
-	}
 	
 	@Bean
     @ConditionalOnMissingBean
