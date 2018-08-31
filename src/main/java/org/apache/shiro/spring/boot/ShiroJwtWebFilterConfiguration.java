@@ -1,14 +1,14 @@
 package org.apache.shiro.spring.boot;
 
+import java.util.List;
+
+import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
 import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticatingFilter;
-import org.apache.shiro.spring.boot.jwt.authz.JwtAuthorizationFilter;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -28,8 +28,6 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ ShiroBizProperties.class, ShiroJwtProperties.class })
 public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
-
-	private static final Logger LOG = LoggerFactory.getLogger(ShiroJwtWebFilterConfiguration.class);
 	
 	@Autowired
 	private ShiroBizProperties properties;
@@ -40,26 +38,18 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
 	 */
 	@Bean("authc")
 	@ConditionalOnMissingBean(name = "authc")
-	public FilterRegistrationBean<JwtAuthorizationFilter> authenticationFilter(ShiroJwtProperties properties){
-		FilterRegistrationBean<JwtAuthorizationFilter> registration = new FilterRegistrationBean<JwtAuthorizationFilter>(); 
-		JwtAuthorizationFilter authenticationFilter = new JwtAuthorizationFilter();
-		//authenticationFilter.setFailureUrl(properties.getFailureUrl());
+	public FilterRegistrationBean<JwtAuthenticatingFilter> authenticationFilter(
+			@Autowired(required = false) List<LoginListener> loginListeners){
+		
+		JwtAuthenticatingFilter authenticationFilter = new JwtAuthenticatingFilter();
+		//登录监听：实现该接口可监听账号登录失败和成功的状态，从而做业务系统自己的事情，比如记录日志
+		authenticationFilter.setLoginListeners(loginListeners);
+		
+		/* * 自定义Filter通过@Bean注解后，被Spring Boot自动注册到了容器的Filter chain中，这样导致的结果是，所有URL都会被自定义Filter过滤，
+		 * 而不是Shiro中配置的一部分URL。下面方式可以解决该问题*/
+		 
+		FilterRegistrationBean<JwtAuthenticatingFilter> registration = new FilterRegistrationBean<JwtAuthenticatingFilter>();
 		registration.setFilter(authenticationFilter);
-	    registration.setEnabled(false); 
-	    return registration;
-	}
-	
-	/**
-	 * JSON Web Token (JWT) Validation Filter </br>
-	 * 该过滤器负责对Token的校验工作
-	 */
-	@Bean("token")
-	@ConditionalOnMissingBean(name = "token")
-	public FilterRegistrationBean<JwtAuthenticatingFilter> authenticatingFilter(ShiroJwtProperties properties){
-		FilterRegistrationBean<JwtAuthenticatingFilter> registration = new FilterRegistrationBean<JwtAuthenticatingFilter>(); 
-		JwtAuthenticatingFilter authenticatingFilter = new JwtAuthenticatingFilter();
-		//authenticatingFilter.setFailureUrl(properties.getFailureUrl());
-		registration.setFilter(authenticatingFilter);
 	    registration.setEnabled(false); 
 	    return registration;
 	}
