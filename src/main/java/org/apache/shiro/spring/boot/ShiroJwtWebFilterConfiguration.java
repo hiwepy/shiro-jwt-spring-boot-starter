@@ -5,16 +5,13 @@ import java.util.List;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
 import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticatingFilter;
-import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +19,10 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-@ConditionalOnWebApplication
-@AutoConfigureBefore(ShiroWebAutoConfiguration.class)
-@ConditionalOnClass()
+@AutoConfigureBefore( name = {
+	"org.apache.shiro.spring.config.web.autoconfigure.ShiroWebFilterConfiguration",  // shiro-spring-boot-web-starter
+	"org.apache.shiro.spring.boot.ShiroBizWebFilterConfiguration" // spring-boot-starter-shiro-biz
+})
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ ShiroBizProperties.class, ShiroJwtProperties.class })
 public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
