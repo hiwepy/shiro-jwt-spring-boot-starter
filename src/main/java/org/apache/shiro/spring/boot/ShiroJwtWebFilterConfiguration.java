@@ -9,18 +9,14 @@ import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
 import org.apache.shiro.web.servlet.AbstractShiroFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,17 +27,12 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass()
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ ShiroBizProperties.class, ShiroJwtProperties.class })
-public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration implements ApplicationContextAware {
+public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShiroJwtWebFilterConfiguration.class);
-	private ApplicationContext applicationContext;
 	
 	@Autowired
 	private ShiroBizProperties properties;
-	@Autowired
-	private ShiroJwtProperties casProperties;
-	@Autowired
-	private ServerProperties serverProperties;
 
 	/**
 	 * JSON Web Token (JWT) Authentication Filter </br>
@@ -104,14 +95,4 @@ public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfig
         return filterRegistrationBean;
     }
     
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
-
-	public ApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
-	
 }
