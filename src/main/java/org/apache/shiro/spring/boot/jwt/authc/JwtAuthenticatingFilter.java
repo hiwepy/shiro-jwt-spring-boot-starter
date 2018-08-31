@@ -55,18 +55,11 @@ public class JwtAuthenticatingFilter extends AbstractAuthenticatingFilter {
 				return true;
 			} catch (AuthenticationException e) {
 				LOG.error("Host {} JWT Authentication Exception : {}", getHost(request), e.getMessage());
-				if (WebUtils.isAjaxRequest(request)) {
-					WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-					return false;
-				}
-				saveRequestAndRedirectToLogin(request, response);
+				WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+				return false;
 			} 
 		}
-    	if (WebUtils.isAjaxRequest(request)) {
-    		WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthentication.");
-			return false;
-		}
-		saveRequestAndRedirectToLogin(request, response);
+		WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthentication.");
 		return false;
 	}
     
