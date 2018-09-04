@@ -28,16 +28,21 @@ import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import com.google.common.collect.Sets;
 
 /**
- * Abstract JSON Web Token (JWT) Principal Repository
+ * JSON Web Token (JWT) Principal Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPayload> {
+public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPayload> {
 
-    private JwtPayloadRepository jwtPayloadRepository;
+    private final JwtPayloadRepository jwtPayloadRepository;
     /**
      * If Check JWT Validity.
      */
-    private boolean checkExpiry;
+    private boolean checkExpiry = false;
+    
+    public JwtPrincipalRepository(JwtPayloadRepository jwtPayloadRepository) {
+    	this.jwtPayloadRepository = jwtPayloadRepository;
+    }
+    
     
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
@@ -83,10 +88,6 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
 
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
-	}
-
-	public void setJwtPayloadRepository(JwtPayloadRepository jwtPayloadRepository) {
-		this.jwtPayloadRepository = jwtPayloadRepository;
 	}
 	
 	public boolean isCheckExpiry() {
