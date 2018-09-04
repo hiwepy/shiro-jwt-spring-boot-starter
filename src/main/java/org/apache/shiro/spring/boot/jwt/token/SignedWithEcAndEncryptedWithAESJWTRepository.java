@@ -21,6 +21,7 @@ import javax.crypto.SecretKey;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedECDSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -106,9 +107,9 @@ public class SignedWithEcAndEncryptedWithAESJWTRepository implements JwtNestedRe
 			// Serialise to JWE compact form
 			return jweObject.serialize();
 		} catch (KeyLengthException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		}
 		
 	}

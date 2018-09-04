@@ -15,78 +15,121 @@
  */
 package org.apache.shiro.spring.boot.jwt.authc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.DisabledAccountException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.biz.authc.exception.IncorrectCaptchaException;
+import org.apache.shiro.biz.authc.exception.InvalidAccountException;
+import org.apache.shiro.biz.authc.exception.NoneRoleException;
 import org.apache.shiro.biz.utils.WebUtils;
-import org.apache.shiro.biz.web.filter.authc.AbstractAuthenticatingFilter;
-import org.apache.shiro.spring.boot.jwt.authz.JwtAuthorizationFilter;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
+import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
+import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
+import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
+import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Jwt认证 (authentication)过滤器
- * @author 		： <a href="https://github.com/vindell">vindell</a>
+ * @author ： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtAuthenticatingFilter extends AbstractAuthenticatingFilter {
+public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
-	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
-	
-	/**
-     * HTTP Authorization header, equal to <code>Authorization</code>
-     */
-    protected static final String AUTHORIZATION_HEADER = "Authorization";
+	private JwtPrincipalRepository jwtRepository;
 
-	private String authorizationHeaderName = AUTHORIZATION_HEADER;
-	
-    @Override
-	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-    	if (isJwtSubmission(request, response)) {
-			AuthenticationToken token = createToken(request, response);
-			try {
-				Subject subject = getSubject(request, response);
-				subject.login(token);
-				return true;
-			} catch (AuthenticationException e) {
-				LOG.error("Host {} JWT Authentication Exception : {}", getHost(request), e.getMessage());
-				WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-				return false;
-			} 
-		}
-		WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthentication.");
-		return false;
+	public JwtAuthenticatingFilter() {
+		super();
 	}
-    
+
 	@Override
-	protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
-		String host = getHost(request);
-		String jwtToken = getAuthzHeader(request);
-		return new JwtToken(host, jwtToken);
+	protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
+			ServletResponse response) throws Exception {
+
+		// 调用事件监听器
+		if (getLoginListeners() != null && getLoginListeners().size() > 0) {
+			for (LoginListener loginListener : getLoginListeners()) {
+				loginListener.onLoginSuccess(token, subject, request, response);
+			}
+		}
+
+		// JSON Web Token (JWT)
+		String jwt = getJwtRepository().getJwt(token, subject, request, response);
+
+		// 响应成功状态信息
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("status", HttpServletResponse.SC_OK);
+		data.put("message", "Authentication Success.");
+		data.put("token", jwt);
+		// 响应
+		WebUtils.writeJSONString(response, data);
+		
+		// we handled the success , prevent the chain from continuing:
+		return false;
+
+	}
+	
+	@Override
+	protected void setFailureRespone(AuthenticationToken token, AuthenticationException e, ServletRequest request,
+			ServletResponse response) {
+		// 响应异常状态信息
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("status", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		// 已经超出了重试限制，需要进行提醒
+		if (isOverRetryTimes(request, response)) {
+			data.put("message", "Over Maximum number of retry to login.");
+			data.put("captcha", "required");
+		}
+		// 验证码错误
+		else if (e instanceof IncorrectCaptchaException) {
+			data.put("message", "Invalid captcha value.");
+			data.put("captcha", "error");
+		}
+		// Jwt错误
+		else if (e instanceof IncorrectJwtException) {
+			data.put("message", "JWT is incorrect.");
+		}
+		// Jwt无效
+		else if (e instanceof InvalidJwtToken) {
+			data.put("message", "Invalid JWT value.");
+		}
+		// 账号或密码为空
+		else if (e instanceof UnknownAccountException) {
+			data.put("message", "Username or password is required.");
+		}
+		// 账户或密码错误
+		else if (e instanceof InvalidAccountException) {
+			data.put("message", "Username or password is incorrect, please re-enter.");
+		}
+		// 账户没有启用
+		else if (e instanceof DisabledAccountException) {
+			data.put("message", "Account is disabled.");
+		}
+		// 该用户无所属角色，禁止登录
+		else if (e instanceof NoneRoleException) {
+			data.put("message", "Username or password is incorrect, please re-enter");
+		} else {
+			data.put("message", "Authentication Exception.");
+		}
+		// 导致异常的类型
+		data.put(getFailureKeyAttribute(), e.getClass().getName());
+		WebUtils.writeJSONString(response, data);
+	}
+	
+
+	public JwtPrincipalRepository getJwtRepository() {
+		return jwtRepository;
 	}
 
-    protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {
-    	 String authzHeader = getAuthzHeader(request);
-		return (request instanceof HttpServletRequest) && authzHeader != null;
+	public void setJwtRepository(JwtPrincipalRepository jwtRepository) {
+		this.jwtRepository = jwtRepository;
 	}
 
-    protected String getAuthzHeader(ServletRequest request) {
-        HttpServletRequest httpRequest = WebUtils.toHttp(request);
-        return httpRequest.getHeader(getAuthorizationHeaderName());
-    }
-
-	public String getAuthorizationHeaderName() {
-		return authorizationHeaderName;
-	}
-
-	public void setAuthorizationHeaderName(String authorizationHeaderName) {
-		this.authorizationHeaderName = authorizationHeaderName;
-	}
-
-     
 }

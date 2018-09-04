@@ -17,6 +17,9 @@ package org.apache.shiro.spring.boot.jwt;
 
 import java.util.Set;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -24,6 +27,7 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.subject.Subject;
 
 import com.google.common.collect.Sets;
 
@@ -38,6 +42,9 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
      */
     private boolean checkExpiry;
 	
+    public abstract String getJwt(AuthenticationToken token, Subject subject, ServletRequest request,
+			ServletResponse response);
+    
 	public abstract JwtPlayload getPlayload(JwtToken jwtToken, boolean checkExpiry);
 	
 	@Override

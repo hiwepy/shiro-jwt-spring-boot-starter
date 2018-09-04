@@ -20,6 +20,7 @@ import java.text.ParseException;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.utils.JJwtUtils;
 
 import io.jsonwebtoken.Claims;
@@ -116,7 +117,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 					&& time < claims.getExpiration().getTime();
 			
 		} catch(InvalidClaimException e) {
-			throw new AuthenticationException(e);
+			throw new InvalidJwtToken(e);
 		}
 		
 	}
@@ -151,7 +152,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 			
 			return JJwtUtils.playload(jws.getBody());
 		} catch (ParseException e) {
-			throw new AuthenticationException(e);
+			throw new InvalidJwtToken(e);
 		}
 	}
 

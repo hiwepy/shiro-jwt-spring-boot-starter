@@ -22,6 +22,8 @@ import javax.crypto.SecretKey;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
+import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedMACVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -107,9 +109,9 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			// Serialise to JWE compact form
 			return jweObject.serialize();
 		} catch (KeyLengthException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		}
 		
 	}
@@ -140,12 +142,14 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
+		} catch (IllegalStateException e) {
+			throw new IncorrectJwtException(e);
 		} catch (NumberFormatException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (ParseException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new InvalidJwtToken(e);
 		}
 		
 	}
@@ -180,10 +184,14 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+		} catch (IllegalStateException e) {
+			throw new IncorrectJwtException(e);
+		} catch (NumberFormatException e) {
+			throw new IncorrectJwtException(e);
 		} catch (ParseException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new InvalidJwtToken(e);
 		}
 		
 	}

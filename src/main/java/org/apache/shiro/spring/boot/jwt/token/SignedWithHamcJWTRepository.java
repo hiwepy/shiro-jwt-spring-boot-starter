@@ -20,6 +20,8 @@ import java.text.ParseException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
+import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedMACVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -84,9 +86,9 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			// eyJhbGciOiJIUzI1NiJ9.SGVsbG8sIHdvcmxkIQ.onO9Ihudz3WkiauDO2Uhyuz0Y18UASXlSc1eS0NkWyA
 			return signedJWT.serialize();
 		} catch (KeyLengthException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		}
 		
 	}
@@ -116,13 +118,13 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
 		} catch (IllegalStateException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (NumberFormatException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (ParseException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new InvalidJwtToken(e);
 		}
 	}
 
@@ -159,13 +161,13 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			// Retrieve JWT claims
 			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
 		} catch (IllegalStateException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (NumberFormatException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (ParseException e) {
-			throw new AuthenticationException(e);
+			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
-			throw new AuthenticationException(e);
+			throw new InvalidJwtToken(e);
 		}
 	}
 
