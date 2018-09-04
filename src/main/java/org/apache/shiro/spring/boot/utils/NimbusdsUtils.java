@@ -17,9 +17,13 @@ package org.apache.shiro.spring.boot.utils;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
+import org.apache.shiro.util.CollectionUtils;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -28,9 +32,54 @@ import com.nimbusds.jwt.JWTClaimsSet;
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
 public class NimbusdsUtils {
+	
+	
 
-	public static JWTClaimsSet claimsSet(String id, String subject, String issuer, Long period, String roles,
-			String permissions) {
+
+	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, Map<String, Object> claims,
+			long period) {
+		
+		// Current TimeMillis
+		long currentTimeMillis = System.currentTimeMillis();
+
+		// Prepare JWT with claims set
+		JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
+
+		// Jwt主键ID
+		if (StringUtils.hasText(jwtId)) {
+			builder.jwtID(jwtId);
+		}
+		// 用户名主题
+		builder.subject(subject);
+		// 签发者
+		if (StringUtils.hasText(issuer)) {
+			builder.issuer(issuer);
+		}
+		
+		// 声明信息
+		if(!CollectionUtils.isEmpty(claims)) {
+			Iterator<Entry<String, Object>> ite = claims.entrySet().iterator();
+			while (ite.hasNext()) {
+				Entry<String, Object> entry = ite.next();
+				builder.claim(entry.getKey(), entry.getValue());
+			}
+		}
+		
+		// 签发时间
+		builder.issueTime(new Date(currentTimeMillis));
+		builder.notBeforeTime(new Date(currentTimeMillis));
+		if (period >= 0) {
+			// 有效时间
+			Date expiration = new Date(currentTimeMillis + period);
+			builder.expirationTime(expiration);
+		}
+
+		return builder.build();
+	}
+	
+	
+	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, String roles,
+			String permissions, long period) {
 
 		// Current TimeMillis
 		long currentTimeMillis = System.currentTimeMillis();
@@ -39,22 +88,14 @@ public class NimbusdsUtils {
 		JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder();
 
 		// Jwt主键ID
-		if (StringUtils.hasText(id)) {
-			builder.jwtID(id);
+		if (StringUtils.hasText(jwtId)) {
+			builder.jwtID(jwtId);
 		}
 		// 用户名主题
 		builder.subject(subject);
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
 			builder.issuer(issuer);
-		}
-		// 签发时间
-		builder.issueTime(new Date(currentTimeMillis));
-		builder.notBeforeTime(new Date(currentTimeMillis));
-		if (null != period) {
-			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period);
-			builder.expirationTime(expiration);
 		}
 		// 角色
 		if (StringUtils.hasText(roles)) {
@@ -64,7 +105,14 @@ public class NimbusdsUtils {
 		if (StringUtils.hasText(permissions)) {
 			builder.claim("perms", permissions);
 		}
-
+		// 签发时间
+		builder.issueTime(new Date(currentTimeMillis));
+		builder.notBeforeTime(new Date(currentTimeMillis));
+		if (period >= 0) {
+			// 有效时间
+			Date expiration = new Date(currentTimeMillis + period);
+			builder.expirationTime(expiration);
+		}
 		return builder.build();
 	}
 

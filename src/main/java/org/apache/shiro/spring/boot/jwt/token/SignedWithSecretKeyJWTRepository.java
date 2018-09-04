@@ -17,11 +17,14 @@ package org.apache.shiro.spring.boot.jwt.token;
 
 import java.security.Key;
 import java.text.ParseException;
+import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.utils.JJwtUtils;
+
+import com.google.common.collect.Maps;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodec;
@@ -47,10 +50,9 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
     /**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param id Jwt Id
+	 * @param jwtId Jwt Id
 	 * @param subject Jwt Subject
 	 * @param issuer Jwt Issuer
-	 * @param period Jwt Expiration Cycle
 	 * @param roles The Roles
 	 * @param permissions The Perms
 	 * @param algorithm: <br/>
@@ -66,14 +68,52 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
      *  PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256 <br/>
      *  PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 <br/>
      *  PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 <br/>
+     * @param period Jwt Expiration Cycle
 	 * @return JSON Web Token (JWT)
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public String issueJwt(Key key, String id, String subject, String issuer, Long period, String roles,
-			String permissions, String algorithm)  throws AuthenticationException {
+	public String issueJwt(Key key, String jwtId, String subject, String issuer,
+			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
+		
+		Map<String, Object> claims = Maps.newHashMap();
+		claims.put("roles", roles);
+		claims.put("perms", permissions);
+		
+		return this.issueJwt(key, jwtId, subject, issuer, claims, algorithm, period);
+	}
+
+
+	/**
+	 * TODO
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey
+	 * @param jwtId
+	 * @param subject
+	 * @param issuer
+	 * @param claims
+	 * @param algorithm: <br/>
+	 *  HS256: HMAC using SHA-256 <br/>
+	 *  HS384: HMAC using SHA-384 <br/>
+     *  HS512: HMAC using SHA-512 <br/>
+     *  ES256: ECDSA using P-256 and SHA-256 <br/>
+     *  ES384: ECDSA using P-384 and SHA-384 <br/>
+     *  ES512: ECDSA using P-521 and SHA-512 <br/>
+     *  RS256: RSASSA-PKCS-v1_5 using SHA-256 <br/>
+     *  RS384: RSASSA-PKCS-v1_5 using SHA-384 <br/>
+     *  RS512: RSASSA-PKCS-v1_5 using SHA-512 <br/>
+     *  PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256 <br/>
+     *  PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 <br/>
+     *  PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 <br/>
+	 * @param period
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	@Override
+	public String issueJwt(Key key, String jwtId, String subject, String issuer, Map<String, Object> claims,
+			String algorithm, long period) throws AuthenticationException {
 		String token = JJwtUtils
-				.jwtBuilder(id, subject, issuer, period, roles, permissions)
+				.jwtBuilder(jwtId, subject, issuer, claims, period)
 				// 压缩类型
 				.compressWith(getCompressWith())
 				// 设置算法（必须）
@@ -81,6 +121,7 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 		return token;
 	}
 
+	
 	/**
 	 * Verify the validity of JWT
 	 * @author 		：<a href="https://github.com/vindell">vindell</a>

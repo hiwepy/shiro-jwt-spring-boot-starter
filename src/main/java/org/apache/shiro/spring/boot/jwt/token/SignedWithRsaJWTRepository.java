@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
+import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
@@ -24,6 +25,7 @@ import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedRSASSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
+import com.google.common.collect.Maps;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -46,10 +48,9 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	/**
 	 * 
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param id
+	 * @param jwtId
 	 * @param subject
 	 * @param issuer
-	 * @param period
 	 * @param roles
 	 * @param permissions
 	 * @param algorithm: <br/>
@@ -59,19 +60,50 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	 * 	PS256 - RSA PSS signature with SHA-256 <br/>
 	 * 	PS384 - RSA PSS signature with SHA-384 <br/>
 	 * 	PS512 - RSA PSS signature with SHA-512 <br/>
+	 * @param period
 	 * @return JSON Web Token (JWT)
 	 * @throws Exception 
 	 */
 	@Override
-	public String issueJwt(RSAKey signingKey, String id, String subject, String issuer, Long period, String roles,
-			String permissions, String algorithm)  throws AuthenticationException {
+	public String issueJwt(RSAKey signingKey, String jwtId, String subject, String issuer,
+			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 		
+		Map<String, Object> claims = Maps.newHashMap();
+		claims.put("roles", roles);
+		claims.put("perms", permissions);
+		
+		return this.issueJwt(signingKey, jwtId, subject, issuer, claims, algorithm, period);
+		
+	}
+	
+	/**
+	 * TODO
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey
+	 * @param jwtId
+	 * @param subject
+	 * @param issuer
+	 * @param claims
+	 * @param algorithm: <br/>
+	 * 	RS256 - RSA PKCS#1 signature with SHA-256 <br/>
+	 * 	RS384 - RSA PKCS#1 signature with SHA-384 <br/>
+	 * 	RS512 - RSA PKCS#1 signature with SHA-512 <br/>
+	 * 	PS256 - RSA PSS signature with SHA-256 <br/>
+	 * 	PS384 - RSA PSS signature with SHA-384 <br/>
+	 * 	PS512 - RSA PSS signature with SHA-512 <br/>
+	 * @param period
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	@Override
+	public String issueJwt(RSAKey signingKey, String jwtId, String subject, String issuer, Map<String, Object> claims,
+			String algorithm, long period) throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
+			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, claims, period);
 						
 			//-------------------- Step 2：RSA Signature --------------------
 			
@@ -96,8 +128,8 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 		} catch (JOSEException e) {
 			throw new IncorrectJwtException(e);
 		}
-		
 	}
+
 
 	/**
 	 * TODO
@@ -175,4 +207,5 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 		}
 	}
 
+	
 }

@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
+import org.apache.shiro.util.CollectionUtils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
@@ -46,21 +47,25 @@ public class JJwtUtils {
 	public static final String CLAIM_KEY_ACCOUNT_NON_LOCKED = "non_locked";
 	public static final String CLAIM_KEY_ACCOUNT_NON_EXPIRED = "non_expired";
 
-	public static JwtBuilder jwtBuilder(String uid, String subject, String issuer, Map<String, Object> claims,
+	public static JwtBuilder jwtBuilder(String jwtId, String subject, String issuer, Map<String, Object> claims,
 			long period) {
 
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
-		JwtBuilder builder = Jwts.builder().setClaims(claims).setHeaderParam("typ", "JWT");
+		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT");
 		// Jwt主键ID
-		if (StringUtils.hasText(uid)) {
-			builder.setId(uid);
+		if (StringUtils.hasText(jwtId)) {
+			builder.setId(jwtId);
 		}
 		// 用户名主题
 		builder.setSubject(subject);
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
 			builder.setIssuer(issuer);
+		}
+		// 声明信息
+		if(!CollectionUtils.isEmpty(claims)) {
+			builder.setClaims(claims);
 		}
 		// 签发时间
 		Date now = new Date(currentTimeMillis);
@@ -73,15 +78,15 @@ public class JJwtUtils {
 		return builder;
 	}
 
-	public static JwtBuilder jwtBuilder(String uid, String subject,
+	public static JwtBuilder jwtBuilder(String jwtId, String subject,
 			String issuer, long period, String roles, String permissions) {
 
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
 		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT");
 		// Jwt主键ID
-		if (StringUtils.hasText(uid)) {
-			builder.setId(uid);
+		if (StringUtils.hasText(jwtId)) {
+			builder.setId(jwtId);
 		}
 		// 用户名主题
 		builder.setSubject(subject);

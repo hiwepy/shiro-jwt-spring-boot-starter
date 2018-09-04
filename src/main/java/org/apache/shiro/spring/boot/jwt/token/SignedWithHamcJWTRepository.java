@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
+import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
@@ -25,6 +26,7 @@ import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedMACVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
+import com.google.common.collect.Maps;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -45,29 +47,54 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 	/**
 	 * 
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param id
+	 * @param jwtId
 	 * @param subject
 	 * @param issuer
-	 * @param period
 	 * @param roles
 	 * @param permissions
 	 * @param algorithm ： <br/>
      * 	HS256 - HMAC with SHA-256, requires 256+ bit secret<br/>
      * 	HS384 - HMAC with SHA-384, requires 384+ bit secret<br/>
      * 	HS512 - HMAC with SHA-512, requires 512+ bit secret<br/>
+     * @param period
 	 * @return JSON Web Token (JWT)
 	 * @throws Exception 
 	 */
 	@Override
-	public String issueJwt(String signingKey, String id, String subject, String issuer, Long period, String roles,
-			String permissions, String algorithm)  throws AuthenticationException {
+	public String issueJwt(String signingKey, String jwtId, String subject, String issuer,
+			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 		
+		Map<String, Object> claims = Maps.newHashMap();
+		claims.put("roles", roles);
+		claims.put("perms", permissions);
+		
+		return this.issueJwt(signingKey, jwtId, subject, issuer, claims, algorithm, period);
+		
+	}
+	
+	/**
+	 * TODO
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey
+	 * @param jwtId
+	 * @param subject
+	 * @param issuer
+	 * @param claims
+	 * @param algorithm
+	 * @param period
+	 * @return
+	 * @throws AuthenticationException
+	 */
+	
+	@Override
+	public String issueJwt(String signingKey, String jwtId, String subject, String issuer, Map<String, Object> claims,
+			String algorithm, long period) throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(id, subject, issuer, period, roles, permissions);
+			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, claims, period);
 			
 			//-------------------- Step 2：Hamc Signature --------------------
 			
@@ -90,8 +117,8 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 		} catch (JOSEException e) {
 			throw new IncorrectJwtException(e);
 		}
-		
 	}
+
 
 	/**
 	 * TODO
