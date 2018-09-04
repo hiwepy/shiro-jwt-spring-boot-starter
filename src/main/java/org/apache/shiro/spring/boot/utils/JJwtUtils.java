@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
@@ -109,20 +109,20 @@ public class JJwtUtils {
 		return builder;
 	}
 
-	public static JwtPlayload playload(Claims claims) throws ParseException {
+	public static JwtPayload payload(Claims claims) throws ParseException {
 
-		JwtPlayload jwtPlayload = new JwtPlayload();
-		jwtPlayload.setTokenId(claims.getId());
-		jwtPlayload.setClientId(claims.getSubject());// 用户名
-		jwtPlayload.setIssuer(claims.getIssuer());// 签发者
-		jwtPlayload.setIssuedAt(claims.getIssuedAt());// 签发时间
-		jwtPlayload.setExpiration(claims.getExpiration()); // 过期时间
-		jwtPlayload.setNotBefore(claims.getNotBefore());
-		jwtPlayload.setAudience(Arrays.asList(claims.getAudience()));// 接收方
-		jwtPlayload.setRoles(claims.get("roles", String.class));// 访问主张-角色
-		jwtPlayload.setPerms(claims.get("perms", String.class));// 访问主张-权限
+		JwtPayload payload = new JwtPayload();
+		payload.setTokenId(claims.getId());
+		payload.setClientId(claims.getSubject());// 用户名
+		payload.setIssuer(claims.getIssuer());// 签发者
+		payload.setIssuedAt(claims.getIssuedAt());// 签发时间
+		payload.setExpiration(claims.getExpiration()); // 过期时间
+		payload.setNotBefore(claims.getNotBefore());
+		payload.setAudience(Arrays.asList(claims.getAudience()));// 接收方
+		payload.setRoles(claims.get("roles", String.class));// 访问主张-角色
+		payload.setPerms(claims.get("perms", String.class));// 访问主张-权限
 
-		return jwtPlayload;
+		return payload;
 	}
 
 	public static Claims parseJWT(String base64Secret, String token) {

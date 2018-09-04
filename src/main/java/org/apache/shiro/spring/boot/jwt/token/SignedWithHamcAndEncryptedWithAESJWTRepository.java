@@ -21,7 +21,7 @@ import javax.crypto.SecretKey;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedMACVerifier;
@@ -155,7 +155,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(String signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(String signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：AES Decrypt ----------------------
@@ -183,7 +183,7 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
-			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+			return NimbusdsUtils.payload(signedJWT.getJWTClaimsSet());
 		} catch (IllegalStateException e) {
 			throw new IncorrectJwtException(e);
 		} catch (NumberFormatException e) {

@@ -19,7 +19,7 @@ import java.text.ParseException;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedMACVerifier;
@@ -137,7 +137,7 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 	 */
 	
 	@Override
-	public JwtPlayload getPlayload(String signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(String signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：JWT Parse --------------------
@@ -159,7 +159,7 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
-			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+			return NimbusdsUtils.payload(signedJWT.getJWTClaimsSet());
 		} catch (IllegalStateException e) {
 			throw new IncorrectJwtException(e);
 		} catch (NumberFormatException e) {

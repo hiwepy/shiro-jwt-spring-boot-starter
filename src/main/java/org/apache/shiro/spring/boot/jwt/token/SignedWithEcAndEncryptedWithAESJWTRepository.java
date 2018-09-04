@@ -20,7 +20,7 @@ import java.text.ParseException;
 import javax.crypto.SecretKey;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedECDSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
@@ -150,7 +150,7 @@ public class SignedWithEcAndEncryptedWithAESJWTRepository implements JwtNestedRe
 	}
 	
 	@Override
-	public JwtPlayload getPlayload(ECKey signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(ECKey signingKey, SecretKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：AES Decrypt ----------------------
@@ -177,7 +177,7 @@ public class SignedWithEcAndEncryptedWithAESJWTRepository implements JwtNestedRe
 			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
-			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+			return NimbusdsUtils.payload(signedJWT.getJWTClaimsSet());
 		} catch (IllegalStateException e) {
 			throw new AuthenticationException(e);
 		} catch (NumberFormatException e) {

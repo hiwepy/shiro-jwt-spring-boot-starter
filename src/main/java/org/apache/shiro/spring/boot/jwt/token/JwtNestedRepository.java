@@ -1,7 +1,7 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 
 public interface JwtNestedRepository<S, E> {
 
@@ -11,6 +11,6 @@ public interface JwtNestedRepository<S, E> {
 	public abstract boolean verify(S signingKey, E encryptKey, String token, boolean checkExpiry)
 			throws AuthenticationException;
 
-	public abstract JwtPlayload getPlayload(S signingKey, E encryptKey, String token, boolean checkExpiry)
+	public abstract JwtPayload getPlayload(S signingKey, E encryptKey, String token, boolean checkExpiry)
 			throws AuthenticationException;
 }

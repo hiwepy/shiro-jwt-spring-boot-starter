@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.shiro.codec.Base64;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.junit.Test;
 
 import io.jsonwebtoken.Claims;
@@ -74,7 +74,7 @@ public class JWTTest {
 		System.out.println("roles:" + claims1.get("roles", String.class));
 		System.out.println("perms:" + claims1.get("perms", String.class));
 
-		JwtPlayload jwtPlayload = JJwtUtils.playload(claims1);
+		JwtPayload jwtPlayload = JJwtUtils.payload(claims1);
 		System.out.println("roles:" + jwtPlayload.getRoles());
 		System.out.println("perms:" + jwtPlayload.getPerms());
 
@@ -105,7 +105,7 @@ public class JWTTest {
 		System.out.println("roles:" + claims2.get("roles", String.class));
 		System.out.println("perms:" + claims2.get("perms", String.class));
 
-		JwtPlayload jwtPlayload2 = JJwtUtils.playload(claims2);
+		JwtPayload jwtPlayload2 = JJwtUtils.payload(claims2);
 		System.out.println("roles:" + jwtPlayload2.getRoles());
 		System.out.println("perms:" + jwtPlayload2.getPerms());
 

@@ -18,7 +18,7 @@ package org.apache.shiro.spring.boot.jwt.token;
 import java.text.ParseException;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.utils.JJwtUtils;
 
@@ -129,11 +129,11 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	 * @param secretKey ：   If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. <br/>
 	 * @param token JSON Web Token (JWT)
 	 * @param checkExpiry If Check validity.
-	 * @return JwtPlayload {@link JwtPlayload}
+	 * @return JwtPlayload {@link JwtPayload}
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(String base64Secret, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(String base64Secret, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			// Retrieve JWT claims
@@ -144,7 +144,7 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 			}
 			Jws<Claims> jws = jwtParser.setSigningKey(base64Secret).parseClaimsJws(token);
 			
-			return JJwtUtils.playload(jws.getBody());
+			return JJwtUtils.payload(jws.getBody());
 		} catch (ParseException e) {
 			throw new InvalidJwtToken(e);
 		}

@@ -19,7 +19,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -68,20 +68,20 @@ public class NimbusdsUtils {
 		return builder.build();
 	}
 
-	public static JwtPlayload playload(JWTClaimsSet jwtClaims) throws ParseException {
+	public static JwtPayload payload(JWTClaimsSet jwtClaims) throws ParseException {
 
-		JwtPlayload jwtPlayload = new JwtPlayload();
-		jwtPlayload.setTokenId(jwtClaims.getJWTID());
-		jwtPlayload.setClientId(jwtClaims.getSubject());// 用户名
-		jwtPlayload.setIssuer(jwtClaims.getIssuer());// 签发者
-		jwtPlayload.setIssuedAt(jwtClaims.getIssueTime());// 签发时间
-		jwtPlayload.setExpiration(jwtClaims.getExpirationTime()); // 过期时间
-		jwtPlayload.setNotBefore(jwtClaims.getNotBeforeTime());
-		jwtPlayload.setAudience(jwtClaims.getAudience());// 接收方
-		jwtPlayload.setRoles(jwtClaims.getStringClaim("roles"));// 访问主张-角色
-		jwtPlayload.setPerms(jwtClaims.getStringClaim("perms"));// 访问主张-权限
+		JwtPayload payload = new JwtPayload();
+		payload.setTokenId(jwtClaims.getJWTID());
+		payload.setClientId(jwtClaims.getSubject());// 用户名
+		payload.setIssuer(jwtClaims.getIssuer());// 签发者
+		payload.setIssuedAt(jwtClaims.getIssueTime());// 签发时间
+		payload.setExpiration(jwtClaims.getExpirationTime()); // 过期时间
+		payload.setNotBefore(jwtClaims.getNotBeforeTime());
+		payload.setAudience(jwtClaims.getAudience());// 接收方
+		payload.setRoles(jwtClaims.getStringClaim("roles"));// 访问主张-角色
+		payload.setPerms(jwtClaims.getStringClaim("perms"));// 访问主张-权限
 
-		return jwtPlayload;
+		return payload;
 	}
 
 }

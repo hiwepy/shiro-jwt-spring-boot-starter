@@ -22,7 +22,7 @@ import java.util.List;
  * TODO
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtPlayload {
+public class JwtPayload {
 
 	private String tokenId;// 令牌id
 	private String clientId;// 客户标识（用户名、账号）

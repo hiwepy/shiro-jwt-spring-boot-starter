@@ -18,7 +18,7 @@ package org.apache.shiro.spring.boot.jwt.token;
 import java.text.ParseException;
 
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.spring.boot.jwt.JwtPlayload;
+import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedRSASSAVerifier;
@@ -141,7 +141,7 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	 * @throws Exception
 	 */
 	@Override
-	public JwtPlayload getPlayload(RSAKey signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(RSAKey signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：JWT Parse --------------------
@@ -163,7 +163,7 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 			//-------------------- Step 3：Gets The Claims ---------------
 			
 			// Retrieve JWT claims
-			return NimbusdsUtils.playload(signedJWT.getJWTClaimsSet());
+			return NimbusdsUtils.payload(signedJWT.getJWTClaimsSet());
 		} catch (IllegalStateException e) {
 			throw new IncorrectJwtException(e);
 		} catch (NumberFormatException e) {

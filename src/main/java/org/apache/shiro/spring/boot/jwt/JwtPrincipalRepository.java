@@ -17,9 +17,6 @@ package org.apache.shiro.spring.boot.jwt;
 
 import java.util.Set;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -27,7 +24,6 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
-import org.apache.shiro.subject.Subject;
 
 import com.google.common.collect.Sets;
 
@@ -35,18 +31,14 @@ import com.google.common.collect.Sets;
  * Abstract JSON Web Token (JWT) Principal Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPlayload> {
+public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPayload> {
 
-	 /**
+    private JwtPayloadRepository jwtPayloadRepository;
+    /**
      * If Check JWT Validity.
      */
     private boolean checkExpiry;
-	
-    public abstract String getJwt(AuthenticationToken token, Subject subject, ServletRequest request,
-			ServletResponse response);
     
-	public abstract JwtPlayload getPlayload(JwtToken jwtToken, boolean checkExpiry);
-	
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		
@@ -54,41 +46,49 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
 		
 		String jwt = (String) jwtToken.getPrincipal();
 			
-		JwtPlayload playload = this.getPlayload(jwtToken, isCheckExpiry());
+		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
 		
-		// 如果要使token只能使用一次，此处可以过滤并缓存jwtPlayload.getId()
+		// 如果要使token只能使用一次，此处可以过滤并缓存payload.getId()
 		// 可以做接收方验证
-		return new SimpleAuthenticationInfo(playload, jwt, "JWT");
+		return new SimpleAuthenticationInfo(payload, jwt, "JWT");
 	}
 
 	@Override
-	public Set<String> getRoles(JwtPlayload principal) {
+	public Set<String> getRoles(JwtPayload principal) {
 		return Sets.newHashSet(StringUtils.tokenizeToStringArray(principal.getRoles()));
 	}
 
 	@Override
-	public Set<String> getRoles(Set<JwtPlayload> principals) {
+	public Set<String> getRoles(Set<JwtPayload> principals) {
 		Set<String> sets = Sets.newHashSet();
-		for (JwtPlayload jwtPlayload : principals) {
+		for (JwtPayload jwtPlayload : principals) {
 			sets.addAll(Sets.newHashSet(StringUtils.tokenizeToStringArray(jwtPlayload.getRoles())));
 		}
 		return sets;
 	}
 
 	@Override
-	public Set<String> getPermissions(JwtPlayload principal) {
+	public Set<String> getPermissions(JwtPayload principal) {
 		return Sets.newHashSet(StringUtils.tokenizeToStringArray(principal.getPerms()));
 	}
 
 	@Override
-	public Set<String> getPermissions(Set<JwtPlayload> principals) {
+	public Set<String> getPermissions(Set<JwtPayload> principals) {
 		Set<String> sets = Sets.newHashSet();
-		for (JwtPlayload jwtPlayload : principals) {
+		for (JwtPayload jwtPlayload : principals) {
 			sets.addAll(Sets.newHashSet(StringUtils.tokenizeToStringArray(jwtPlayload.getPerms())));
 		}
 		return sets;
 	}
 
+	public JwtPayloadRepository getJwtPayloadRepository() {
+		return jwtPayloadRepository;
+	}
+
+	public void setJwtPayloadRepository(JwtPayloadRepository jwtPayloadRepository) {
+		this.jwtPayloadRepository = jwtPayloadRepository;
+	}
+	
 	public boolean isCheckExpiry() {
 		return checkExpiry;
 	}
@@ -96,5 +96,5 @@ public abstract class JwtPrincipalRepository implements ShiroPrincipalRepository
 	public void setCheckExpiry(boolean checkExpiry) {
 		this.checkExpiry = checkExpiry;
 	}
-
+	
 }

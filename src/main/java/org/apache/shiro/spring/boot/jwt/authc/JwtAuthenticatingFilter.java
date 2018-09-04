@@ -32,7 +32,7 @@ import org.apache.shiro.biz.authc.exception.NoneRoleException;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
-import org.apache.shiro.spring.boot.jwt.JwtPrincipalRepository;
+import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.subject.Subject;
@@ -43,7 +43,7 @@ import org.apache.shiro.subject.Subject;
  */
 public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
-	private JwtPrincipalRepository jwtRepository;
+	private JwtPayloadRepository jwtPayloadRepository;
 
 	public JwtAuthenticatingFilter() {
 		super();
@@ -61,7 +61,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		}
 
 		// JSON Web Token (JWT)
-		String jwt = getJwtRepository().getJwt(token, subject, request, response);
+		String jwt = getJwtPayloadRepository().getJwt(token, subject, request, response);
 
 		// 响应成功状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -122,14 +122,13 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		data.put(getFailureKeyAttribute(), e.getClass().getName());
 		WebUtils.writeJSONString(response, data);
 	}
+
+	public JwtPayloadRepository getJwtPayloadRepository() {
+		return jwtPayloadRepository;
+	}
+
+	public void setJwtPayloadRepository(JwtPayloadRepository jwtPayloadRepository) {
+		this.jwtPayloadRepository = jwtPayloadRepository;
+	}
 	
-
-	public JwtPrincipalRepository getJwtRepository() {
-		return jwtRepository;
-	}
-
-	public void setJwtRepository(JwtPrincipalRepository jwtRepository) {
-		this.jwtRepository = jwtRepository;
-	}
-
 }
