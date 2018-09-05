@@ -15,22 +15,18 @@
  */
 package org.apache.shiro.spring.boot.jwt.authc;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.DisabledAccountException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.biz.authc.exception.IncorrectCaptchaException;
-import org.apache.shiro.biz.authc.exception.InvalidAccountException;
-import org.apache.shiro.biz.authc.exception.NoneRoleException;
+import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
@@ -50,16 +46,54 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticatingFilter.class);
 	
+	 protected static final String AUTHORIZATION_PARAM = "token";
+	 
 	/**
      * HTTP Authorization header, equal to <code>Authorization</code>
      */
     protected static final String AUTHORIZATION_HEADER = "Authorization";
-
-	private String authorizationHeaderName = AUTHORIZATION_HEADER;
+    
+    private String authorizationHeaderName = AUTHORIZATION_HEADER;
+    private String authorizationParamName = AUTHORIZATION_PARAM;
+	private String authorizationCookieName = AUTHORIZATION_PARAM;
 	private JwtPayloadRepository jwtPayloadRepository;
-
+	/**
+	 * If Session Stateless
+	 */
+	private boolean stateless = false;
+	/**
+	 * If Check JWT Validity.
+	 */
+	private boolean checkExpiry = false;
+	
 	public JwtAuthenticatingFilter() {
 		super();
+	}
+	
+	@Override
+	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+		// 判断是否认证请求  
+		if (isJwtSubmission(request, response)) {
+			// Step 1、生成无状态Token 
+			AuthenticationToken token = createJwtToken(request, response);
+			try {
+				//Step 2、委托给Realm进行登录  
+				Subject subject = getSubject(request, response);
+				subject.login(token);
+				// Step 3、委托给JwtPayloadRepository进行Token验证
+				boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, request, response, isCheckExpiry());
+				if (!accessAllowed) {
+					throw new InvalidJwtToken("Invalid JWT value.");
+				}
+				//Step 3、执行授权成功后的函数
+				return onAccessSuccess(token, subject, request, response);
+			} catch (AuthenticationException e) {
+				//Step 4、执行授权失败后的函数
+				return onAccessFailure(token, e, request, response);
+			} 
+		}
+		// 非认证请求需要进行权限认证
+		return false;
 	}
 	
 	@Override
@@ -81,22 +115,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				return false;
 			}
 		}
-		// 2、判断是否认证请求  
-		if (isJwtSubmission(request, response)) {
-			//Step 1、生成无状态Token 
-			AuthenticationToken token = createJwtToken(request, response);
-			try {
-				//Step 2、委托给Realm进行登录  
-				Subject subject = getSubject(request, response);
-				subject.login(token);
-				//Step 3、执行授权成功后的函数
-				return onAccessSuccess(token, subject, request, response);
-			} catch (AuthenticationException e) {
-				//Step 4、执行授权失败后的函数
-				return onAccessFailure(token, e, request, response);
-			} 
-		}
-		// 3、未授权情况
+		// 2、未授权情况
 		else {
 			String mString = "Attempting to access a path which requires authentication.  Forwarding to the "
 					+ "Authentication url [" + WebUtils.getHttpRequest(request).getRequestURI() + "]";
@@ -124,7 +143,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
 		// 响应成功状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", HttpServletResponse.SC_OK);
+		data.put("status", "success");
 		data.put("message", "Authentication Success.");
 		data.put("token", jwt);
 		// 响应
@@ -136,70 +155,15 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	}
 	
 	@Override
-	protected void setFailureRespone(AuthenticationToken token, AuthenticationException e, ServletRequest request,
-			ServletResponse response) {
-		// 响应异常状态信息
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		
-		// 验证码错误
-    	if(e instanceof IncorrectCaptchaException) {
-    		data.put("message", "Invalid captcha value, please re-enter.");
-			data.put("captcha", "error");
-    	}
-		// 账号或密码为空
-		else if (e instanceof UnknownAccountException) {
-			data.put("message", "Username or password is required.");
-		}
-		// 账户或密码错误
-		else if (e instanceof InvalidAccountException) {
-			data.put("message", "Username or password is incorrect, please re-enter.");
-		}
-    	// Jwt错误
-		else if (e instanceof IncorrectJwtException) {
-			data.put("message", "JWT is incorrect.");
-		}
-		// Jwt无效
-		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value.");
-		}
-		// 账户没有启用
-		else if (e instanceof DisabledAccountException) {
-			data.put("message", "Account is disabled.");
-		}
-		// 该用户无所属角色，禁止登录
-		else if (e instanceof NoneRoleException) {
-			data.put("message", "Username or password is incorrect, please re-enter");
-		}
-    	// 已经超出了重试限制，需要进行提醒
-		else if(isOverRetryTimes(request, response)) {
-			data.put("message", "Over Maximum number of retry to login, username、 password、captcha is required.");
-			data.put("captcha", "required");
-        }
-		else {
-        	data.put("message", "Authentication Exception : " + e.getMessage() + ".");
-        }
-        // 导致异常的类型
-        data.put(getFailureKeyAttribute(), e.getClass().getName());
-        WebUtils.writeJSONString(response, data);
-        
-	}
-	
-	@Override
-	protected boolean onAccessSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
-			ServletResponse response) throws Exception {
-		//we handled the success redirect directly, prevent the chain from continuing:
-        return false;
-	}
-	
-	@Override
 	protected boolean onAccessFailure(AuthenticationToken token, Exception e, ServletRequest request,
 			ServletResponse response) {
 		
 		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
+		
+		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+		data.put("status", "fail");
 		// Jwt错误
 		if (e instanceof IncorrectJwtException) {
 			data.put("message", "JWT is incorrect.");
@@ -212,22 +176,45 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		return false;
 	}
 	
-	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) throws IOException {
+	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
-		String jwtToken = getAuthzHeader(request);
+		String jwtToken = getRequestToken(request);
 		return new JwtToken(host, jwtToken);
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {
-    	 String authzHeader = getAuthzHeader(request);
+    	 String authzHeader = getRequestToken(request);
 		return (request instanceof HttpServletRequest) && authzHeader != null;
 	}
-
-    protected String getAuthzHeader(ServletRequest request) {
-        HttpServletRequest httpRequest = WebUtils.toHttp(request);
-        return httpRequest.getHeader(getAuthorizationHeaderName());
+    
+    /**
+     * 获取请求的token
+     */
+    protected String getRequestToken(ServletRequest request) {
+    	
+    	HttpServletRequest httpRequest = WebUtils.toHttp(request);
+        //从header中获取token
+        String token = httpRequest.getHeader(getAuthorizationHeaderName());
+        //如果header中不存在token，则从参数中获取token
+        if (StringUtils.isEmpty(token)) {
+            return httpRequest.getParameter(getAuthorizationParamName());
+        }
+        if (StringUtils.isEmpty(token)) {
+            // 从 cookie 获取 token
+            Cookie[] cookies = httpRequest.getCookies();
+            if (null == cookies || cookies.length == 0) {
+                return null;
+            }
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(getAuthorizationCookieName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        return token;
     }
-
+    
 	public String getAuthorizationHeaderName() {
 		return authorizationHeaderName;
 	}
@@ -236,12 +223,44 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		this.authorizationHeaderName = authorizationHeaderName;
 	}
 	
+	public String getAuthorizationParamName() {
+		return authorizationParamName;
+	}
+
+	public void setAuthorizationParamName(String authorizationParamName) {
+		this.authorizationParamName = authorizationParamName;
+	}
+
+	public String getAuthorizationCookieName() {
+		return authorizationCookieName;
+	}
+
+	public void setAuthorizationCookieName(String authorizationCookieName) {
+		this.authorizationCookieName = authorizationCookieName;
+	}
+
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
 	}
 
 	public void setJwtPayloadRepository(JwtPayloadRepository jwtPayloadRepository) {
 		this.jwtPayloadRepository = jwtPayloadRepository;
+	}
+
+	public boolean isStateless() {
+		return stateless;
+	}
+
+	public void setStateless(boolean stateless) {
+		this.stateless = stateless;
+	}
+	
+	public boolean isCheckExpiry() {
+		return checkExpiry;
+	}
+
+	public void setCheckExpiry(boolean checkExpiry) {
+		this.checkExpiry = checkExpiry;
 	}
 	
 }

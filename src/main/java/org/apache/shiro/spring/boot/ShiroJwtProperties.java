@@ -49,6 +49,11 @@ public class ShiroJwtProperties {
 	 * Enable Shiro JWT.
 	 */
 	private boolean enabled = false;
+	
+	/**
+	 * If Session Stateless
+	 */
+	private boolean stateless = false;
 
 	/**
 	 * If Check JWT Validity.
@@ -85,6 +90,14 @@ public class ShiroJwtProperties {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	public boolean isStateless() {
+		return stateless;
+	}
+
+	public void setStateless(boolean stateless) {
+		this.stateless = stateless;
 	}
 
 	public boolean isCheckExpiry() {

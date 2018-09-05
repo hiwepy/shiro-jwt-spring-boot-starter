@@ -32,7 +32,7 @@ public abstract class JwtPayloadRepository {
     public abstract String issueJwt(AuthenticationToken token, Subject subject, ServletRequest request,
 			ServletResponse response);
     
-	public abstract boolean verify(String token, boolean checkExpiry) throws AuthenticationException;
+	public abstract boolean verify(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response, boolean checkExpiry) throws AuthenticationException;
     
 	public abstract JwtPayload getPayload(JwtToken token, boolean checkExpiry);
 

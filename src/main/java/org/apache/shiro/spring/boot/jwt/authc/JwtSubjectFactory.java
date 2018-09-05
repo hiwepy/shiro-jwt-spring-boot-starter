@@ -16,41 +16,37 @@
 package org.apache.shiro.spring.boot.jwt.authc;
 
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.biz.web.mgt.StatelessDefaultSubjectFactory;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.SubjectContext;
-import org.apache.shiro.web.mgt.DefaultWebSubjectFactory;
 
 /**
- * 扩展自DefaultWebSubjectFactory,对于无状态的JSON Web Token (JWT)不创建session
+ * 扩展自StatelessDefaultSubjectFactory,对于无状态的JSON Web Token (JWT)不创建session
  */
-public class JwtSubjectFactory extends DefaultWebSubjectFactory { 
+public class JwtSubjectFactory extends StatelessDefaultSubjectFactory { 
 	
-	private final DefaultSessionStorageEvaluator storageEvaluator;
-	
-	/**
-	 * DefaultSessionStorageEvaluator是否持久化SESSION的开关 
-	 */
-	public JwtSubjectFactory(DefaultSessionStorageEvaluator storageEvaluator){
-		this.storageEvaluator = storageEvaluator;
+	public JwtSubjectFactory(DefaultSessionStorageEvaluator storageEvaluator, boolean stateless){
+		super(storageEvaluator, stateless);
 	}
 	
 	/**
-	 * 是否无状态令牌
+	 * 是否JWT令牌
 	 */
 	public static boolean isJwtToken(Object token){
 		return token instanceof JwtToken;
 	}
 	
     public Subject createSubject(SubjectContext context) { 
-    	this.storageEvaluator.setSessionStorageEnabled(Boolean.TRUE);
+    	getStorageEvaluator().setSessionStorageEnabled(Boolean.TRUE);
+    	context.setSessionCreationEnabled(true);
     	AuthenticationToken token = context.getAuthenticationToken();
-    	if(isJwtToken(token)){
+    	if(isStateless() && isJwtToken(token)){
             // 不创建 session 
-            context.setSessionCreationEnabled(false);
+            context.setSessionCreationEnabled(Boolean.FALSE);
             // 不持久化session
-            this.storageEvaluator.setSessionStorageEnabled(Boolean.FALSE);
+            getStorageEvaluator().setSessionStorageEnabled(Boolean.FALSE);
     	}
         return super.createSubject(context); 
     }
