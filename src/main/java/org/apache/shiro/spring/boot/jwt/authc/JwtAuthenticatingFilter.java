@@ -199,7 +199,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		} 
 		// Jwt无效
 		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value.");
+			data.put("message", "Invalid JWT value of header name ["+ getAuthorizationHeaderName() + "]. " );
 		}
 		WebUtils.writeJSONString(response, data);
 		return false;
