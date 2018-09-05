@@ -140,9 +140,8 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 		if (sessionManager instanceof DefaultWebSessionManager) {
 			DefaultWebSessionManager webSessionManager = (DefaultWebSessionManager) sessionManager;
 			webSessionManager.setCacheManager(cacheManager);
-			webSessionManager.setSessionValidationSchedulerEnabled(false);
+			webSessionManager.setSessionValidationSchedulerEnabled(!jwtProperties.isStateless());
 			return webSessionManager;
-			
 		}
 		return sessionManager;
 	}

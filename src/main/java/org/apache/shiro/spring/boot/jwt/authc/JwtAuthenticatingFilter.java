@@ -117,8 +117,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		}
 		// 2、未授权情况
 		else {
-			String mString = "Attempting to access a path which requires authentication.  Forwarding to the "
-					+ "Authentication url [" + WebUtils.getHttpRequest(request).getRequestURI() + "]";
+			String mString = "Attempting to access a path which requires authentication. ";
 			if (LOG.isTraceEnabled()) {
 				LOG.trace(mString);
 			}
