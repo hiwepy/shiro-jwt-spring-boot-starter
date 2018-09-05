@@ -85,6 +85,11 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPaylo
 		}
 		return sets;
 	}
+	
+	@Override
+	public void doLock(JwtPayload principal) {
+		// do nothing
+	}
 
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
@@ -97,5 +102,6 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPaylo
 	public void setCheckExpiry(boolean checkExpiry) {
 		this.checkExpiry = checkExpiry;
 	}
+
 	
 }

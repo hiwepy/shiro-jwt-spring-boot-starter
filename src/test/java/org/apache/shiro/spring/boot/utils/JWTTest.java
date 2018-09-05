@@ -51,7 +51,8 @@ public class JWTTest {
 	public void applyToken1() throws Exception {
 
 		System.out.println("//-----------------------------------------------------------");
-
+		System.out.println("base64Secret:" + base64Secret);
+		
 		Map<String, Object> claims = new HashMap<String, Object>();
 		claims.put("roles", "admin,stu");
 		claims.put("perms", "user:del");
