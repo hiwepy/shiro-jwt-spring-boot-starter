@@ -141,24 +141,12 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("status", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		// 已经超出了重试限制，需要进行提醒
-		if (isOverRetryTimes(request, response)) {
-			data.put("message", "Over Maximum number of retry to login.");
-			data.put("captcha", "required");
-		}
+		
 		// 验证码错误
-		else if (e instanceof IncorrectCaptchaException) {
-			data.put("message", "Invalid captcha value.");
+    	if(e instanceof IncorrectCaptchaException) {
+    		data.put("message", "Invalid captcha value, please re-enter.");
 			data.put("captcha", "error");
-		}
-		// Jwt错误
-		else if (e instanceof IncorrectJwtException) {
-			data.put("message", "JWT is incorrect.");
-		}
-		// Jwt无效
-		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value.");
-		}
+    	}
 		// 账号或密码为空
 		else if (e instanceof UnknownAccountException) {
 			data.put("message", "Username or password is required.");
@@ -167,6 +155,14 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		else if (e instanceof InvalidAccountException) {
 			data.put("message", "Username or password is incorrect, please re-enter.");
 		}
+    	// Jwt错误
+		else if (e instanceof IncorrectJwtException) {
+			data.put("message", "JWT is incorrect.");
+		}
+		// Jwt无效
+		else if (e instanceof InvalidJwtToken) {
+			data.put("message", "Invalid JWT value.");
+		}
 		// 账户没有启用
 		else if (e instanceof DisabledAccountException) {
 			data.put("message", "Account is disabled.");
@@ -174,12 +170,19 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// 该用户无所属角色，禁止登录
 		else if (e instanceof NoneRoleException) {
 			data.put("message", "Username or password is incorrect, please re-enter");
-		} else {
-			data.put("message", "Authentication Exception.");
 		}
-		// 导致异常的类型
-		data.put(getFailureKeyAttribute(), e.getClass().getName());
-		WebUtils.writeJSONString(response, data);
+    	// 已经超出了重试限制，需要进行提醒
+		else if(isOverRetryTimes(request, response)) {
+			data.put("message", "Over Maximum number of retry to login, username、 password、captcha is required.");
+			data.put("captcha", "required");
+        }
+		else {
+        	data.put("message", "Authentication Exception : " + e.getMessage() + ".");
+        }
+        // 导致异常的类型
+        data.put(getFailureKeyAttribute(), e.getClass().getName());
+        WebUtils.writeJSONString(response, data);
+        
 	}
 
 	@Override
