@@ -18,6 +18,7 @@ package org.apache.shiro.spring.boot.jwt;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
@@ -28,9 +29,11 @@ import org.apache.shiro.subject.Subject;
  */
 public abstract class JwtPayloadRepository {
 
-    public abstract String getJwt(AuthenticationToken token, Subject subject, ServletRequest request,
+    public abstract String issueJwt(AuthenticationToken token, Subject subject, ServletRequest request,
 			ServletResponse response);
     
-	public abstract JwtPayload getPayload(JwtToken jwtToken, boolean checkExpiry);
+	public abstract boolean verify(String token, boolean checkExpiry) throws AuthenticationException;
+    
+	public abstract JwtPayload getPayload(JwtToken token, boolean checkExpiry);
 
 }

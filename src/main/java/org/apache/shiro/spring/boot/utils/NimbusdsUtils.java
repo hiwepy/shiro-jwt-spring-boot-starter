@@ -126,9 +126,8 @@ public class NimbusdsUtils {
 		payload.setExpiration(jwtClaims.getExpirationTime()); // 过期时间
 		payload.setNotBefore(jwtClaims.getNotBeforeTime());
 		payload.setAudience(jwtClaims.getAudience());// 接收方
-		payload.setRoles(jwtClaims.getStringClaim("roles"));// 访问主张-角色
-		payload.setPerms(jwtClaims.getStringClaim("perms"));// 访问主张-权限
-
+		payload.setClaims(jwtClaims.getClaims()); // 访问主张
+		
 		return payload;
 	}
 

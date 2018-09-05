@@ -8,6 +8,9 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.biz.realm.PrincipalRealmListener;
+import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
+import org.apache.shiro.mgt.SubjectFactory;
+import org.apache.shiro.spring.boot.jwt.authc.JwtSubjectFactory;
 import org.apache.shiro.spring.web.config.AbstractShiroWebConfiguration;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
@@ -37,6 +40,8 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	
 	@Autowired
 	private ShiroBizProperties properties;
+	@Autowired
+	private DefaultSessionStorageEvaluator storageEvaluator;
 	
 	/**
 	 * Realm 执行监听：实现该接口可监听认证失败和成功的状态，从而做业务系统自己的事情，比如记录日志
@@ -75,7 +80,12 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 		chainDefinition.addPathDefinition("/**", "authc");
 		return chainDefinition;
 	}
-	 
+	
+	@Bean
+	@Override
+    protected SubjectFactory subjectFactory() {
+        return new JwtSubjectFactory(storageEvaluator);
+    }
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

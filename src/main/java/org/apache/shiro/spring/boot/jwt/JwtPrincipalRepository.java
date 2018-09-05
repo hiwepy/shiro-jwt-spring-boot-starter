@@ -49,7 +49,7 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPaylo
 		
 		JwtToken jwtToken = (JwtToken) token;
 		
-		String jwt = (String) jwtToken.getPrincipal();
+		String jwt = (String) jwtToken.getCredentials();
 			
 		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
 		

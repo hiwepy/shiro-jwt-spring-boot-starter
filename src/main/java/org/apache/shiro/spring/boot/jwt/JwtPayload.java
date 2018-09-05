@@ -17,6 +17,9 @@ package org.apache.shiro.spring.boot.jwt;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /**
  * TODO
@@ -31,8 +34,7 @@ public class JwtPayload {
 	private Date expiration;// 过期时间
 	private Date notBefore;// not-before 时间
 	private List<String> audience;// 接收方(JWT令牌此项有值)
-	private String roles;// 访问主张-角色(JWT令牌此项有值)
-	private String perms;// 访问主张-资源(JWT令牌此项有值)
+	private Map<String, Object> claims;// 访问主张(JWT令牌此项有值)
 	private String host;// 客户地址
 
 	public String getTokenId() {
@@ -91,20 +93,20 @@ public class JwtPayload {
 		this.audience = audience;
 	}
 
-	public String getRoles() {
-		return roles;
+	public Map<String, Object> getClaims() {
+		return claims == null ? Maps.newHashMap() : claims;
 	}
 
-	public void setRoles(String roles) {
-		this.roles = roles;
+	public void setClaims(Map<String, Object> claims) {
+		this.claims = claims;
+	}
+
+	public String getRoles() {
+		return String.valueOf(getClaims().get("roles"));
 	}
 
 	public String getPerms() {
-		return perms;
-	}
-
-	public void setPerms(String perms) {
-		this.perms = perms;
+		return String.valueOf(getClaims().get("perms"));
 	}
 
 	public String getHost() {

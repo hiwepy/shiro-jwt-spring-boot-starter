@@ -124,9 +124,8 @@ public class JJwtUtils {
 		payload.setExpiration(claims.getExpiration()); // 过期时间
 		payload.setNotBefore(claims.getNotBefore());
 		payload.setAudience(Arrays.asList(claims.getAudience()));// 接收方
-		payload.setRoles(claims.get("roles", String.class));// 访问主张-角色
-		payload.setPerms(claims.get("perms", String.class));// 访问主张-权限
-
+		payload.setClaims(claims); // 访问主张
+		
 		return payload;
 	}
 
