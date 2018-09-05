@@ -92,8 +92,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				return onAccessFailure(token, e, request, response);
 			} 
 		}
-		// 非认证请求需要进行权限认证
-		return false;
+		// 
+		return isStateless() || super.isAccessAllowed(request, response, mappedValue);
 	}
 	
 	@Override
