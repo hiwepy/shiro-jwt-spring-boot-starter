@@ -73,7 +73,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	@Override
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
 		// 判断是否认证请求  
-		if (isJwtSubmission(request, response)) {
+		if (isStateless() && isJwtSubmission(request, response)) {
 			// Step 1、生成无状态Token 
 			AuthenticationToken token = createJwtToken(request, response);
 			try {
@@ -93,7 +93,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			} 
 		}
 		// 
-		return isStateless() || super.isAccessAllowed(request, response, mappedValue);
+		return super.isAccessAllowed(request, response, mappedValue);
 	}
 	
 	@Override
