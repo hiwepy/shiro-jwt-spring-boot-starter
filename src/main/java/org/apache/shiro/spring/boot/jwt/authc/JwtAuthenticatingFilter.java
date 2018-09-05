@@ -184,7 +184,14 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
         WebUtils.writeJSONString(response, data);
         
 	}
-
+	
+	@Override
+	protected boolean onAccessSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
+			ServletResponse response) throws Exception {
+		//we handled the success redirect directly, prevent the chain from continuing:
+        return false;
+	}
+	
 	@Override
 	protected boolean onAccessFailure(AuthenticationToken token, Exception e, ServletRequest request,
 			ServletResponse response) {
