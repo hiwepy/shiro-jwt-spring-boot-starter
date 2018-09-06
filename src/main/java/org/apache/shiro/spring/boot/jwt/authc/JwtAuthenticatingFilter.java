@@ -61,7 +61,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	/**
 	 * If Session Stateless
 	 */
-	private boolean stateless = false;
+	private boolean sessionStateless = false;
 	/**
 	 * If Check JWT Validity.
 	 */
@@ -90,7 +90,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	@Override
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
 		// 判断是否无状态
-		if (isStateless()) {
+		if (isSessionStateless()) {
 			// 判断是否认证请求  
 			if (isJwtSubmission(request, response)) {
 				// Step 1、生成无状态Token 
@@ -276,14 +276,14 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		this.jwtPayloadRepository = jwtPayloadRepository;
 	}
 
-	public boolean isStateless() {
-		return stateless;
+	public boolean isSessionStateless() {
+		return sessionStateless;
 	}
 
-	public void setStateless(boolean stateless) {
-		this.stateless = stateless;
+	public void setSessionStateless(boolean sessionStateless) {
+		this.sessionStateless = sessionStateless;
 	}
-	
+
 	public boolean isCheckExpiry() {
 		return checkExpiry;
 	}
