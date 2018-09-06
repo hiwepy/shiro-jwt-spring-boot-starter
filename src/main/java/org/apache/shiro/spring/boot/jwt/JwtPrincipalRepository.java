@@ -32,7 +32,7 @@ import com.google.common.collect.Sets;
  * JSON Web Token (JWT) Principal Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtPrincipalRepository implements ShiroPrincipalRepository<ShiroPrincipal> {
+public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPayloadPrincipal> {
 
     private final JwtPayloadRepository jwtPayloadRepository;
     /**
@@ -62,12 +62,12 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<ShiroPri
 	}
 
 	@Override
-	public Set<String> getRoles(ShiroPrincipal principal) {
+	public Set<String> getRoles(JwtPayloadPrincipal principal) {
 		return principal.getRoles();
 	}
 
 	@Override
-	public Set<String> getRoles(Set<ShiroPrincipal> principals) {
+	public Set<String> getRoles(Set<JwtPayloadPrincipal> principals) {
 		Set<String> sets = Sets.newHashSet();
 		for (ShiroPrincipal principal : principals) {
 			sets.addAll(principal.getRoles());
@@ -76,12 +76,12 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<ShiroPri
 	}
 
 	@Override
-	public Set<String> getPermissions(ShiroPrincipal principal) {
+	public Set<String> getPermissions(JwtPayloadPrincipal principal) {
 		return Sets.newHashSet(principal.getPerms());
 	}
 
 	@Override
-	public Set<String> getPermissions(Set<ShiroPrincipal> principals) {
+	public Set<String> getPermissions(Set<JwtPayloadPrincipal> principals) {
 		Set<String> sets = Sets.newHashSet();
 		for (ShiroPrincipal principal : principals) {
 			sets.addAll(principal.getPerms());
@@ -90,7 +90,7 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<ShiroPri
 	}
 	
 	@Override
-	public void doLock(ShiroPrincipal principal) {
+	public void doLock(JwtPayloadPrincipal principal) {
 		// do nothing
 	}
 
