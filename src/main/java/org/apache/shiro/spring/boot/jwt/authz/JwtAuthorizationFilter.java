@@ -42,10 +42,6 @@ public final class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	private String authorizationCookieName = AUTHORIZATION_PARAM;
 	private JwtPayloadRepository jwtPayloadRepository;
 	/**
-	 * If Session Stateless
-	 */
-	private boolean stateless = false;
-	/**
 	 * If Check JWT Validity.
 	 */
 	private boolean checkExpiry = false;
@@ -139,19 +135,19 @@ public final class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
-		String jwtToken = getRequestToken(request);
+		String jwtToken = getAccessToken(request);
 		return new JwtToken(host, jwtToken);
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {
-    	 String authzHeader = getRequestToken(request);
+    	 String authzHeader = getAccessToken(request);
 		return (request instanceof HttpServletRequest) && authzHeader != null;
 	}
     
     /**
      * 获取请求的token
      */
-    protected String getRequestToken(ServletRequest request) {
+    protected String getAccessToken(ServletRequest request) {
     	
     	HttpServletRequest httpRequest = WebUtils.toHttp(request);
         //从header中获取token
@@ -208,14 +204,6 @@ public final class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		this.jwtPayloadRepository = jwtPayloadRepository;
 	}
 
-	public boolean isStateless() {
-		return stateless;
-	}
-
-	public void setStateless(boolean stateless) {
-		this.stateless = stateless;
-	}
-	
 	public boolean isCheckExpiry() {
 		return checkExpiry;
 	}
