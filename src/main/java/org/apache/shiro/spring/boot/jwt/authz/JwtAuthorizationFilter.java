@@ -1,19 +1,4 @@
-/*
- * Copyright (c) 2018, vindell (https://github.com/vindell).
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-package org.apache.shiro.spring.boot.jwt.authc;
+package org.apache.shiro.spring.boot.jwt.authz;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,14 +7,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
-import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
-import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
+import org.apache.shiro.biz.web.filter.authz.AbstracAuthorizationFilter;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
@@ -39,15 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Jwt认证 (authentication)过滤器
+ * Jwt授权 (authorization)过滤器
+ * 
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
+public final class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 
-	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticatingFilter.class);
-	
+	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 	protected static final String AUTHORIZATION_PARAM = "token";
-	 
 	/**
      * HTTP Authorization header, equal to <code>Authorization</code>
      */
@@ -65,15 +47,12 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	 * If Check JWT Validity.
 	 */
 	private boolean checkExpiry = false;
-	
-	public JwtAuthenticatingFilter() {
-		super();
-	}
-	
+
 	@Override
-	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)
+			throws Exception {
 		// 判断是否认证请求  
-		if (isStateless() && isJwtSubmission(request, response)) {
+		if (isJwtSubmission(request, response)) {
 			// Step 1、生成无状态Token 
 			AuthenticationToken token = createJwtToken(request, response);
 			try {
@@ -86,88 +65,44 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 					throw new InvalidJwtToken("Invalid JWT value.");
 				}
 				//Step 3、执行授权成功后的函数
-				return onAccessSuccess(token, subject, request, response);
+				return onAccessSuccess(mappedValue, subject, request, response);
 			} catch (AuthenticationException e) {
 				//Step 4、执行授权失败后的函数
-				return onAccessFailure(token, e, request, response);
+				return onAccessFailure(mappedValue, e, request, response);
 			} 
 		}
-		// 
-		return super.isAccessAllowed(request, response, mappedValue);
-	}
-	
-	@Override
-	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
 		
-		// 1、判断是否登录请求 
-		if (isLoginRequest(request, response)) {
-			if (isLoginSubmission(request, response)) {
-				if (LOG.isTraceEnabled()) {
-					LOG.trace("Login submission detected.  Attempting to execute login.");
-				}
-				return executeLogin(request, response);
-			} else {
-				String mString = "Authentication url [" + getLoginUrl() + "] Not Http Post request.";
-				if (LOG.isTraceEnabled()) {
-					LOG.trace(mString);
-				}
-				WebUtils.writeJSONString(response, HttpServletResponse.SC_BAD_REQUEST, mString);
-				return false;
-			}
-		}
-		// 2、未授权情况
-		else {
-			
-			String mString = String.format("Attempting to access a path which requires authentication.  %s = Authorization Header or %s = Authorization Param or %s = Authorization Cookie  is not present in the request", 
-					getAuthorizationHeaderName(), getAuthorizationParamName(), getAuthorizationCookieName());
-			if (LOG.isTraceEnabled()) { 
-				LOG.trace(mString);
-			}
-			
-			// 响应成功状态信息
-			Map<String, Object> data = new HashMap<String, Object>();
-			data.put("status", "fail");
-			data.put("message", mString);
-			// 响应
-			WebUtils.writeJSONString(response, data);
-			
-			return false;
-		}
-	}
-
-	@Override
-	protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
-			ServletResponse response) throws Exception {
-
-		// 调用事件监听器
-		if (getLoginListeners() != null && getLoginListeners().size() > 0) {
-			for (LoginListener loginListener : getLoginListeners()) {
-				loginListener.onLoginSuccess(token, subject, request, response);
-			}
+		String mString = String.format("Attempting to access a path which requires authentication.  %s = Authorization Header or %s = Authorization Param or %s = Authorization Cookie  is not present in the request", 
+				getAuthorizationHeaderName(), getAuthorizationParamName(), getAuthorizationCookieName());
+		if (LOG.isTraceEnabled()) { 
+			LOG.trace(mString);
 		}
 		
-		// JSON Web Token (JWT)
-		String jwt = getJwtPayloadRepository().issueJwt(token, subject, request, response);
-
 		// 响应成功状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", "success");
-		data.put("message", "Authentication Success.");
-		data.put("token", jwt);
+		data.put("status", "fail");
+		data.put("message", mString);
 		// 响应
 		WebUtils.writeJSONString(response, data);
 		
-		// we handled the success , prevent the chain from continuing:
 		return false;
-
 	}
-	
+
+	/**
+	 * TODO
+	 * @author ：<a href="https://github.com/vindell">vindell</a>
+	 * @param mappedValue
+	 * @param e
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@Override
-	protected boolean onAccessFailure(AuthenticationToken token, Exception e, ServletRequest request,
+	protected boolean onAccessFailure(Object mappedValue, Exception e, ServletRequest request,
 			ServletResponse response) {
-		
+
 		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
-		
+
 		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -175,15 +110,15 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// Jwt错误
 		if (e instanceof IncorrectJwtException) {
 			data.put("message", "JWT is incorrect.");
-		} 
+		}
 		// Jwt无效
 		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value of header name ["+ getAuthorizationHeaderName() + "]. " );
+			data.put("message", "Invalid JWT value.");
 		}
 		WebUtils.writeJSONString(response, data);
 		return false;
 	}
-	
+
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
 		String jwtToken = getRequestToken(request);
@@ -222,8 +157,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
         }
         return token;
     }
-    
-	public String getAuthorizationHeaderName() {
+
+    public String getAuthorizationHeaderName() {
 		return authorizationHeaderName;
 	}
 
