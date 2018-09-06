@@ -89,27 +89,31 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	
 	@Override
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-		// 判断是否认证请求  
-		if (isStateless() && isJwtSubmission(request, response)) {
-			// Step 1、生成无状态Token 
-			AuthenticationToken token = createJwtToken(request, response);
-			try {
-				//Step 2、委托给Realm进行登录  
-				Subject subject = getSubject(request, response);
-				subject.login(token);
-				// Step 3、委托给JwtPayloadRepository进行Token验证
-				boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, request, response, isCheckExpiry());
-				if (!accessAllowed) {
-					throw new InvalidJwtToken("Invalid JWT value.");
-				}
-				//Step 3、执行授权成功后的函数
-				return onAccessSuccess(token, subject, request, response);
-			} catch (AuthenticationException e) {
-				//Step 4、执行授权失败后的函数
-				return onAccessFailure(token, e, request, response);
-			} 
+		// 判断是否无状态
+		if (isStateless()) {
+			// 判断是否认证请求  
+			if (isJwtSubmission(request, response)) {
+				// Step 1、生成无状态Token 
+				AuthenticationToken token = createJwtToken(request, response);
+				try {
+					//Step 2、委托给Realm进行登录  
+					Subject subject = getSubject(request, response);
+					subject.login(token);
+					// Step 3、委托给JwtPayloadRepository进行Token验证
+					boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, request, response, isCheckExpiry());
+					if (!accessAllowed) {
+						throw new InvalidJwtToken("Invalid JWT value.");
+					}
+					//Step 3、执行授权成功后的函数
+					return onAccessSuccess(token, subject, request, response);
+				} catch (AuthenticationException e) {
+					//Step 4、执行授权失败后的函数
+					return onAccessFailure(token, e, request, response);
+				} 
+			}
+			// 要求认证
+			return false;
 		}
-		// 
 		return super.isAccessAllowed(request, response, mappedValue);
 	}
 	

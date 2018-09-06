@@ -17,7 +17,6 @@ package org.apache.shiro.spring.boot.jwt.authc;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.web.mgt.StatelessDefaultSubjectFactory;
-import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.SubjectContext;
@@ -27,8 +26,8 @@ import org.apache.shiro.subject.SubjectContext;
  */
 public class JwtSubjectFactory extends StatelessDefaultSubjectFactory { 
 	
-	public JwtSubjectFactory(DefaultSessionStorageEvaluator storageEvaluator, boolean stateless){
-		super(storageEvaluator, stateless);
+	public JwtSubjectFactory(boolean stateless){
+		super(stateless);
 	}
 	
 	/**
@@ -39,14 +38,10 @@ public class JwtSubjectFactory extends StatelessDefaultSubjectFactory {
 	}
 	
     public Subject createSubject(SubjectContext context) { 
-    	getStorageEvaluator().setSessionStorageEnabled(Boolean.TRUE);
-    	context.setSessionCreationEnabled(true);
     	AuthenticationToken token = context.getAuthenticationToken();
     	if(isStateless() && isJwtToken(token)){
             // 不创建 session 
             context.setSessionCreationEnabled(Boolean.FALSE);
-            // 不持久化session
-            getStorageEvaluator().setSessionStorageEnabled(Boolean.FALSE);
     	}
         return super.createSubject(context); 
     }
