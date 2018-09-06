@@ -39,7 +39,7 @@ public class JwtSubjectFactory extends StatelessDefaultSubjectFactory {
 	
     public Subject createSubject(SubjectContext context) { 
     	AuthenticationToken token = context.getAuthenticationToken();
-    	if(isStateless() && isJwtToken(token)){
+    	if(isSessionStateless() && isJwtToken(token)){
             // 不创建 session 
             context.setSessionCreationEnabled(Boolean.FALSE);
     	}
