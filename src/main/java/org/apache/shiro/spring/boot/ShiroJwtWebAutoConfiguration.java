@@ -11,17 +11,28 @@ import org.apache.shiro.authc.Authenticator;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.biz.authc.pam.DefaultModularRealmAuthenticator;
 import org.apache.shiro.biz.realm.PrincipalRealmListener;
+import org.apache.shiro.biz.session.DefaultSessionListener;
+import org.apache.shiro.biz.session.mgt.SimpleOnlineSessionFactory;
+import org.apache.shiro.biz.session.mgt.eis.SequenceSessionIdGenerator;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.biz.web.filter.authc.listener.LogoutListener;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.SessionStorageEvaluator;
+import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.mgt.SubjectFactory;
+import org.apache.shiro.realm.Realm;
+import org.apache.shiro.session.SessionListener;
+import org.apache.shiro.session.mgt.DefaultSessionManager;
+import org.apache.shiro.session.mgt.SessionFactory;
 import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.session.mgt.eis.CachingSessionDAO;
+import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
+import org.apache.shiro.session.mgt.eis.MemorySessionDAO;
+import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.spring.boot.jwt.authc.JwtSubjectFactory;
 import org.apache.shiro.spring.web.config.AbstractShiroWebConfiguration;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -33,6 +44,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ObjectUtils;
+
+import com.google.common.collect.Lists;
 
 
 @Configuration
@@ -47,7 +60,7 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	private ApplicationContext applicationContext;
 	
 	@Autowired
-	private ShiroBizProperties properties;
+	private ShiroBizProperties bizProperties;
 	@Autowired
 	private ShiroJwtProperties jwtProperties;
 	@Autowired
@@ -114,6 +127,27 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 		return logoutListeners;
 	}
 
+	@Override
+	protected Authenticator authenticator() {
+        ModularRealmAuthenticator authenticator = new DefaultModularRealmAuthenticator();
+        authenticator.setAuthenticationStrategy(authenticationStrategy());
+        return authenticator;
+    }
+    
+   	@Bean
+   	@Override
+    protected SessionDAO sessionDAO() {
+   		// 缓存存在的时候使用外部Session管理器
+   		if(cacheManager != null) {
+   			CachingSessionDAO sessionDAO = new EnterpriseCacheSessionDAO();
+   			sessionDAO.setCacheManager(cacheManager);
+   			sessionDAO.setActiveSessionsCacheName(bizProperties.getActiveSessionsCacheName());
+   			sessionDAO.setSessionIdGenerator(new SequenceSessionIdGenerator());
+   			return sessionDAO;
+   		}
+        return new MemorySessionDAO();
+    }
+   	
 	@Bean
 	@Override
 	protected SessionStorageEvaluator sessionStorageEvaluator() {
@@ -122,29 +156,55 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	
 	@Bean
 	@Override
-    protected SubjectFactory subjectFactory() {
-        return new JwtSubjectFactory(sessionStorageEvaluator, jwtProperties.isStateless());
+    protected SessionFactory sessionFactory() {
+        return new SimpleOnlineSessionFactory();
     }
 	
-	@Override
-	protected Authenticator authenticator() {
-        ModularRealmAuthenticator authenticator = new DefaultModularRealmAuthenticator();
-        authenticator.setAuthenticationStrategy(authenticationStrategy());
-        return authenticator;
-    }
-	
+	@Bean("sessionListeners")
+   	public List<SessionListener> sessionListeners() {
+		List<SessionListener> sessionListeners = Lists.newLinkedList();
+		Map<String, SessionListener> beansOfType = getApplicationContext().getBeansOfType(SessionListener.class);
+		if (!ObjectUtils.isEmpty(beansOfType)) {
+			Iterator<Entry<String, SessionListener>> ite = beansOfType.entrySet().iterator();
+			while (ite.hasNext()) {
+				sessionListeners.add(ite.next().getValue());
+			}
+		}
+		DefaultSessionListener defSessionListener = new DefaultSessionListener();
+		sessionListeners.add(defSessionListener);
+		return sessionListeners;
+	}
+   	
 	@Bean
 	@Override
 	protected SessionManager sessionManager() {
 		SessionManager sessionManager = super.sessionManager();
-		if (sessionManager instanceof DefaultWebSessionManager) {
-			DefaultWebSessionManager webSessionManager = (DefaultWebSessionManager) sessionManager;
-			webSessionManager.setCacheManager(cacheManager);
-			webSessionManager.setSessionValidationSchedulerEnabled(!jwtProperties.isStateless());
-			return webSessionManager;
+		if (sessionManager instanceof DefaultSessionManager) {
+			
+			DefaultSessionManager defSessionManager = (DefaultSessionManager) sessionManager;
+			defSessionManager.setCacheManager(cacheManager);
+			defSessionManager.setGlobalSessionTimeout(bizProperties.getSessionTimeout());
+			defSessionManager.setSessionDAO(sessionDAO());
+			defSessionManager.setSessionListeners(sessionListeners());
+			defSessionManager.setSessionValidationInterval(bizProperties.getSessionValidationInterval());
+			defSessionManager.setSessionValidationSchedulerEnabled(!jwtProperties.isStateless());
+			
+			return defSessionManager;
 		}
 		return sessionManager;
 	}
+	
+	@Bean
+	@Override
+	protected SessionsSecurityManager securityManager(List<Realm> realms) {
+		return super.securityManager(realms);
+	}
+	
+	@Bean
+	@Override
+    protected SubjectFactory subjectFactory() {
+        return new JwtSubjectFactory(sessionStorageEvaluator, jwtProperties.isStateless());
+    }
 	
 	/**
 	 * 责任链定义 ：定义Shiro的逻辑处理责任链
@@ -154,7 +214,7 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
     @Override
 	protected ShiroFilterChainDefinition shiroFilterChainDefinition() {
 		DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
-		Map<String /* pattert */, String /* Chain names */> pathDefinitions = properties.getFilterChainDefinitionMap();
+		Map<String /* pattert */, String /* Chain names */> pathDefinitions = bizProperties.getFilterChainDefinitionMap();
 		if (MapUtils.isNotEmpty(pathDefinitions)) {
 			chainDefinition.addPathDefinitions(pathDefinitions);
 			return chainDefinition;

@@ -117,11 +117,20 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		}
 		// 2、未授权情况
 		else {
-			String mString = "Attempting to access a path which requires authentication. ";
-			if (LOG.isTraceEnabled()) {
+			
+			String mString = String.format("Attempting to access a path which requires authentication.  %s = Authorization Header, %s = Authorization Param, %s = Authorization Cookie ", 
+					getAuthorizationHeaderName(), getAuthorizationParamName(), getAuthorizationCookieName());
+			if (LOG.isTraceEnabled()) { 
 				LOG.trace(mString);
 			}
-			WebUtils.writeJSONString(response, HttpServletResponse.SC_UNAUTHORIZED, mString);
+			
+			// 响应成功状态信息
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("status", "fail");
+			data.put("message", mString);
+			// 响应
+			WebUtils.writeJSONString(response, data);
+			
 			return false;
 		}
 	}
