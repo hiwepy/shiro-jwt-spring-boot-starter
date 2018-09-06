@@ -21,6 +21,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
@@ -31,7 +32,7 @@ import com.google.common.collect.Sets;
  * JSON Web Token (JWT) Principal Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPayload> {
+public class JwtPrincipalRepository implements ShiroPrincipalRepository<ShiroPrincipal> {
 
     private final JwtPayloadRepository jwtPayloadRepository;
     /**
@@ -43,51 +44,53 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPaylo
     	this.jwtPayloadRepository = jwtPayloadRepository;
     }
     
-    
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		
 		JwtToken jwtToken = (JwtToken) token;
 		
-		String jwt = (String) jwtToken.getCredentials();
-			
 		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
 		
-		// 如果要使token只能使用一次，此处可以过滤并缓存payload.getId()
-		// 可以做接收方验证
-		return new SimpleAuthenticationInfo(payload, jwt, "JWT");
+		ShiroPrincipal principal = new JwtPayloadPrincipal(payload);
+		
+		principal.setUserid(payload.getClientId());
+		principal.setUserkey(payload.getClientId());
+		principal.setRoles(Sets.newHashSet(StringUtils.tokenizeToStringArray(payload.getRoles())));
+		principal.setPerms(Sets.newHashSet(StringUtils.tokenizeToStringArray(payload.getPerms())));
+		
+		return new SimpleAuthenticationInfo(principal, jwtToken.getCredentials(), "JWT");
 	}
 
 	@Override
-	public Set<String> getRoles(JwtPayload principal) {
-		return Sets.newHashSet(StringUtils.tokenizeToStringArray(principal.getRoles()));
+	public Set<String> getRoles(ShiroPrincipal principal) {
+		return principal.getRoles();
 	}
 
 	@Override
-	public Set<String> getRoles(Set<JwtPayload> principals) {
+	public Set<String> getRoles(Set<ShiroPrincipal> principals) {
 		Set<String> sets = Sets.newHashSet();
-		for (JwtPayload jwtPlayload : principals) {
-			sets.addAll(Sets.newHashSet(StringUtils.tokenizeToStringArray(jwtPlayload.getRoles())));
+		for (ShiroPrincipal principal : principals) {
+			sets.addAll(principal.getRoles());
 		}
 		return sets;
 	}
 
 	@Override
-	public Set<String> getPermissions(JwtPayload principal) {
-		return Sets.newHashSet(StringUtils.tokenizeToStringArray(principal.getPerms()));
+	public Set<String> getPermissions(ShiroPrincipal principal) {
+		return Sets.newHashSet(principal.getPerms());
 	}
 
 	@Override
-	public Set<String> getPermissions(Set<JwtPayload> principals) {
+	public Set<String> getPermissions(Set<ShiroPrincipal> principals) {
 		Set<String> sets = Sets.newHashSet();
-		for (JwtPayload jwtPlayload : principals) {
-			sets.addAll(Sets.newHashSet(StringUtils.tokenizeToStringArray(jwtPlayload.getPerms())));
+		for (ShiroPrincipal principal : principals) {
+			sets.addAll(principal.getPerms());
 		}
 		return sets;
 	}
 	
 	@Override
-	public void doLock(JwtPayload principal) {
+	public void doLock(ShiroPrincipal principal) {
 		// do nothing
 	}
 

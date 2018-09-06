@@ -118,7 +118,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// 2、未授权情况
 		else {
 			
-			String mString = String.format("Attempting to access a path which requires authentication.  %s = Authorization Header, %s = Authorization Param, %s = Authorization Cookie ", 
+			String mString = String.format("Attempting to access a path which requires authentication.  %s = Authorization Header or %s = Authorization Param or %s = Authorization Cookie  is not present in the request", 
 					getAuthorizationHeaderName(), getAuthorizationParamName(), getAuthorizationCookieName());
 			if (LOG.isTraceEnabled()) { 
 				LOG.trace(mString);
