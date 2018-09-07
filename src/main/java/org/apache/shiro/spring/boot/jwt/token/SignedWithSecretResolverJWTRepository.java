@@ -81,13 +81,13 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer,
+	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 		Map<String, Object> claims = Maps.newHashMap();
 		claims.put("roles", roles);
 		claims.put("perms", permissions);
 		
-		return this.issueJwt(secretKey, jwtId, subject, issuer, claims, algorithm, period);
+		return this.issueJwt(secretKey, jwtId, subject, issuer, audience, claims, algorithm, period);
 	}
 
 
@@ -116,10 +116,10 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, Map<String, Object> claims,
-			String algorithm, long period) throws AuthenticationException {
+	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
+			Map<String, Object> claims,	String algorithm, long period) throws AuthenticationException {
 		String token = JJwtUtils
-				.jwtBuilder(jwtId, subject, issuer, claims, period)
+				.jwtBuilder(jwtId, subject, issuer, audience, claims, period)
 				// 指定KeyID以便进行验证时，动态获取该ID对应的Key
 				.setHeaderParam(JwsHeader.KEY_ID, Base64.encodeToString(secretKey.getEncoded()))
 				// 压缩类型

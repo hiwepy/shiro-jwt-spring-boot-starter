@@ -57,7 +57,7 @@ public class JWTTest {
 		claims.put("roles", "admin,stu");
 		claims.put("perms", "user:del");
 
-		String token1 = JJwtUtils.jwtBuilder(UUID.randomUUID().toString(), "Jwt测试1", "test1", claims, 1024)
+		String token1 = JJwtUtils.jwtBuilder(UUID.randomUUID().toString(), "Jwt测试1", "test1", "0001", claims, 1024)
 				// 压缩，可选GZIP
 				.compressWith(CompressionCodecs.DEFLATE)
 				// 设置算法（必须）
@@ -88,7 +88,7 @@ public class JWTTest {
 		System.out.println("//-----------------------------------------------------------");
 
 		String token2 = JJwtUtils
-				.jwtBuilder(UUID.randomUUID().toString(), "Jwt测试2", "test2", 1024, "admin,stu", "user:del")
+				.jwtBuilder(UUID.randomUUID().toString(), "Jwt测试2", "test2", "0002", 1024, "admin,stu", "user:del")
 				// 压缩，可选GZIP
 				.compressWith(CompressionCodecs.DEFLATE)
 				// 设置算法（必须）

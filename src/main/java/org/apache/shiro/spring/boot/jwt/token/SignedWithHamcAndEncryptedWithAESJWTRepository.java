@@ -71,14 +71,14 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 	 * @throws Exception 
 	 */
 	@Override
-	public String issueJwt(String signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer,
+	public String issueJwt(String signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 
 		Map<String, Object> claims = Maps.newHashMap();
 		claims.put("roles", roles);
 		claims.put("perms", permissions);
 		
-		return this.issueJwt(signingKey, encryptKey, jwtId, subject, issuer, claims, algorithm, period);
+		return this.issueJwt(signingKey, encryptKey, jwtId, subject, issuer, audience, claims, algorithm, period);
 		
 	}
 
@@ -101,14 +101,14 @@ public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNested
 	 * @throws AuthenticationException
 	 */
 	@Override
-	public String issueJwt(String signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer,
+	public String issueJwt(String signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer, String audience,
 			Map<String, Object> claims, String algorithm, long period) throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, claims, period);
+			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, audience, claims, period);
 						
 			//-------------------- Step 2：Hamc Signature --------------------
 			

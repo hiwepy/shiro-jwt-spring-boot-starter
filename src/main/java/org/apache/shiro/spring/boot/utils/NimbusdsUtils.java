@@ -25,6 +25,7 @@ import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.util.CollectionUtils;
 
+import com.google.common.collect.Lists;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 /**
@@ -32,11 +33,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
 public class NimbusdsUtils {
-	
-	
 
-
-	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, Map<String, Object> claims,
+	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, String audience, Map<String, Object> claims,
 			long period) {
 		
 		// Current TimeMillis
@@ -51,11 +49,14 @@ public class NimbusdsUtils {
 		}
 		// 用户名主题
 		builder.subject(subject);
+		// 接收对象
+		if (StringUtils.hasText(audience)) {
+			builder.audience(Lists.newArrayList(StringUtils.tokenizeToStringArray(audience)));
+		}
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
 			builder.issuer(issuer);
 		}
-		
 		// 声明信息
 		if(!CollectionUtils.isEmpty(claims)) {
 			Iterator<Entry<String, Object>> ite = claims.entrySet().iterator();
@@ -78,7 +79,7 @@ public class NimbusdsUtils {
 	}
 	
 	
-	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, String roles,
+	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, String audience, String roles,
 			String permissions, long period) {
 
 		// Current TimeMillis
@@ -93,6 +94,10 @@ public class NimbusdsUtils {
 		}
 		// 用户名主题
 		builder.subject(subject);
+		// 接收对象
+		if (StringUtils.hasText(audience)) {
+			builder.audience(Lists.newArrayList(StringUtils.tokenizeToStringArray(audience)));
+		}
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
 			builder.issuer(issuer);

@@ -72,14 +72,14 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	 * @throws AuthenticationException Authentication Exception
 	 */
 	@Override
-	public String issueJwt(String base64Secret, String jwtId, String subject, String issuer,
+	public String issueJwt(String base64Secret, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 		
 		Map<String, Object> claims = Maps.newHashMap();
 		claims.put("roles", roles);
 		claims.put("perms", permissions);
 		
-		return this.issueJwt(base64Secret, jwtId, subject, issuer, claims, algorithm, period);
+		return this.issueJwt(base64Secret, jwtId, subject, issuer, audience, claims, algorithm, period);
 	}
 
 	/**
@@ -108,10 +108,10 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	 * @throws AuthenticationException
 	 */
 	@Override
-	public String issueJwt(String base64Secret, String jwtId, String subject, String issuer, Map<String, Object> claims,
+	public String issueJwt(String base64Secret, String jwtId, String subject, String issuer, String audience, Map<String, Object> claims,
 			String algorithm, long period) throws AuthenticationException {
 		String token = JJwtUtils
-				.jwtBuilder(jwtId, subject, issuer, claims, period)
+				.jwtBuilder(jwtId, subject, issuer, audience, claims, period)
 				// 压缩类型
 				.compressWith(getCompressWith())
 				// 设置算法（必须）

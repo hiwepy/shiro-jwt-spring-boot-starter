@@ -47,7 +47,7 @@ public class JJwtUtils {
 	public static final String CLAIM_KEY_ACCOUNT_NON_LOCKED = "non_locked";
 	public static final String CLAIM_KEY_ACCOUNT_NON_EXPIRED = "non_expired";
 
-	public static JwtBuilder jwtBuilder(String jwtId, String subject, String issuer, Map<String, Object> claims,
+	public static JwtBuilder jwtBuilder(String jwtId, String subject, String issuer, String audience, Map<String, Object> claims,
 			long period) {
 
 		// 当前时间戳
@@ -56,12 +56,20 @@ public class JJwtUtils {
 		// Jwt主键ID
 		if (StringUtils.hasText(jwtId)) {
 			builder.setId(jwtId);
+			builder.claim(Claims.ID, jwtId);
 		}
 		// 用户名主题
 		builder.setSubject(subject);
+		builder.claim(Claims.SUBJECT, subject);
+		// 接收对象
+		if (StringUtils.hasText(audience)) {
+			builder.setAudience(audience);
+			builder.claim(Claims.AUDIENCE, audience);
+		}
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
 			builder.setIssuer(issuer);
+			builder.claim(Claims.ISSUER, issuer);
 		}
 		// 声明信息
 		if(!CollectionUtils.isEmpty(claims)) {
@@ -79,20 +87,29 @@ public class JJwtUtils {
 	}
 
 	public static JwtBuilder jwtBuilder(String jwtId, String subject,
-			String issuer, long period, String roles, String permissions) {
+			String issuer, String audience, long period, String roles, String permissions) {
 
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
 		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT");
+		
 		// Jwt主键ID
 		if (StringUtils.hasText(jwtId)) {
 			builder.setId(jwtId);
+			builder.claim(Claims.ID, jwtId);
 		}
 		// 用户名主题
 		builder.setSubject(subject);
+		builder.claim(Claims.SUBJECT, subject);
+		// 接收对象
+		if (StringUtils.hasText(audience)) {
+			builder.setAudience(audience);
+			builder.claim(Claims.AUDIENCE, audience);
+		}
 		// 签发者
 		if (StringUtils.hasText(issuer)) {
 			builder.setIssuer(issuer);
+			builder.claim(Claims.ISSUER, issuer);
 		}
 		// 签发时间
 		Date now = new Date(currentTimeMillis);
@@ -123,6 +140,8 @@ public class JJwtUtils {
 		payload.setIssuedAt(claims.getIssuedAt());// 签发时间
 		payload.setExpiration(claims.getExpiration()); // 过期时间
 		payload.setNotBefore(claims.getNotBefore());
+		
+		
 		payload.setAudience(Arrays.asList(claims.getAudience()));// 接收方
 		payload.setClaims(claims); // 访问主张
 		
@@ -142,8 +161,8 @@ public class JJwtUtils {
 	}
 
 	public String genAccessToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
-			String issuer, Map<String, Object> claims, long access_token_expiration) {
-		return jwtBuilder(uid, subject, issuer, claims, access_token_expiration)
+			String issuer, String audience, Map<String, Object> claims, long access_token_expiration) {
+		return jwtBuilder(uid, subject, issuer, audience, claims, access_token_expiration)
 				// 压缩，可选GZIP
 				.compressWith(CompressionCodecs.DEFLATE)
 				// 设置算法（必须）
@@ -151,8 +170,8 @@ public class JJwtUtils {
 	}
 
 	public String genRefreshToken(String signatureAlgorithm, String base64Secret, String uid, String subject,
-			String issuer, Map<String, Object> claims, long refresh_token_expiration) {
-		return jwtBuilder(uid, subject, issuer, claims, refresh_token_expiration)
+			String issuer, String audience, Map<String, Object> claims, long refresh_token_expiration) {
+		return jwtBuilder(uid, subject, issuer, audience, claims, refresh_token_expiration)
 				// 压缩，可选GZIP
 				.compressWith(CompressionCodecs.DEFLATE)
 				// 设置算法（必须）
@@ -177,7 +196,7 @@ public class JJwtUtils {
 			}
 			refreshedToken = genAccessToken(signatureAlgorithm, base64Secret, claims.getId(), claims.getSubject(),
 
-					claims.getIssuer(), claimMap, access_token_expiration);
+					claims.getIssuer(), claims.getAudience(), claimMap, access_token_expiration);
 		} catch (Exception e) {
 			refreshedToken = null;
 		}

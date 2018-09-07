@@ -71,14 +71,14 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 	 * @throws Exception 
 	 */
 	@Override
-	public String issueJwt(OctetKeyPair signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer,
+	public String issueJwt(OctetKeyPair signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 
 		Map<String, Object> claims = Maps.newHashMap();
 		claims.put("roles", roles);
 		claims.put("perms", permissions);
 		
-		return this.issueJwt(signingKey, encryptKey, jwtId, subject, issuer, claims, algorithm, period);
+		return this.issueJwt(signingKey, encryptKey, jwtId, subject, issuer, audience, claims, algorithm, period);
 		
 	}
 	
@@ -102,13 +102,13 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtNestedRe
 	 */
 	
 	@Override
-	public String issueJwt(OctetKeyPair signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer,
+	public String issueJwt(OctetKeyPair signingKey, SecretKey encryptKey, String jwtId, String subject, String issuer, String audience,
 			Map<String, Object> claims, String algorithm, long period) throws AuthenticationException {
 
 		try {
 			
 			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, claims, period);
+			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, audience, claims, period);
 						
 			//-------------------- Step 1：EdDSA Signature --------------------
 			
