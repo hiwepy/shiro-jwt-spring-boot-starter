@@ -29,7 +29,7 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	@Bean
 	@Override
 	protected SubjectFactory subjectFactory() {
-		return new JwtSubjectFactory(bizProperties.isSessionStateless());
+		return new JwtSubjectFactory(bizProperties.isSessionCreationEnabled());
 	}
 
 	@Override
