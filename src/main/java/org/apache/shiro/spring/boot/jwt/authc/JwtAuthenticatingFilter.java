@@ -58,10 +58,10 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
     private String authorizationParamName = AUTHORIZATION_PARAM;
 	private String authorizationCookieName = AUTHORIZATION_PARAM;
 	private JwtPayloadRepository jwtPayloadRepository;
-	/**
-	 * If Check JWT Validity.
-	 */
+	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
+	/** If Allow Cors. */
+	private boolean allowCors = false;
 	
 	public JwtAuthenticatingFilter() {
 		super();
@@ -72,7 +72,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
 		HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
 		HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
-		httpServletResponse.setHeader("Access-control-Allow-Origin", httpServletRequest.getHeader("Origin"));
+		httpServletResponse.setHeader("Access-Control-Allow-Origin", isAllowCors() ? "*" : httpServletRequest.getHeader("Origin"));
 		httpServletResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
 		httpServletResponse.setHeader("Access-Control-Allow-Headers", httpServletRequest.getHeader("Access-Control-Request-Headers"));
 		// 跨域时会首先发送一个option请求，这里我们给option请求直接返回正常状态
@@ -80,6 +80,9 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 			return false;
 		}
+		
+		
+		
 		return super.preHandle(request, response);
 	}
 	
@@ -278,6 +281,14 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
 	public void setCheckExpiry(boolean checkExpiry) {
 		this.checkExpiry = checkExpiry;
+	}
+
+	public boolean isAllowCors() {
+		return allowCors;
+	}
+
+	public void setAllowCors(boolean allowCors) {
+		this.allowCors = allowCors;
 	}
 	
 }
