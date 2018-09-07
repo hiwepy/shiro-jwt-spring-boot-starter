@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author ： <a href="https://github.com/vindell">vindell</a>
  */
-public final class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
+public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 	protected static final String AUTHORIZATION_PARAM = "token";
