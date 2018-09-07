@@ -35,7 +35,6 @@ import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,10 +58,6 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
     private String authorizationParamName = AUTHORIZATION_PARAM;
 	private String authorizationCookieName = AUTHORIZATION_PARAM;
 	private JwtPayloadRepository jwtPayloadRepository;
-	/**
-	 * If Session Stateless
-	 */
-	private boolean sessionStateless = false;
 	/**
 	 * If Check JWT Validity.
 	 */
@@ -116,16 +111,6 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			return false;
 		}
 		return super.isAccessAllowed(request, response, mappedValue);
-	}
-
-	/**
-	 * 重写Subject对象获取逻辑,解决认证信息缓存问题，达到每次认证都是一次新的认证
-	 */
-	@Override
-	protected Subject getSubject(ServletRequest request, ServletResponse response) {
-		Subject subject = (new Subject.Builder()).buildSubject();
-        ThreadContext.bind(subject);
-        return subject;
 	}
 	
 	@Override
@@ -285,14 +270,6 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
 	public void setJwtPayloadRepository(JwtPayloadRepository jwtPayloadRepository) {
 		this.jwtPayloadRepository = jwtPayloadRepository;
-	}
-
-	public boolean isSessionStateless() {
-		return sessionStateless;
-	}
-
-	public void setSessionStateless(boolean sessionStateless) {
-		this.sessionStateless = sessionStateless;
 	}
 
 	public boolean isCheckExpiry() {
