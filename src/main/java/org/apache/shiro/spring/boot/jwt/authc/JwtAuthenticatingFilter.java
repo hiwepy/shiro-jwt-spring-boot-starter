@@ -88,7 +88,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// 判断是否无状态
 		if (isSessionStateless()) {
 			// 判断是否认证请求  
-			if (isJwtSubmission(request, response)) {
+			if (!isLoginRequest(request, response) && isJwtSubmission(request, response)) {
 				// Step 1、生成无状态Token 
 				AuthenticationToken token = createJwtToken(request, response);
 				try {
@@ -203,19 +203,19 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
-		String jwtToken = getRequestToken(request);
+		String jwtToken = getAccessToken(request);
 		return new JwtToken(host, jwtToken);
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {
-    	 String authzHeader = getRequestToken(request);
+    	 String authzHeader = getAccessToken(request);
 		return (request instanceof HttpServletRequest) && authzHeader != null;
 	}
     
     /**
      * 获取请求的token
      */
-    protected String getRequestToken(ServletRequest request) {
+    protected String getAccessToken(ServletRequest request) {
     	
     	HttpServletRequest httpRequest = WebUtils.toHttp(request);
         //从header中获取token
