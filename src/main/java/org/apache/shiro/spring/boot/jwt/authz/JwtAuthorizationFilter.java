@@ -101,6 +101,7 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("status", "fail");
+		data.put("token", "expiry");
 		// Jwt错误
 		if (e instanceof IncorrectJwtException) {
 			data.put("message", "JWT is incorrect.");
