@@ -15,11 +15,7 @@
  */
 package org.apache.shiro.spring.boot.jwt.authc;
 
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.web.mgt.SessionDisableSubjectFactory;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.subject.SubjectContext;
 
 /**
  * 扩展自StatelessDefaultSubjectFactory,对于无状态的JSON Web Token (JWT)不创建session
@@ -29,21 +25,5 @@ public class JwtSubjectFactory extends SessionDisableSubjectFactory {
 	public JwtSubjectFactory(boolean sessionCreationEnabled){
 		super(sessionCreationEnabled);
 	}
-	
-	/**
-	 * 是否JWT令牌
-	 */
-	public static boolean isJwtToken(Object token){
-		return token instanceof JwtToken;
-	}
-	
-    public Subject createSubject(SubjectContext context) { 
-    	AuthenticationToken token = context.getAuthenticationToken();
-    	if(isSessionCreationEnabled() && isJwtToken(token)){
-            // 不创建 session 
-            context.setSessionCreationEnabled(Boolean.FALSE);
-    	}
-        return super.createSubject(context); 
-    }
     
 }
