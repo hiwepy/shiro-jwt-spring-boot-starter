@@ -8,10 +8,10 @@ import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.PrincipalCollection;
 
 /**
- * JSON Web Token (JWT) External AuthorizingRealm
+ * JSON Web Token (JWT) Stateless AuthorizingRealm
  * @author <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtExternalAuthorizingRealm extends AbstractAuthorizingRealm<JwtPayloadPrincipal> {
+public class JwtStatelessAuthorizingRealm extends AbstractAuthorizingRealm<JwtPayloadPrincipal> {
 
 	@Override
 	public Class<?> getAuthenticationTokenClass() {
