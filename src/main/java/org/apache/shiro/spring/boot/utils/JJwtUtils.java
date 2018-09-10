@@ -53,6 +53,10 @@ public class JJwtUtils {
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
 		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT");
+		// 声明信息：调用setClaims需要在其他设置之前，不然会丢失数据
+		if(!CollectionUtils.isEmpty(claims)) {
+			builder.setClaims(claims);
+		}
 		// Jwt主键ID
 		if (StringUtils.hasText(jwtId)) {
 			builder.setId(jwtId);
@@ -71,24 +75,21 @@ public class JJwtUtils {
 			builder.setIssuer(issuer);
 			builder.claim(Claims.ISSUER, issuer);
 		}
-		// 声明信息
-		if(!CollectionUtils.isEmpty(claims)) {
-			builder.setClaims(claims);
-		}
 		// 签发时间
 		Date now = new Date(currentTimeMillis);
 		builder.setIssuedAt(now);
 		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			builder.setExpiration(genExpirationDate(period)).setNotBefore(now);
+			Date expiration = new Date(currentTimeMillis + period * 1000);
+			builder.setExpiration(expiration).setNotBefore(now);
 		}
 		return builder;
 	}
 
 	public static JwtBuilder jwtBuilder(String jwtId, String subject,
-			String issuer, String audience, long period, String roles, String permissions) {
-
+			String issuer, String audience, String roles, String permissions, long period) {
+		
 		// 当前时间戳
 		long currentTimeMillis = System.currentTimeMillis();
 		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT");
@@ -117,7 +118,7 @@ public class JJwtUtils {
 		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period);
+			Date expiration = new Date(currentTimeMillis + period * 1000);
 			builder.setExpiration(expiration).setNotBefore(now);
 		}
 		// 角色
@@ -134,13 +135,15 @@ public class JJwtUtils {
 	public static JwtPayload payload(Claims claims) throws ParseException {
 
 		JwtPayload payload = new JwtPayload();
-		payload.setTokenId(claims.getId());
-		payload.setClientId(claims.getSubject());// 用户名
+		
+		Map<String, Object> claimMap = claims;
+		
+		payload.setTokenId(StringUtils.hasText(claims.getId()) ? claims.getId() : (String) claimMap.get(Claims.ID));
+		payload.setClientId(StringUtils.hasText(claims.getSubject()) ? claims.getSubject() : (String) claims.get(Claims.SUBJECT));// 用户名
 		payload.setIssuer(claims.getIssuer());// 签发者
-		payload.setIssuedAt(claims.getIssuedAt());// 签发时间
+		payload.setIssuedAt(claims.getIssuedAt() != null ? claims.getIssuedAt() : (Date) claims.get(Claims.ISSUED_AT));// 签发时间
 		payload.setExpiration(claims.getExpiration()); // 过期时间
 		payload.setNotBefore(claims.getNotBefore());
-		
 		
 		payload.setAudience(Arrays.asList(claims.getAudience()));// 接收方
 		payload.setClaims(claims); // 访问主张
@@ -247,9 +250,6 @@ public class JJwtUtils {
 		return expiration;
 	}
 
-	public static Date genExpirationDate(long expiration) {
-		return new Date(System.currentTimeMillis() + expiration * 1000);
-	}
 
 	public static Boolean isTokenExpired(String base64Secret, String token) {
 		final Date expiration = getExpirationDateFromToken(base64Secret, token);

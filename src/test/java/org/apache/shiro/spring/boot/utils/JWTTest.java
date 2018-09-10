@@ -61,7 +61,7 @@ public class JWTTest {
 				// 压缩，可选GZIP
 				.compressWith(CompressionCodecs.DEFLATE)
 				// 设置算法（必须）
-				.signWith(SignatureAlgorithm.HS256, base64Secret).compact();
+				.signWith(SignatureAlgorithm.HS384, base64Secret).compact();
 		System.out.println("token:" + token1);
 
 		Claims claims1 = JJwtUtils.parseJWT(base64Secret, token1);
@@ -76,6 +76,14 @@ public class JWTTest {
 		System.out.println("perms:" + claims1.get("perms", String.class));
 
 		JwtPayload jwtPlayload = JJwtUtils.payload(claims1);
+		
+		System.out.println("TokenId:" + jwtPlayload.getTokenId());
+		System.out.println("Audience:" + jwtPlayload.getAudience());
+		System.out.println("Issuer:" + jwtPlayload.getIssuer());
+		System.out.println("ClientId:" + jwtPlayload.getClientId());
+		System.out.println("Expiration:" + jwtPlayload.getExpiration());
+		System.out.println("IssuedAt:" + jwtPlayload.getIssuedAt());
+		System.out.println("NotBefore:" + jwtPlayload.getNotBefore());
 		System.out.println("roles:" + jwtPlayload.getRoles());
 		System.out.println("perms:" + jwtPlayload.getPerms());
 
@@ -88,7 +96,7 @@ public class JWTTest {
 		System.out.println("//-----------------------------------------------------------");
 
 		String token2 = JJwtUtils
-				.jwtBuilder(UUID.randomUUID().toString(), "Jwt测试2", "test2", "0002", 1024, "admin,stu", "user:del")
+				.jwtBuilder(UUID.randomUUID().toString(), "Jwt测试2", "test2", "0002", "admin,stu", "user:del", 1024)
 				// 压缩，可选GZIP
 				.compressWith(CompressionCodecs.DEFLATE)
 				// 设置算法（必须）
@@ -107,6 +115,13 @@ public class JWTTest {
 		System.out.println("perms:" + claims2.get("perms", String.class));
 
 		JwtPayload jwtPlayload2 = JJwtUtils.payload(claims2);
+		System.out.println("TokenId:" + jwtPlayload2.getTokenId());
+		System.out.println("Audience:" + jwtPlayload2.getAudience());
+		System.out.println("Issuer:" + jwtPlayload2.getIssuer());
+		System.out.println("ClientId:" + jwtPlayload2.getClientId());
+		System.out.println("Expiration:" + jwtPlayload2.getExpiration());
+		System.out.println("IssuedAt:" + jwtPlayload2.getIssuedAt());
+		System.out.println("NotBefore:" + jwtPlayload2.getNotBefore());
 		System.out.println("roles:" + jwtPlayload2.getRoles());
 		System.out.println("perms:" + jwtPlayload2.getPerms());
 

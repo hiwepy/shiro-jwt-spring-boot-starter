@@ -149,9 +149,9 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 
 			Claims claims = jws.getBody();
 
-			System.out.println("Expiration:" + claims.getExpiration());
-			System.out.println("IssuedAt:" + claims.getIssuedAt());
-			System.out.println("NotBefore:" + claims.getNotBefore());
+			//System.out.println("Expiration:" + claims.getExpiration());
+			//System.out.println("IssuedAt:" + claims.getIssuedAt());
+			//System.out.println("NotBefore:" + claims.getNotBefore());
 			
 			long time = System.currentTimeMillis();
 			return claims != null && claims.getNotBefore().getTime() <= time
@@ -177,12 +177,10 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 		try {
 			
 			// Retrieve JWT claims
-			JwtParser jwtParser = Jwts.parser();
+			Jws<Claims> jws = Jwts.parser()
 			// 设置允许的时间误差
-			if(getAllowedClockSkewSeconds() > 0) {
-				jwtParser.setAllowedClockSkewSeconds(getAllowedClockSkewSeconds());	
-			}
-			Jws<Claims> jws = jwtParser.setSigningKey(base64Secret).parseClaimsJws(token);
+			.setAllowedClockSkewSeconds(getAllowedClockSkewSeconds())	
+			.setSigningKey(base64Secret).parseClaimsJws(token);
 			
 			return JJwtUtils.payload(jws.getBody());
 		} catch (ParseException e) {
