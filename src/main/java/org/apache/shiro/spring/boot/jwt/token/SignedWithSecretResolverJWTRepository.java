@@ -22,6 +22,8 @@ import java.util.Map;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
+import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
+import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.utils.JJwtUtils;
 
@@ -34,6 +36,7 @@ import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwsHeader;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -169,8 +172,14 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 			return claims != null && claims.getNotBefore().getTime() <= time
 					&& time < claims.getExpiration().getTime();
 			
-		} catch(InvalidClaimException e) {
+		} catch (io.jsonwebtoken.ExpiredJwtException e) {
+			throw new ExpiredJwtException(e);
+		} catch (InvalidClaimException e) {
 			throw new InvalidJwtToken(e);
+		} catch (JwtException e) {
+			throw new IncorrectJwtException(e);
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectJwtException(e);
 		}
 		
 	}
@@ -204,8 +213,16 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 			Jws<Claims> jws = jwtParser.setSigningKeyResolver(signingKeyResolver).parseClaimsJws(token);
 			
 			return JJwtUtils.payload(jws.getBody());
-		} catch (ParseException e) {
+		} catch (io.jsonwebtoken.ExpiredJwtException e) {
+			throw new ExpiredJwtException(e);
+		} catch (InvalidClaimException e) {
 			throw new InvalidJwtToken(e);
+		} catch (JwtException e) {
+			throw new IncorrectJwtException(e);
+		} catch (IllegalArgumentException e) {
+			throw new IncorrectJwtException(e);
+		} catch (ParseException e) {
+			throw new IncorrectJwtException(e);
 		}
 	}
 

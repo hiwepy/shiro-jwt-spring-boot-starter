@@ -14,6 +14,7 @@ import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authz.AbstracAuthorizationFilter;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
+import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
@@ -109,6 +110,10 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		// Jwt无效
 		else if (e instanceof InvalidJwtToken) {
 			data.put("message", "Invalid JWT value.");
+		}
+		// Jwt过期
+		else if (e instanceof ExpiredJwtException) {
+			data.put("message", "Expired JWT value. " );
 		}
 		WebUtils.writeJSONString(response, data);
 		return false;

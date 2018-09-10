@@ -31,12 +31,14 @@ import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
+import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * Jwt认证 (authentication)过滤器
@@ -114,7 +116,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			}
 		}
 		// 2、未授权情况
-		else {
+		else if (!isJwtSubmission(request, response)) {
 			
 			String mString = String.format("Attempting to access a path which requires authentication.  %s = Authorization Header or %s = Authorization Param or %s = Authorization Cookie  is not present in the request", 
 					getAuthorizationHeaderName(), getAuthorizationParamName(), getAuthorizationCookieName());
@@ -131,6 +133,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			
 			return false;
 		}
+		
+		return false;
 	}
 
 	@Override
@@ -176,8 +180,13 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		} 
 		// Jwt无效
 		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value of header name ["+ getAuthorizationHeaderName() + "]. " );
+			data.put("message", "Invalid JWT value.");
 		}
+		// Jwt过期
+		else if (e instanceof ExpiredJwtException) {
+			data.put("message", "Expired JWT value. " );
+		}
+		
 		WebUtils.writeJSONString(response, data);
 		return false;
 	}

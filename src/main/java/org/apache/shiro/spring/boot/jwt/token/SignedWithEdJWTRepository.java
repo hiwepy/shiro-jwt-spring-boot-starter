@@ -108,6 +108,8 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 			
 			// Serialize the JWS to compact form
 			return signedJWT.serialize();
+		} catch (IllegalStateException e) {
+			throw new IncorrectJwtException(e);
 		} catch (KeyLengthException e) {
 			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {

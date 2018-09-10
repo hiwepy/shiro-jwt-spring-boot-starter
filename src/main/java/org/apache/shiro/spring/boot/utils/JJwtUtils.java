@@ -136,12 +136,10 @@ public class JJwtUtils {
 
 		JwtPayload payload = new JwtPayload();
 		
-		Map<String, Object> claimMap = claims;
-		
-		payload.setTokenId(StringUtils.hasText(claims.getId()) ? claims.getId() : (String) claimMap.get(Claims.ID));
-		payload.setClientId(StringUtils.hasText(claims.getSubject()) ? claims.getSubject() : (String) claims.get(Claims.SUBJECT));// 用户名
+		payload.setTokenId(claims.getId());
+		payload.setClientId(claims.getSubject());// 用户名
 		payload.setIssuer(claims.getIssuer());// 签发者
-		payload.setIssuedAt(claims.getIssuedAt() != null ? claims.getIssuedAt() : (Date) claims.get(Claims.ISSUED_AT));// 签发时间
+		payload.setIssuedAt(claims.getIssuedAt());// 签发时间
 		payload.setExpiration(claims.getExpiration()); // 过期时间
 		payload.setNotBefore(claims.getNotBefore());
 		

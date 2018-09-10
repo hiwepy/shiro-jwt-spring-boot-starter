@@ -113,6 +113,8 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 			
 			// Serialize the JWS to compact form
 			return signedJWT.serialize();
+		} catch (IllegalStateException e) {
+			throw new IncorrectJwtException(e);
 		} catch (KeyLengthException e) {
 			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {

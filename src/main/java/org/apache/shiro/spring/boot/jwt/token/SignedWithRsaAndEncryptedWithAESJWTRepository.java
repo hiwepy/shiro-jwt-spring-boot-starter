@@ -139,6 +139,8 @@ public class SignedWithRsaAndEncryptedWithAESJWTRepository implements JwtNestedR
 			
 			// Serialise to JWE compact form
 			return jweObject.serialize();
+		} catch (IllegalStateException e) {
+			throw new IncorrectJwtException(e);
 		} catch (KeyLengthException e) {
 			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {

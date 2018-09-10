@@ -112,6 +112,8 @@ public class SignedWithHamcJWTRepository implements JwtRepository<String> {
 			// Serialize to compact form, produces something like
 			// eyJhbGciOiJIUzI1NiJ9.SGVsbG8sIHdvcmxkIQ.onO9Ihudz3WkiauDO2Uhyuz0Y18UASXlSc1eS0NkWyA
 			return signedJWT.serialize();
+		} catch (IllegalStateException e) {
+			throw new IncorrectJwtException(e);
 		} catch (KeyLengthException e) {
 			throw new IncorrectJwtException(e);
 		} catch (JOSEException e) {
