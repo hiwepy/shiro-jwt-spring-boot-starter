@@ -174,17 +174,21 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// 响应异常状态信息
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("status", "fail");
+		
 		// Jwt错误
 		if (e instanceof IncorrectJwtException) {
 			data.put("message", "JWT is incorrect.");
-		} 
+			data.put("token", "incorrect");
+		}
 		// Jwt无效
 		else if (e instanceof InvalidJwtToken) {
 			data.put("message", "Invalid JWT value.");
+			data.put("token", "invalid");
 		}
 		// Jwt过期
 		else if (e instanceof ExpiredJwtException) {
 			data.put("message", "Expired JWT value. " );
+			data.put("token", "expiry");
 		}
 		
 		WebUtils.writeJSONString(response, data);
