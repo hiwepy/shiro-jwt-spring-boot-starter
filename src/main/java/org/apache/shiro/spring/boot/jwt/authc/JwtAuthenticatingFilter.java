@@ -144,7 +144,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		// 调用事件监听器
 		if (getLoginListeners() != null && getLoginListeners().size() > 0) {
 			for (LoginListener loginListener : getLoginListeners()) {
-				loginListener.onLoginSuccess(token, subject, request, response);
+				loginListener.onSuccess(token, subject, request, response);
 			}
 		}
 		
