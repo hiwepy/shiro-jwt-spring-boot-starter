@@ -47,7 +47,7 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 	/**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param secretKey		: Signing key
+	 * @param signingKey	: Signing key
 	 * @param jwtId			: Jwt Id
 	 * @param subject		: Jwt Subject
 	 * @param issuer 		: Jwt Issuer

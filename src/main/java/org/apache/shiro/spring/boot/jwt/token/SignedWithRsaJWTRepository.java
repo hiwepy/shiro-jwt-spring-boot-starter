@@ -40,7 +40,7 @@ import com.nimbusds.jwt.SignedJWT;
 
 /**
  * <b> JSON Web Token (JWT) with RSA signature </b>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-signature <br/>
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-signature 
  */
 public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 
@@ -48,7 +48,6 @@ public class SignedWithRsaJWTRepository implements JwtRepository<RSAKey> {
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
 	 * @param signingKey	: Signing key
-	 * @param secretKey		: Signing key
 	 * @param jwtId			: Jwt Id
 	 * @param subject		: Jwt Subject
 	 * @param issuer 		: Jwt Issuer

@@ -1,5 +1,6 @@
 package org.apache.shiro.spring.boot.utils;
 
+import java.awt.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -79,15 +80,6 @@ public class SecretKeyUtils {
 		return keyPairGen.generateKeyPair();
 	}
 
-	/**
-	 * 
-	 * 生成公有key
-	 * 
-	 * @param algorithm
-	 * @param publicKeyBytes
-	 * @return
-	 * @throws GeneralSecurityException
-	 */
 	public static PublicKey genPublicKey(String algorithm, byte[] pubKeyBytes) throws GeneralSecurityException {
 		// 实例化秘钥工厂
 		KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
@@ -97,15 +89,6 @@ public class SecretKeyUtils {
 		return keyFactory.generatePublic(x509KeySpec);
 	}
 
-	/**
-	 * 
-	 * 生成私有key
-	 * 
-	 * @param algorithm
-	 * @param prikeyBytes
-	 * @return
-	 * @throws GeneralSecurityException
-	 */
 	public static PrivateKey genPrivateKey(String algorithm, byte[] prikeyBytes) throws GeneralSecurityException {
 		// 实例化秘钥工厂
 		KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
@@ -119,15 +102,6 @@ public class SecretKeyUtils {
 		return SecretKeyUtils.genSecretKey(key.getBytes(), algorithm);
 	}
 
-	/**
-	 * 
-	 * 秘密（对称）密钥(SecretKey继承(key))
-	 * 
-	 * @param key
-	 * @param algorithm
-	 * @return
-	 * @throws GeneralSecurityException
-	 */
 	public static SecretKey genSecretKey(byte[] key, String algorithm) throws GeneralSecurityException {
 		return new SecretKeySpec(key, algorithm);
 	}
@@ -137,15 +111,11 @@ public class SecretKeyUtils {
 	 * <p>
 	 * 根据秘钥种子生成随机密钥
 	 * </p>
-	 * 
-	 * @param seed
-	 *            密钥种子
-	 * @param algorithm
-	 *            生成密匙的算法
-	 * @param keySize
-	 *            密匙长度
+	 * @param seed 密钥种子
+	 * @param algorithm 生成密匙的算法
+	 * @param keySize  密匙长度
 	 * @return 二进制密钥
-	 * @throws GeneralSecurityException
+	 * @throws GeneralSecurityException {@link GeneralSecurityException}
 	 */
 	public static SecretKey genSecretKey(String seed, String algorithm, int keySize) throws GeneralSecurityException {
 		/*
@@ -168,14 +138,6 @@ public class SecretKeyUtils {
 		return keygen.generateKey();
 	}
 
-	/**
-	 * 
-	 * 生成相应算法密钥
-	 * 
-	 * @param algorithm
-	 * @return SecretKey 密钥
-	 * @throws GeneralSecurityException
-	 */
 	public static SecretKey genSecretKey(String algorithm, int keysize) throws GeneralSecurityException {
 		// 实例化密钥生成器
 		KeyGenerator keygen = KeyGenerator.getInstance(algorithm);
@@ -220,14 +182,8 @@ public class SecretKeyUtils {
 		return Base64.encodeToString(SecretKeyUtils.genBinarySecretKey(algorithm, keySize));
 	}
 
-	/**
-	 * 
+	/*
 	 * 加密解密第一步：从一组固定的原始数据（也许是由口令或者随机击键产生的）来生成一个密钥
-	 * 
-	 * @param keySpec
-	 * @param algorithm
-	 * @return
-	 * @throws GeneralSecurityException
 	 */
 	public static SecretKey genSecretKey(KeySpec keySpec, String algorithm) throws GeneralSecurityException {
 		// 生成指定秘密密钥算法的 SecretKeyFactory 对象。
@@ -262,13 +218,6 @@ public class SecretKeyUtils {
 		return SecretKeyUtils.genDESedeKey(key.getBytes());
 	}
 
-	/**
-	 * 转换密钥
-	 * 
-	 * @param key
-	 *            二进制密钥
-	 * @return Key 密钥
-	 */
 	public static SecretKey genDESedeKey(byte[] key) throws GeneralSecurityException {
 		// 实例化Des密钥
 		DESedeKeySpec dks = new DESedeKeySpec(key);
@@ -301,12 +250,8 @@ public class SecretKeyUtils {
 		return SecretKeyUtils.genSecureRandom(seed).generateSeed(keysize);
 	}
 
-	/**
-	 * 
+	/*
 	 * 从 *.key 文件中读取 SecretKey 对象
-	 * 
-	 * @param inStream
-	 * @return
 	 */
 	public static SecretKey readKey(InputStream inStream) {
 		SecretKey key = null;
@@ -322,12 +267,8 @@ public class SecretKeyUtils {
 		return key;
 	}
 
-	/**
-	 * 
+	/*
 	 * 将SecretKey 对象 写到 *.key 文件中
-	 * 
-	 * @param key
-	 * @param outStream
 	 */
 	public static void writeKey(Key key, OutputStream outStream) {
 		try {

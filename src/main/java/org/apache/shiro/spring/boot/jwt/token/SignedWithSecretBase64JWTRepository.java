@@ -40,8 +40,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * <b> JSON Web Token (JWT) with signature </b>
- * <p> https://github.com/jwtk/jjwt </p>
- * 私钥签名，公钥验证
+ * https://github.com/jwtk/jjwt
  */
 public class SignedWithSecretBase64JWTRepository implements JwtRepository<String> {
 
@@ -129,7 +128,7 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	/**
 	 * Verify the validity of JWT
 	 * @author 				: <a href="https://github.com/vindell">vindell</a>
-	 * @param base64Secret 	: If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. <br/>
+	 * @param base64Secret 	: If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. 
 	 * @param token  		: JSON Web Token (JWT)
 	 * @param checkExpiry 	: If Check validity.
 	 * @return If Validity
@@ -177,7 +176,7 @@ public class SignedWithSecretBase64JWTRepository implements JwtRepository<String
 	/**
 	 * Parser JSON Web Token (JWT)
 	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param secretKey 	: If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. <br/>
+	 * @param base64Secret 	: If the jws was signed with a base64Secret, the same base64Secret should be specified on the JwtParser. 
 	 * @param token  		: JSON Web Token (JWT)
 	 * @param checkExpiry 	: If Check validity.
 	 * @return JwtPlayload {@link JwtPayload}

@@ -44,8 +44,7 @@ import io.jsonwebtoken.SigningKeyResolver;
 
 /**
  * <b> JSON Web Token (JWT) with signature  </b>
- * <p> https://github.com/jwtk/jjwt </p>
- * 私钥签名，公钥验证
+ * https://github.com/jwtk/jjwt
  */
 public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key> {
 

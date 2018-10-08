@@ -83,15 +83,6 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		return false;
 	}
 
-	/**
-	 * TODO
-	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param mappedValue
-	 * @param e
-	 * @param request
-	 * @param response
-	 * @return
-	 */
 	@Override
 	protected boolean onAccessFailure(Object mappedValue, Exception e, ServletRequest request,
 			ServletResponse response) {
@@ -132,9 +123,6 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		return (request instanceof HttpServletRequest) && authzHeader != null;
 	}
     
-    /**
-     * 获取请求的token
-     */
     protected String getAccessToken(ServletRequest request) {
     	
     	HttpServletRequest httpRequest = WebUtils.toHttp(request);

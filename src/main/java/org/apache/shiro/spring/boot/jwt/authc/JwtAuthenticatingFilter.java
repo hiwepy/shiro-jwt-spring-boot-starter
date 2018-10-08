@@ -206,9 +206,6 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		return (request instanceof HttpServletRequest) && authzHeader != null;
 	}
     
-    /**
-     * 获取请求的token
-     */
     protected String getAccessToken(ServletRequest request) {
     	
     	HttpServletRequest httpRequest = WebUtils.toHttp(request);

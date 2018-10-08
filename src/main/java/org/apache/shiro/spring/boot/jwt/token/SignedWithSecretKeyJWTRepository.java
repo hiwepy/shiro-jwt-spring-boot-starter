@@ -40,9 +40,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
- * <b> JSON Web Token (JWT) with signature <br/>
- * https://github.com/jwtk/jjwt <br/>
- * 私钥签名，公钥验证
+ * <b> JSON Web Token (JWT) with signature </b>
+ * https://github.com/jwtk/jjwt
  */
 public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 
