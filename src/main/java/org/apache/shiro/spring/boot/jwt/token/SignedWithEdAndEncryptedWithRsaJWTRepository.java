@@ -48,59 +48,58 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 /**
- * JSON Web Token (JWT) with HMAC signature and RSA encryption <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-es256k-signature <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt
+ * <b> JSON Web Token (JWT) with Ed signature and RSA encryption </b>
+ * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-eddsa </p>
+ * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption </p>
+ * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt </p>
  */
 public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRepository<OctetKeyPair,RSAKey> {
 
 	/**
-	 * @param jwtId
-	 * @param subject
-	 * @param issuer
-	 * @param roles
-	 * @param permissions
-	 * @param algorithm: <br/>
-	 * 	HS256 - HMAC with SHA-256, requires 256+ bit secret<br/>
-     * 	HS384 - HMAC with SHA-384, requires 384+ bit secret<br/>
-     * 	HS512 - HMAC with SHA-512, requires 512+ bit secret<br/>
-     * @param period
+	 * Issue JSON Web Token (JWT)
+	 * @author ：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey	: Signing key
+	 * @param secretKey		: Encryption key
+	 * @param jwtId			: Jwt Id
+	 * @param subject		: Jwt Subject
+	 * @param issuer 		: Jwt Issuer
+	 * @param audience 		: Jwt Audience
+	 * @param roles			: The Roles
+	 * @param permissions	: The Perms
+	 * @param algorithm		: Supported algorithm： Ed25519 
+     * @param period 		: Jwt Expiration Cycle
 	 * @return JSON Web Token (JWT)
-	 * @throws Exception 
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
-	public String issueJwt(OctetKeyPair signingKey, RSAKey encryptKey, String jwtId, String subject, String issuer, String audience,
+	public String issueJwt(OctetKeyPair signingKey, RSAKey secretKey, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 
 		Map<String, Object> claims = Maps.newHashMap();
 		claims.put("roles", roles);
 		claims.put("perms", permissions);
 		
-		return this.issueJwt(signingKey, encryptKey, jwtId, subject, issuer, audience, claims, algorithm, period);
+		return this.issueJwt(signingKey, secretKey, jwtId, subject, issuer, audience, claims, algorithm, period);
 		
 	}
 	
-
 	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param signingKey
-	 * @param encryptKey
-	 * @param jwtId
-	 * @param subject
-	 * @param issuer
-	 * @param claims
-	 * @param algorithm: <br/>
-	 * 	HS256 - HMAC with SHA-256, requires 256+ bit secret<br/>
-     * 	HS384 - HMAC with SHA-384, requires 384+ bit secret<br/>
-     * 	HS512 - HMAC with SHA-512, requires 512+ bit secret<br/>
-	 * @param period
-	 * @return
-	 * @throws AuthenticationException
+	 * Issue JSON Web Token (JWT)
+	 * @author ：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey	: Signing key
+	 * @param secretKey		: Encryption key
+	 * @param jwtId			: Jwt Id
+	 * @param subject		: Jwt Subject
+	 * @param issuer 		: Jwt Issuer
+	 * @param audience 		: Jwt Audience
+	 * @param claims		: Jwt Claims
+	 * @param algorithm		: Supported algorithm： Ed25519
+     * @param period 		: Jwt Expiration Cycle
+	 * @return JSON Web Token (JWT)
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
-	public String issueJwt(OctetKeyPair signingKey, RSAKey encryptKey, String jwtId, String subject, String issuer, String audience,
+	public String issueJwt(OctetKeyPair signingKey, RSAKey secretKey, String jwtId, String subject, String issuer, String audience,
 			Map<String, Object> claims, String algorithm, long period) throws AuthenticationException {
 
 		try {
@@ -131,7 +130,7 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			JWEObject jweObject = new JWEObject( jweHeader, new Payload(signedJWT));
 			
 			// Create an encrypter with the specified public RSA key
-			JWEEncrypter encrypter = new RSAEncrypter(encryptKey.toPublicJWK());
+			JWEEncrypter encrypter = new RSAEncrypter(secretKey.toPublicJWK());
 						
 			// Do the actual encryption
 			jweObject.encrypt(encrypter);
@@ -147,8 +146,22 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 		}
 	}
 
+	/**
+	 * Verify the validity of JWT
+	 * @author 				: <a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey 	: 
+	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p>
+	 * @param secretKey 	: 
+	 * <p>If the jws was encrypted with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was encrypted with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
+	 * @param token  		: JSON Web Token (JWT)
+	 * @param checkExpiry 	: If Check validity.
+	 * @return If Validity
+	 * @throws AuthenticationException When Authentication Exception
+	 */
 	@Override
-	public boolean verify(OctetKeyPair signingKey, RSAKey encryptKey, String token, boolean checkExpiry) throws AuthenticationException {
+	public boolean verify(OctetKeyPair signingKey, RSAKey secretKey, String token, boolean checkExpiry) throws AuthenticationException {
 
 		try {
 			
@@ -158,7 +171,7 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			JWEObject jweObject = JWEObject.parse(token);
 			
 			// Decrypt with private key
-			jweObject.decrypt(new RSADecrypter(encryptKey));
+			jweObject.decrypt(new RSADecrypter(secretKey));
 			
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
@@ -182,8 +195,22 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 		
 	}
 	
+	/**
+	 * Parser JSON Web Token (JWT)
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey 	: 
+	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p>
+	 * @param secretKey 	: 
+	 * <p>If the jws was encrypted with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was encrypted with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p>
+	 * @param token  		: JSON Web Token (JWT)
+	 * @param checkExpiry 	: If Check validity.
+	 * @return JwtPlayload {@link JwtPayload}
+	 * @throws AuthenticationException When Authentication Exception
+	 */
 	@Override
-	public JwtPayload getPlayload(OctetKeyPair signingKey, RSAKey encryptKey, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(OctetKeyPair signingKey, RSAKey secretKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			//-------------------- Step 1：RSA Decrypt ----------------------
@@ -192,7 +219,7 @@ public class SignedWithEdAndEncryptedWithRsaJWTRepository implements JwtNestedRe
 			JWEObject jweObject = JWEObject.parse(token);
 			
 			// Decrypt with private key
-			jweObject.decrypt(new RSADecrypter(encryptKey));
+			jweObject.decrypt(new RSADecrypter(secretKey));
 			
 			// Extract payload
 			SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();

@@ -39,23 +39,25 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 /**
- * JSON Web Token (JWT) with EdDSA / Ed25519 signature <br/>
- * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-es256k-signature
+ * <b> JSON Web Token (JWT) with EdDSA signature </b>
+ * https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-eddsa
  */
 public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 	
 	/**
-	 * 
+	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param jwtId
-	 * @param subject
-	 * @param issuer
-	 * @param roles
-	 * @param permissions
-	 * @param algorithm: Ed25519
-	 * @param period
+	 * @param signingKey	: Signing key
+	 * @param jwtId			: Jwt Id
+	 * @param subject		: Jwt Subject
+	 * @param issuer 		: Jwt Issuer
+	 * @param audience 		: Jwt Audience
+	 * @param roles			: The Roles
+	 * @param permissions	: The Perms
+	 * @param algorithm		: JWS algorithm: Ed25519
+     * @param period 		: Jwt Expiration Cycle
 	 * @return JSON Web Token (JWT)
-	 * @throws Exception 
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
 	public String issueJwt(OctetKeyPair signingKey, String jwtId, String subject, String issuer, String audience,
@@ -71,19 +73,19 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 	
 
 	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param signingKey
-	 * @param jwtId
-	 * @param subject
-	 * @param issuer
-	 * @param claims
-	 * @param algorithm: Ed25519
-	 * @param period
-	 * @return
-	 * @throws AuthenticationException
+	 * Issue JSON Web Token (JWT)
+	 * @author ：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey	: Signing key
+	 * @param jwtId			: Jwt Id
+	 * @param subject		: Jwt Subject
+	 * @param issuer 		: Jwt Issuer
+	 * @param audience 		: Jwt Audience
+	 * @param claims		: Jwt Claims
+	 * @param algorithm		: JWS algorithm: Ed25519
+     * @param period 		: Jwt Expiration Cycle
+	 * @return JSON Web Token (JWT)
+	 * @throws AuthenticationException When Authentication Exception
 	 */
-	
 	@Override
 	public String issueJwt(OctetKeyPair signingKey, String jwtId, String subject, String issuer, String audience,
 			Map<String, Object> claims, String algorithm, long period) throws AuthenticationException {
@@ -117,12 +119,16 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 		}
 	}
 
-
 	/**
-	 * TODO
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param token
-	 * @return
+	 * Verify the validity of JWT
+	 * @author 				: <a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey 	: 
+	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
+	 * @param token  		: JSON Web Token (JWT)
+	 * @param checkExpiry 	: If Check validity.
+	 * @return If Validity
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
 	public boolean verify(OctetKeyPair signingKey, String token, boolean checkExpiry) throws AuthenticationException {
@@ -152,6 +158,17 @@ public class SignedWithEdJWTRepository implements JwtRepository<OctetKeyPair> {
 		}
 	}
 
+	/**
+	 * Parser JSON Web Token (JWT)
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param signingKey 	: 
+	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
+	 * @param token  		: JSON Web Token (JWT)
+	 * @param checkExpiry 	: If Check validity.
+	 * @return JwtPlayload {@link JwtPayload}
+	 * @throws AuthenticationException When Authentication Exception
+	 */
 	@Override
 	public JwtPayload getPlayload(OctetKeyPair signingKey, String token, boolean checkExpiry)  throws AuthenticationException {
 		try {

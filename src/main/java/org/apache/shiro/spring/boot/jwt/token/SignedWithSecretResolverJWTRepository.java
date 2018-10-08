@@ -43,8 +43,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SigningKeyResolver;
 
 /**
- * JSON Web Token (JWT) with signature <br/>
- * https://github.com/jwtk/jjwt <br/>
+ * <b> JSON Web Token (JWT) with signature  </b>
+ * <p> https://github.com/jwtk/jjwt </p>
  * 私钥签名，公钥验证
  */
 public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key> {
@@ -61,27 +61,29 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 	/**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param jwtId Jwt Id
-	 * @param subject Jwt Subject
-	 * @param issuer Jwt Issuer
-	 * @param roles The Roles
-	 * @param permissions The Perms
-	 * @param algorithm: <br/>
-	 *  HS256: HMAC using SHA-256 <br/>
-	 *  HS384: HMAC using SHA-384 <br/>
-     *  HS512: HMAC using SHA-512 <br/>
-     *  ES256: ECDSA using P-256 and SHA-256 <br/>
-     *  ES384: ECDSA using P-384 and SHA-384 <br/>
-     *  ES512: ECDSA using P-521 and SHA-512 <br/>
-     *  RS256: RSASSA-PKCS-v1_5 using SHA-256 <br/>
-     *  RS384: RSASSA-PKCS-v1_5 using SHA-384 <br/>
-     *  RS512: RSASSA-PKCS-v1_5 using SHA-512 <br/>
-     *  PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256 <br/>
-     *  PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 <br/>
-     *  PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 <br/>
-     * @param period Jwt Expiration Cycle
+	 * @param secretKey		: Signing key
+	 * @param jwtId			: Jwt Id
+	 * @param subject		: Jwt Subject
+	 * @param issuer 		: Jwt Issuer
+	 * @param audience 		: Jwt Audience
+	 * @param roles			: The Roles
+	 * @param permissions	: The Perms
+	 * @param algorithm		: Supported algorithms：
+	 *  <p> HS256: HMAC using SHA-256 </p>
+	 *  <p> HS384: HMAC using SHA-384 </p>
+     *  <p> HS512: HMAC using SHA-512 </p>
+     *  <p> ES256: ECDSA using P-256 and SHA-256 </p>
+     *  <p> ES384: ECDSA using P-384 and SHA-384 </p>
+     *  <p> ES512: ECDSA using P-521 and SHA-512 </p>
+     *  <p> RS256: RSASSA-PKCS-v1_5 using SHA-256 </p>
+     *  <p> RS384: RSASSA-PKCS-v1_5 using SHA-384 </p>
+     *  <p> RS512: RSASSA-PKCS-v1_5 using SHA-512 </p>
+     *  <p> PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256 </p>
+     *  <p> PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 </p>
+     *  <p> PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 </p>
+     * @param period 		: Jwt Expiration Cycle
 	 * @return JSON Web Token (JWT)
-	 * @throws AuthenticationException Authentication Exception
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
 	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
@@ -92,31 +94,32 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 		
 		return this.issueJwt(secretKey, jwtId, subject, issuer, audience, claims, algorithm, period);
 	}
-
-
+	
 	/**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
-	 * @param jwtId Jwt Id
-	 * @param subject Jwt Subject
-	 * @param issuer Jwt Issuer
-	 * @param claims The Claim
-	 * @param algorithm: <br/>
-	 *  HS256: HMAC using SHA-256 <br/>
-	 *  HS384: HMAC using SHA-384 <br/>
-     *  HS512: HMAC using SHA-512 <br/>
-     *  ES256: ECDSA using P-256 and SHA-256 <br/>
-     *  ES384: ECDSA using P-384 and SHA-384 <br/>
-     *  ES512: ECDSA using P-521 and SHA-512 <br/>
-     *  RS256: RSASSA-PKCS-v1_5 using SHA-256 <br/>
-     *  RS384: RSASSA-PKCS-v1_5 using SHA-384 <br/>
-     *  RS512: RSASSA-PKCS-v1_5 using SHA-512 <br/>
-     *  PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256 <br/>
-     *  PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 <br/>
-     *  PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 <br/>
-     * @param period Jwt Expiration Cycle
+	 * @param secretKey		: Signing key
+	 * @param jwtId			: Jwt Id
+	 * @param subject		: Jwt Subject
+	 * @param issuer 		: Jwt Issuer
+	 * @param audience 		: Jwt Audience
+	 * @param claims		: Jwt Claims
+	 * @param algorithm		: Supported algorithms：
+	 *  <p> HS256: HMAC using SHA-256 </p>
+	 *  <p> HS384: HMAC using SHA-384 </p>
+     *  <p> HS512: HMAC using SHA-512 </p>
+     *  <p> ES256: ECDSA using P-256 and SHA-256 </p>
+     *  <p> ES384: ECDSA using P-384 and SHA-384 </p>
+     *  <p> ES512: ECDSA using P-521 and SHA-512 </p>
+     *  <p> RS256: RSASSA-PKCS-v1_5 using SHA-256 </p>
+     *  <p> RS384: RSASSA-PKCS-v1_5 using SHA-384 </p>
+     *  <p> RS512: RSASSA-PKCS-v1_5 using SHA-512 </p>
+     *  <p> PS256: RSASSA-PSS using SHA-256 and MGF1 with SHA-256 </p>
+     *  <p> PS384: RSASSA-PSS using SHA-384 and MGF1 with SHA-384 </p>
+     *  <p> PS512: RSASSA-PSS using SHA-512 and MGF1 with SHA-512 </p>
+     * @param period 		: Jwt Expiration Cycle
 	 * @return JSON Web Token (JWT)
-	 * @throws AuthenticationException Authentication Exception
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
 	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
@@ -132,17 +135,16 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 		return token;
 	}
 	
-	
 	/**
 	 * Verify the validity of JWT
-	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param secretKey ：  <br/>
-	 * If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. <br/>
-	 * If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser. 
-	 * @param token  JSON Web Token (JWT)
-	 * @param checkExpiry If Check validity.
+	 * @author 				: <a href="https://github.com/vindell">vindell</a>
+	 * @param secretKey 	: 
+	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
+	 * @param token  		: JSON Web Token (JWT)
+	 * @param checkExpiry 	: If Check validity.
 	 * @return If Validity
-	 * @throws AuthenticationException Authentication Exception
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
 	public boolean verify(Key secretKey, String token, boolean checkExpiry) throws AuthenticationException {
@@ -164,9 +166,9 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 
 			Claims claims = jws.getBody();
 
-			System.out.println("Expiration:" + claims.getExpiration());
-			System.out.println("IssuedAt:" + claims.getIssuedAt());
-			System.out.println("NotBefore:" + claims.getNotBefore());
+			//System.out.println("Expiration:" + claims.getExpiration());
+			//System.out.println("IssuedAt:" + claims.getIssuedAt());
+			//System.out.println("NotBefore:" + claims.getNotBefore());
 			
 			long time = System.currentTimeMillis();
 			return claims != null && claims.getNotBefore().getTime() <= time
@@ -185,15 +187,15 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 	}
 
 	/**
-	 * 
+	 * Parser JSON Web Token (JWT)
 	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param secretKey ：  <br/>
-	 * If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. <br/>
-	 * If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser. 
-	 * @param token JSON Web Token (JWT)
-	 * @param checkExpiry If Check validity.
+	 * @param secretKey 	: 
+	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
+	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
+	 * @param token  		: JSON Web Token (JWT)
+	 * @param checkExpiry 	: If Check validity.
 	 * @return JwtPlayload {@link JwtPayload}
-	 * @throws AuthenticationException Authentication Exception
+	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
 	public JwtPayload getPlayload(Key secretKey, String token, boolean checkExpiry)  throws AuthenticationException {
