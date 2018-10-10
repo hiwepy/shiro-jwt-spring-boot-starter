@@ -1,21 +1,19 @@
-# spring-boot-starter-shiro-biz
-shiro starter for spring boot
+# spring-boot-starter-shiro-jwt
+shiro jwt starter for spring boot
 
 ### 说明
 
 
- > 基于 Shiro 的 Spring Boot Starter 实现
+ > 基于 Shiro + Jwt 的 Spring Boot Starter 实现
 
-1. 默认的Handler实现
-2. 实现基于责任链式的消息分发
 
 ### Maven
 
 ``` xml
 <dependency>
 	<groupId>${project.groupId}</groupId>
-	<artifactId>spring-boot-starter-shiro-biz</artifactId>
-	<version>${project.version}</version>
+	<artifactId>spring-boot-starter-shiro-jwt</artifactId>
+	<version>1.0.1.RELEASE</version>
 </dependency>
 ```
 
