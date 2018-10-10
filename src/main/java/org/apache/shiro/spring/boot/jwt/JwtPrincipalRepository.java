@@ -15,14 +15,11 @@
  */
 package org.apache.shiro.spring.boot.jwt;
 
-import java.util.Set;
-
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepository;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 
@@ -32,7 +29,7 @@ import com.google.common.collect.Sets;
  * JSON Web Token (JWT) Principal Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPayloadPrincipal> {
+public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 
     private final JwtPayloadRepository jwtPayloadRepository;
     /**
@@ -51,7 +48,7 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPaylo
 		
 		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
 		
-		ShiroPrincipal principal = new JwtPayloadPrincipal(payload);
+		JwtPayloadPrincipal principal = new JwtPayloadPrincipal(payload);
 		
 		principal.setUserid(payload.getClientId());
 		principal.setUserkey(payload.getClientId());
@@ -60,40 +57,7 @@ public class JwtPrincipalRepository implements ShiroPrincipalRepository<JwtPaylo
 		
 		return new SimpleAuthenticationInfo(principal, jwtToken.getCredentials(), "JWT");
 	}
-
-	@Override
-	public Set<String> getRoles(JwtPayloadPrincipal principal) {
-		return principal.getRoles();
-	}
-
-	@Override
-	public Set<String> getRoles(Set<JwtPayloadPrincipal> principals) {
-		Set<String> sets = Sets.newHashSet();
-		for (ShiroPrincipal principal : principals) {
-			sets.addAll(principal.getRoles());
-		}
-		return sets;
-	}
-
-	@Override
-	public Set<String> getPermissions(JwtPayloadPrincipal principal) {
-		return Sets.newHashSet(principal.getPerms());
-	}
-
-	@Override
-	public Set<String> getPermissions(Set<JwtPayloadPrincipal> principals) {
-		Set<String> sets = Sets.newHashSet();
-		for (ShiroPrincipal principal : principals) {
-			sets.addAll(principal.getPerms());
-		}
-		return sets;
-	}
 	
-	@Override
-	public void doLock(JwtPayloadPrincipal principal) {
-		// do nothing
-	}
-
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
 	}

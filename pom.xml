@@ -376,7 +376,7 @@
         <maven-surefire-plugin.vertsion>2.21.0</maven-surefire-plugin.vertsion>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
 		<nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
-		<spring-boot-starter-shiro-biz.version>1.0.0.RELEASE</spring-boot-starter-shiro-biz.version>
+		<spring-boot-starter-shiro-biz.version>1.0.1.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
 	
 	<dependencies>

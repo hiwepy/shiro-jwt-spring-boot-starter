@@ -11,7 +11,7 @@ import org.apache.shiro.subject.PrincipalCollection;
  * JSON Web Token (JWT) Stateless AuthorizingRealm
  * @author <a href="https://github.com/vindell">vindell</a>
  */
-public class JwtStatelessAuthorizingRealm extends AbstractAuthorizingRealm<JwtPayloadPrincipal> {
+public class JwtStatelessAuthorizingRealm extends AbstractAuthorizingRealm {
 
 	@Override
 	public Class<?> getAuthenticationTokenClass() {
