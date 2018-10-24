@@ -54,7 +54,7 @@ import com.nimbusds.jwt.SignedJWT;
  * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwe-with-shared-key  </p>
  * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt </p>
  */
-public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtNestedRepository<String, SecretKey> {
+public class SignedWithHamcAndEncryptedWithAESJWTRepository implements JwtKeyPairRepository<String, SecretKey> {
 
 	/**
 	 * Issue JSON Web Token (JWT)

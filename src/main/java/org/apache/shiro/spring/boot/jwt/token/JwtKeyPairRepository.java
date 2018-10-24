@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
 
-public interface JwtNestedRepository<S, E> {
+public interface JwtKeyPairRepository<S, E> {
 
 	public abstract String issueJwt(S signingKey, E secretKey, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period) throws AuthenticationException;

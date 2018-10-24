@@ -53,7 +53,7 @@ import com.nimbusds.jwt.SignedJWT;
  * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/jwt-with-rsa-encryption </p>
  * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt </p>
  */
-public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtNestedRepository<ECKey,RSAKey> {
+public class SignedWithEcAndEncryptedWithRsaJWTRepository implements JwtKeyPairRepository<ECKey,RSAKey> {
 
 	/**
 	 * Issue JSON Web Token (JWT)

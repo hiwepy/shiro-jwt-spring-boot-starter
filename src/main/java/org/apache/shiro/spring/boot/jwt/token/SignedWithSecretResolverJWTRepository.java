@@ -46,7 +46,7 @@ import io.jsonwebtoken.SigningKeyResolver;
  * <b> JSON Web Token (JWT) with signature  </b>
  * https://github.com/jwtk/jjwt
  */
-public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key> {
+public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepository<Key> {
 
 	private long allowedClockSkewSeconds = -1;
 	private CompressionCodec compressWith = CompressionCodecs.DEFLATE;
@@ -137,16 +137,13 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 	/**
 	 * Verify the validity of JWT
 	 * @author 				: <a href="https://github.com/vindell">vindell</a>
-	 * @param secretKey 	: 
-	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
-	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
 	 * @param token  		: JSON Web Token (JWT)
 	 * @param checkExpiry 	: If Check validity.
 	 * @return If Validity
 	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
-	public boolean verify(Key secretKey, String token, boolean checkExpiry) throws AuthenticationException {
+	public boolean verify(String token, boolean checkExpiry) throws AuthenticationException {
 			
 		try {
 			
@@ -188,16 +185,13 @@ public class SignedWithSecretResolverJWTRepository implements JwtRepository<Key>
 	/**
 	 * Parser JSON Web Token (JWT)
 	 * @author 		：<a href="https://github.com/vindell">vindell</a>
-	 * @param secretKey 	: 
-	 * <p>If the jws was signed with a SecretKey, the same SecretKey should be specified on the JwtParser. </p>
-	 * <p>If the jws was signed with a PrivateKey, that key's corresponding PublicKey (not the PrivateKey) should be specified on the JwtParser.</p> 
 	 * @param token  		: JSON Web Token (JWT)
 	 * @param checkExpiry 	: If Check validity.
 	 * @return JwtPlayload {@link JwtPayload}
 	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
-	public JwtPayload getPlayload(Key secretKey, String token, boolean checkExpiry)  throws AuthenticationException {
+	public JwtPayload getPlayload(String token, boolean checkExpiry)  throws AuthenticationException {
 		try {
 			
 			// Retrieve JWT claims
