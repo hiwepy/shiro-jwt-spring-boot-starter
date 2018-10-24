@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
@@ -61,6 +62,7 @@ public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepo
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
 	 * @param secretKey		: Signing key
+	 * @param keyId			: Key Id
 	 * @param jwtId			: Jwt Id
 	 * @param subject		: Jwt Subject
 	 * @param issuer 		: Jwt Issuer
@@ -85,19 +87,20 @@ public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepo
 	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
-	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
+	public String issueJwt(Key secretKey, String keyId, String jwtId, String subject, String issuer, String audience,
 			String roles, String permissions, String algorithm, long period)  throws AuthenticationException {
 		Map<String, Object> claims = Maps.newHashMap();
 		claims.put("roles", roles);
 		claims.put("perms", permissions);
 		
-		return this.issueJwt(secretKey, jwtId, subject, issuer, audience, claims, algorithm, period);
+		return this.issueJwt(secretKey, keyId, jwtId, subject, issuer, audience, claims, algorithm, period);
 	}
 	
 	/**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
 	 * @param secretKey		: Signing key
+	 * @param keyId			: Key Id
 	 * @param jwtId			: Jwt Id
 	 * @param subject		: Jwt Subject
 	 * @param issuer 		: Jwt Issuer
@@ -121,12 +124,12 @@ public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepo
 	 * @throws AuthenticationException When Authentication Exception
 	 */
 	@Override
-	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
+	public String issueJwt(Key secretKey, String keyId, String jwtId, String subject, String issuer, String audience,
 			Map<String, Object> claims,	String algorithm, long period) throws AuthenticationException {
 		String token = JJwtUtils
 				.jwtBuilder(jwtId, subject, issuer, audience, claims, period)
 				// 指定KeyID以便进行验证时，动态获取该ID对应的Key
-				.setHeaderParam(JwsHeader.KEY_ID, Base64.encodeToString(secretKey.getEncoded()))
+				.setHeaderParam(JwsHeader.KEY_ID, StringUtils.hasText(keyId) ? keyId : Base64.encodeToString(secretKey.getEncoded()))
 				// 压缩类型
 				.compressWith(getCompressWith())
 				// 设置算法（必须）
