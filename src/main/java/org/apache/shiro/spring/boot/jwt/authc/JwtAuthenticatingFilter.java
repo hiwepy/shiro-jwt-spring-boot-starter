@@ -24,6 +24,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.utils.StringUtils;
@@ -189,6 +190,9 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		else if (e instanceof ExpiredJwtException) {
 			data.put("message", "Expired JWT value. " );
 			data.put("token", "expiry");
+		} else {
+			String rootCause = ExceptionUtils.getRootCauseMessage(e);
+			data.put("message", StringUtils.hasText(rootCause) ? rootCause : ExceptionUtils.getMessage(e));
 		}
 		
 		WebUtils.writeJSONString(response, data);
