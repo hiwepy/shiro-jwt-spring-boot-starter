@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
@@ -157,7 +158,15 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		data.put("status", "success");
 		data.put("message", "Authentication Success.");
 		data.put("token", jwt);
-		data.put("principal", subject.getPrincipal());
+		
+		ShiroPrincipal principal = (ShiroPrincipal) subject.getPrincipal();
+		Map<String, Object> mapPrincipal =  new HashMap<>();
+		mapPrincipal.put("userid", principal.getUserid());
+		mapPrincipal.put("userkey", principal.getUserkey());
+		mapPrincipal.put("username", principal.getUsername());
+		mapPrincipal.put("perms", principal.getPerms());
+		mapPrincipal.put("roles", principal.getRoles());
+		data.put("principal", mapPrincipal);
 		
 		// 响应
 		WebUtils.writeJSONString(response, data);
