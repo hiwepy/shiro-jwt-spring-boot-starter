@@ -13,7 +13,7 @@
 	<groupId>com.github.vindell</groupId>
 	<artifactId>spring-boot-starter-shiro-jwt</artifactId>
 	<description>Spring Boot Starter For Shiro With JWT</description>
-	<version>1.0.3-SNAPSHOT</version>
+	<version>1.0.3.RELEASE</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>https://github.com/vindell/${project.artifactId}</url>
 	<packaging>jar</packaging>
@@ -375,8 +375,8 @@
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven-surefire-plugin.vertsion>2.21.0</maven-surefire-plugin.vertsion>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
-		<nimbus-jose-jwt.version>6.0.2</nimbus-jose-jwt.version>
-		<spring-boot-starter-shiro-biz.version>1.0.2.RELEASE</spring-boot-starter-shiro-biz.version>
+		<nimbus-jose-jwt.version>6.3</nimbus-jose-jwt.version>
+		<spring-boot-starter-shiro-biz.version>1.0.3.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
 	
 	<dependencies>
