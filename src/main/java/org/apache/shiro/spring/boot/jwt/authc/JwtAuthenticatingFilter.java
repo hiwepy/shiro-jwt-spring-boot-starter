@@ -157,6 +157,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		data.put("status", "success");
 		data.put("message", "Authentication Success.");
 		data.put("token", jwt);
+		data.put("principal", subject.getPrincipal());
+		
 		// 响应
 		WebUtils.writeJSONString(response, data);
 		
