@@ -1,5 +1,6 @@
 package org.apache.shiro.spring.boot.jwt.authz;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +45,21 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
 	
+	/**
+	 * TODO
+	 * @author 		：<a href="https://github.com/vindell">vindell</a>
+	 * @param request
+	 * @param response
+	 * @param mappedValue
+	 * @return
+	 * @throws Exception
+	 */
+	
+	@Override
+	public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
+		return super.onPreHandle(request, response, mappedValue);
+	}
+	
 	@Override
 	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)
 			throws Exception {
@@ -81,6 +97,11 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		// 响应
 		WebUtils.writeJSONString(response, data);
 		
+		return false;
+	}
+	
+	@Override
+	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {
 		return false;
 	}
 
