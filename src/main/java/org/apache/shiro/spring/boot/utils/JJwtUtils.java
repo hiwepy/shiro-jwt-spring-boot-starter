@@ -75,14 +75,16 @@ public class JJwtUtils {
 			builder.setIssuer(issuer);
 			builder.claim(Claims.ISSUER, issuer);
 		}
-		// 签发时间
+		// 默认签发时间
 		Date now = new Date(currentTimeMillis);
 		builder.setIssuedAt(now);
+		// 默认有效期起始时间
+		builder.setNotBefore(now);
 		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period * 1000);
-			builder.setExpiration(expiration).setNotBefore(now);
+			Date expiration = new Date(currentTimeMillis + period);
+			builder.setExpiration(expiration);
 		}
 		return builder;
 	}
@@ -112,14 +114,16 @@ public class JJwtUtils {
 			builder.setIssuer(issuer);
 			builder.claim(Claims.ISSUER, issuer);
 		}
-		// 签发时间
+		// 默认签发时间
 		Date now = new Date(currentTimeMillis);
 		builder.setIssuedAt(now);
+		// 默认有效期起始时间
+		builder.setNotBefore(now);
 		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period * 1000);
-			builder.setExpiration(expiration).setNotBefore(now);
+			Date expiration = new Date(currentTimeMillis + period);
+			builder.setExpiration(expiration);
 		}
 		// 角色
 		if (StringUtils.hasText(roles)) {

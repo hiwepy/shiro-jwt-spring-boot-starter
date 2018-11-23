@@ -34,7 +34,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
  */
 public class NimbusdsUtils {
 
-	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, String audience, Map<String, Object> claims,
+	public static JWTClaimsSet.Builder claimsSet(String jwtId, String subject, String issuer, String audience, Map<String, Object> claims,
 			long period) {
 		
 		// Current TimeMillis
@@ -65,21 +65,22 @@ public class NimbusdsUtils {
 				builder.claim(entry.getKey(), entry.getValue());
 			}
 		}
-		
-		// 签发时间
-		builder.issueTime(new Date(currentTimeMillis));
-		builder.notBeforeTime(new Date(currentTimeMillis));
+		// 默认签发时间
+		Date now = new Date(currentTimeMillis);
+		builder.issueTime(now);
+		// 默认有效期起始时间
+		builder.notBeforeTime(now);
+		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period);
+			Date expiration = new Date(currentTimeMillis + period );
 			builder.expirationTime(expiration);
 		}
-
-		return builder.build();
+		return builder;
 	}
 	
 	
-	public static JWTClaimsSet claimsSet(String jwtId, String subject, String issuer, String audience, String roles,
+	public static JWTClaimsSet.Builder claimsSet(String jwtId, String subject, String issuer, String audience, String roles,
 			String permissions, long period) {
 
 		// Current TimeMillis
@@ -110,15 +111,18 @@ public class NimbusdsUtils {
 		if (StringUtils.hasText(permissions)) {
 			builder.claim("perms", permissions);
 		}
-		// 签发时间
-		builder.issueTime(new Date(currentTimeMillis));
-		builder.notBeforeTime(new Date(currentTimeMillis));
+		// 默认签发时间
+		Date now = new Date(currentTimeMillis);
+		builder.issueTime(now);
+		// 默认有效期起始时间
+		builder.notBeforeTime(now);
+		// Token过期时间
 		if (period >= 0) {
 			// 有效时间
-			Date expiration = new Date(currentTimeMillis + period);
+			Date expiration = new Date(currentTimeMillis + period );
 			builder.expirationTime(expiration);
 		}
-		return builder.build();
+		return builder;
 	}
 
 	public static JwtPayload payload(JWTClaimsSet jwtClaims) throws ParseException {

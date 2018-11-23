@@ -17,6 +17,7 @@ package org.apache.shiro.spring.boot.jwt.token;
 
 import java.security.Key;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
@@ -24,7 +25,10 @@ import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
+import org.apache.shiro.spring.boot.jwt.time.JwtTimeProvider;
 import org.apache.shiro.spring.boot.utils.JJwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
@@ -34,6 +38,7 @@ import io.jsonwebtoken.CompressionCodecResolver;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -45,10 +50,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
  */
 public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	private long allowedClockSkewSeconds = -1;
 	private CompressionCodec compressWith = CompressionCodecs.DEFLATE;
     private CompressionCodecResolver compressionCodecResolver;
-	   
+    private JwtTimeProvider timeProvider = JwtTimeProvider.DEFAULT_TIME_PROVIDER;
+	
     /**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
@@ -116,13 +123,28 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 	@Override
 	public String issueJwt(Key secretKey, String jwtId, String subject, String issuer, String audience,
 			Map<String, Object> claims,	String algorithm, long period) throws AuthenticationException {
-		String token = JJwtUtils
+		
+		JwtBuilder builder = JJwtUtils
 				.jwtBuilder(jwtId, subject, issuer, audience, claims, period)
 				// 压缩类型
 				.compressWith(getCompressWith())
 				// 设置算法（必须）
-				.signWith(SignatureAlgorithm.forName(algorithm), secretKey).compact();
-		return token;
+				.signWith(SignatureAlgorithm.forName(algorithm), secretKey);
+		
+		// 签发时间
+		long currentTimeMillis = this.getTimeProvider().now();
+		Date now = new Date(currentTimeMillis);
+		builder.setIssuedAt(now);
+		// 有效期起始时间
+		builder.setNotBefore(now);
+		// Token过期时间
+		if (period >= 0) {
+			// 有效时间
+			Date expiration = new Date(currentTimeMillis + period);
+			builder.setExpiration(expiration);
+		}
+		
+		return builder.compact();
 	}
 
 	/**
@@ -152,13 +174,20 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 
 			Claims claims = jws.getBody();
 
-			//System.out.println("Expiration:" + claims.getExpiration());
-			//System.out.println("IssuedAt:" + claims.getIssuedAt());
-			//System.out.println("NotBefore:" + claims.getNotBefore());
-			
-			long time = System.currentTimeMillis();
-			return claims != null && claims.getNotBefore().getTime() <= time
-					&& time < claims.getExpiration().getTime();
+			Date issuedAt = claims.getIssuedAt();
+			Date notBefore = claims.getNotBefore();
+			Date expiration = claims.getExpiration();
+			long time = this.getTimeProvider().now();
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("JWT IssuedAt:" + issuedAt);
+				logger.debug("JWT NotBefore:" + notBefore);
+				logger.debug("JWT Expiration:" + expiration);
+				logger.debug("JWT Now:" + new Date(time));
+			}
+
+			return notBefore != null && notBefore.getTime() <= time && expiration != null
+					&& time < expiration.getTime();
 			
 		} catch (io.jsonwebtoken.ExpiredJwtException e) {
 			throw new ExpiredJwtException(e);
@@ -237,5 +266,12 @@ public class SignedWithSecretKeyJWTRepository implements JwtRepository<Key> {
 	public void setCompressionCodecResolver(CompressionCodecResolver compressionCodecResolver) {
 		this.compressionCodecResolver = compressionCodecResolver;
 	}
-	
+
+	public JwtTimeProvider getTimeProvider() {
+		return timeProvider;
+	}
+
+	public void setTimeProvider(JwtTimeProvider timeProvider) {
+		this.timeProvider = timeProvider;
+	}
 }

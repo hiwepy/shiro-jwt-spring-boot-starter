@@ -16,7 +16,12 @@
 package org.apache.shiro.spring.boot.jwt.verifier;
 
 import java.security.interfaces.ECPublicKey;
+import java.util.Date;
 import java.util.Set;
+
+import org.apache.shiro.spring.boot.jwt.time.JwtTimeProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
@@ -31,30 +36,52 @@ import com.nimbusds.jwt.JWTClaimsSet;
  */
 public class ExtendedECDSAVerifier extends ECDSAVerifier {
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	private final JWTClaimsSet claimsSet;
+	private final JwtTimeProvider timeProvider;
 	
-	public ExtendedECDSAVerifier(ECKey ecJWK, JWTClaimsSet claimsSet) throws JOSEException {
+	public ExtendedECDSAVerifier(ECKey ecJWK, JWTClaimsSet claimsSet, JwtTimeProvider timeProvider) throws JOSEException {
 		super(ecJWK);
 		this.claimsSet = claimsSet;
+		this.timeProvider = timeProvider;
 	}
 	
-	public ExtendedECDSAVerifier(ECPublicKey publicKey, JWTClaimsSet claimsSet) throws JOSEException {
+	public ExtendedECDSAVerifier(ECPublicKey publicKey, JWTClaimsSet claimsSet, JwtTimeProvider timeProvider) throws JOSEException {
 		super(publicKey);
 		this.claimsSet = claimsSet;
+		this.timeProvider = timeProvider;
 	}
 	
-	public ExtendedECDSAVerifier(ECPublicKey publicKey, Set<String> defCritHeaders, JWTClaimsSet claimsSet) throws JOSEException {
+	public ExtendedECDSAVerifier(ECPublicKey publicKey, Set<String> defCritHeaders, JWTClaimsSet claimsSet, JwtTimeProvider timeProvider) throws JOSEException {
 		super(publicKey, defCritHeaders);
 		this.claimsSet = claimsSet;
+		this.timeProvider = timeProvider;
 	}
 	
 	@Override
 	public boolean verify(final JWSHeader header, final byte[] signingInput, final Base64URL signature)
 			throws JOSEException {
 		boolean value = super.verify(header, signingInput, signature);
-		long time = System.currentTimeMillis();
-		return value && claimsSet.getNotBeforeTime().getTime() <= time
-				&& time < claimsSet.getExpirationTime().getTime();
+
+		if (value) {
+
+			Date issuedAt = claimsSet.getIssueTime();
+			Date notBefore = claimsSet.getNotBeforeTime();
+			Date expiration = claimsSet.getExpirationTime();
+			long currentTimeMillis = timeProvider.now();
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("JWT IssuedAt:" + issuedAt);
+				logger.debug("JWT NotBefore:" + notBefore);
+				logger.debug("JWT Expiration:" + expiration);
+				logger.debug("JWT Now:" + new Date(currentTimeMillis));
+			}
+			
+			return notBefore != null && notBefore.getTime() <= currentTimeMillis && expiration != null
+					&& currentTimeMillis < expiration.getTime();
+		}
+
+		return value;
 	}
 
 

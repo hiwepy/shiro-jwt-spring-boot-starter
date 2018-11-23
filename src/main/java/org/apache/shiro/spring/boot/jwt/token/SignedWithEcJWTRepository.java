@@ -16,12 +16,14 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
+import org.apache.shiro.spring.boot.jwt.time.JwtTimeProvider;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedECDSAVerifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -44,6 +46,8 @@ import com.nimbusds.jwt.SignedJWT;
  */
 public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 
+	private JwtTimeProvider timeProvider = JwtTimeProvider.DEFAULT_TIME_PROVIDER;
+	
 	/**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
@@ -99,7 +103,20 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 			//-------------------- Step 1：Get ClaimsSet --------------------
 			
 			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, audience, claims, period);
+			JWTClaimsSet.Builder builder = NimbusdsUtils.claimsSet(jwtId, subject, issuer, audience, claims, period);
+			// 签发时间
+			long currentTimeMillis = this.getTimeProvider().now();
+			Date now = new Date(currentTimeMillis);
+			builder.issueTime(now);
+			// 有效期起始时间
+			builder.notBeforeTime(now);
+			// Token过期时间
+			if (period >= 0) {
+				// 有效时间
+				Date expiration = new Date(currentTimeMillis + period );
+				builder.expirationTime(expiration);
+			}
+			JWTClaimsSet claimsSet = builder.build();
 			
 			//-------------------- Step 2：ECDSA Signature --------------------
 			
@@ -149,7 +166,7 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 			//-------------------- Step 2：ECDSA Verify --------------------
 			
 			// Create EC verifier
-			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
+			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet(), this.getTimeProvider()) : new ECDSAVerifier(signingKey) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			return signedJWT.verify(verifier);
@@ -187,7 +204,7 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 			//-------------------- Step 2：ECDSA Verify --------------------
 			
 			// Create EC verifier
-			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet()) : new ECDSAVerifier(signingKey) ;
+			JWSVerifier verifier = checkExpiry ? new ExtendedECDSAVerifier(signingKey, signedJWT.getJWTClaimsSet(), this.getTimeProvider()) : new ECDSAVerifier(signingKey) ;
 			
 			// Retrieve / verify the JWT claims according to the app requirements
 			if(!signedJWT.verify(verifier)) {
@@ -209,5 +226,12 @@ public class SignedWithEcJWTRepository implements JwtRepository<ECKey> {
 		}
 	}
 
+	public JwtTimeProvider getTimeProvider() {
+		return timeProvider;
+	}
+
+	public void setTimeProvider(JwtTimeProvider timeProvider) {
+		this.timeProvider = timeProvider;
+	}
 	
 }

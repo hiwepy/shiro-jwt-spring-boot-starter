@@ -1,6 +1,5 @@
 package org.apache.shiro.spring.boot.utils;
 
-import java.awt.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;

@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt.token;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -24,6 +25,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
+import org.apache.shiro.spring.boot.jwt.time.JwtTimeProvider;
 import org.apache.shiro.spring.boot.jwt.verifier.ExtendedEd25519Verifier;
 import org.apache.shiro.spring.boot.utils.NimbusdsUtils;
 
@@ -55,7 +57,9 @@ import com.nimbusds.jwt.SignedJWT;
  * <p> https://www.connect2id.com/products/nimbus-jose-jwt/examples/signed-and-encrypted-jwt</p>
  */
 public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtKeyPairRepository<OctetKeyPair, SecretKey> {
-
+	
+	private JwtTimeProvider timeProvider = JwtTimeProvider.DEFAULT_TIME_PROVIDER;
+	
 	/**
 	 * Issue JSON Web Token (JWT)
 	 * @author ：<a href="https://github.com/vindell">vindell</a>
@@ -107,8 +111,21 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtKeyPairR
 		try {
 			
 			// Prepare JWT with claims set
-			JWTClaimsSet claimsSet = NimbusdsUtils.claimsSet(jwtId, subject, issuer, audience, claims, period);
-						
+			JWTClaimsSet.Builder builder = NimbusdsUtils.claimsSet(jwtId, subject, issuer, audience, claims, period);
+			// 签发时间
+			long currentTimeMillis = this.getTimeProvider().now();
+			Date now = new Date(currentTimeMillis);
+			builder.issueTime(now);
+			// 有效期起始时间
+			builder.notBeforeTime(now);
+			// Token过期时间
+			if (period >= 0) {
+				// 有效时间
+				Date expiration = new Date(currentTimeMillis + period );
+				builder.expirationTime(expiration);
+			}
+			JWTClaimsSet claimsSet = builder.build();
+			
 			//-------------------- Step 1：EdDSA Signature --------------------
 			
 			// Request JWS Header with EdDSA JWSAlgorithm
@@ -179,9 +196,16 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtKeyPairR
 			//-------------------- Step 2：EdDSA Verify --------------------
 			
 			// Create Ed25519 verifier
-			JWSVerifier verifier = checkExpiry ? new ExtendedEd25519Verifier(signingKey.toPublicJWK(), signedJWT.getJWTClaimsSet()) : new Ed25519Verifier(signingKey.toPublicJWK());
-			
+			JWSVerifier verifier = checkExpiry ? new ExtendedEd25519Verifier(signingKey.toPublicJWK(), signedJWT.getJWTClaimsSet(), this.getTimeProvider()) : new Ed25519Verifier(signingKey.toPublicJWK());
+
 			// Retrieve / verify the JWT claims according to the app requirements
+			if(!signedJWT.verify(verifier)) {
+				throw new AuthenticationException(String.format("Invalid JSON Web Token (JWT) : %s", token));
+			}
+			
+			//-------------------- Step 3：Gets The Claims ---------------
+			
+			// Retrieve JWT claims	
 			return signedJWT.verify(verifier);
 		} catch (IllegalStateException e) {
 			throw new IncorrectJwtException(e);
@@ -238,6 +262,14 @@ public class SignedWithEdAndEncryptedWithAESJWTRepository implements JwtKeyPairR
 			throw new InvalidJwtToken(e);
 		}
 		
+	}
+	
+	public JwtTimeProvider getTimeProvider() {
+		return timeProvider;
+	}
+
+	public void setTimeProvider(JwtTimeProvider timeProvider) {
+		this.timeProvider = timeProvider;
 	}
  
 }
