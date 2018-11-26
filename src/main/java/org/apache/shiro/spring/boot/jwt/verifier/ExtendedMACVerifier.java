@@ -2,6 +2,8 @@ package org.apache.shiro.spring.boot.jwt.verifier;
 
 import java.util.Date;
 
+import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
+import org.apache.shiro.spring.boot.jwt.exception.NotObtainedJwtException;
 import org.apache.shiro.spring.boot.jwt.time.JwtTimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +51,14 @@ public class ExtendedMACVerifier extends MACVerifier {
 				logger.debug("JWT Now:" + new Date(currentTimeMillis));
 			}
 
-			return notBefore != null && notBefore.getTime() <= currentTimeMillis && expiration != null
-					&& currentTimeMillis < expiration.getTime();
+			if(notBefore != null && currentTimeMillis <= notBefore.getTime()) {
+				throw new NotObtainedJwtException(String.format("JWT was not obtained before this timestamp : [%s].", notBefore));
+			}
+			if(expiration != null && expiration.getTime() < currentTimeMillis) {
+				throw new ExpiredJwtException("Expired JWT value. ");
+			}
+			return true;
+			
 		}
 
 		return value;

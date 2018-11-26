@@ -27,6 +27,7 @@ import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
+import org.apache.shiro.spring.boot.jwt.exception.NotObtainedJwtException;
 import org.apache.shiro.spring.boot.jwt.time.JwtTimeProvider;
 import org.apache.shiro.spring.boot.utils.JJwtUtils;
 import org.slf4j.Logger;
@@ -183,24 +184,34 @@ public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepo
 				jwtParser.setCompressionCodecResolver(getCompressionCodecResolver());
 			}
 
+			// 解密JWT，如果无效则会抛出异常
 			Jws<Claims> jws = jwtParser.setSigningKeyResolver(signingKeyResolver).parseClaimsJws(token);
-
+			// 解密成功且不需要进行过期检查则返回true
+			if(!checkExpiry) {
+				return true;
+			}
+			
 			Claims claims = jws.getBody();
 
 			Date issuedAt = claims.getIssuedAt();
 			Date notBefore = claims.getNotBefore();
 			Date expiration = claims.getExpiration();
-			long time = this.getTimeProvider().now();
+			long currentTimeMillis = this.getTimeProvider().now();
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("JWT IssuedAt:" + issuedAt);
 				logger.debug("JWT NotBefore:" + notBefore);
 				logger.debug("JWT Expiration:" + expiration);
-				logger.debug("JWT Now:" + new Date(time));
+				logger.debug("JWT Now:" + new Date(currentTimeMillis));
 			}
-
-			return notBefore != null && notBefore.getTime() <= time && expiration != null
-					&& time < expiration.getTime();
+			
+			if(notBefore != null && currentTimeMillis <= notBefore.getTime()) {
+				throw new NotObtainedJwtException(String.format("JWT was not obtained before this timestamp : [%s].", notBefore));
+			}
+			if(expiration != null && expiration.getTime() < currentTimeMillis) {
+				throw new ExpiredJwtException("Expired JWT value. ");
+			}
+			return true;
 		} catch (io.jsonwebtoken.ExpiredJwtException e) {
 			throw new ExpiredJwtException(e);
 		} catch (InvalidClaimException e) {

@@ -21,6 +21,7 @@ import org.apache.shiro.authc.AuthenticationException;
  * TODO
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
+@SuppressWarnings("serial")
 public class ExpiredJwtException extends AuthenticationException {
 	
 	public ExpiredJwtException() {
