@@ -58,9 +58,12 @@ public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepo
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private long allowedClockSkewSeconds = -1;
 	private CompressionCodec compressWith = CompressionCodecs.DEFLATE;
-	private final SigningKeyResolver signingKeyResolver;
+	private SigningKeyResolver signingKeyResolver;
     private CompressionCodecResolver compressionCodecResolver;
     private JwtTimeProvider timeProvider = JwtTimeProvider.DEFAULT_TIME_PROVIDER;
+    
+    public SignedWithSecretResolverJWTRepository() {
+    }
     
     public SignedWithSecretResolverJWTRepository(SigningKeyResolver signingKeyResolver) {
     	this.signingKeyResolver = signingKeyResolver;
@@ -298,5 +301,10 @@ public class SignedWithSecretResolverJWTRepository implements JwtKeyResolverRepo
 	public SigningKeyResolver getSigningKeyResolver() {
 		return signingKeyResolver;
 	}
+
+	public void setSigningKeyResolver(SigningKeyResolver signingKeyResolver) {
+		this.signingKeyResolver = signingKeyResolver;
+	}
+	
 
 }
