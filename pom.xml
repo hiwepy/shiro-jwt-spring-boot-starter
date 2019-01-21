@@ -366,8 +366,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
 		<jjwt.version>0.9.1</jjwt.version>
- 		<fastjson.version>1.2.51</fastjson.version>
- 		<guava.version>26.0-jre</guava.version>
+ 		<fastjson.version>1.2.55</fastjson.version>
+ 		<guava.version>27.0.1-jre</guava.version>
 		<maven.version>3.0</maven.version>
        	<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
@@ -375,7 +375,7 @@
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven-surefire-plugin.vertsion>2.21.0</maven-surefire-plugin.vertsion>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
-		<nimbus-jose-jwt.version>6.3</nimbus-jose-jwt.version>
+		<nimbus-jose-jwt.version>6.7</nimbus-jose-jwt.version>
 		<spring-boot-starter-shiro-biz.version>1.0.4.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
 	
