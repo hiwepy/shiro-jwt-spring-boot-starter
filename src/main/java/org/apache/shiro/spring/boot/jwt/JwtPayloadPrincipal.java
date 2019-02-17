@@ -17,6 +17,8 @@ package org.apache.shiro.spring.boot.jwt;
 
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 
+import com.github.vindell.jwt.JwtPayload;
+
 /**
  * TODO
  * @author 		： <a href="https://github.com/vindell">vindell</a>

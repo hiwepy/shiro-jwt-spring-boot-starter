@@ -23,8 +23,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.shiro.codec.Base64;
-import org.apache.shiro.spring.boot.jwt.JwtPayload;
 import org.junit.Test;
+
+import com.github.vindell.jwt.JwtPayload;
+import com.github.vindell.jwt.utils.JJwtUtils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;

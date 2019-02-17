@@ -23,6 +23,8 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
 
+import com.github.vindell.jwt.JwtPayload;
+
 /**
  * Abstract JSON Web Token (JWT) Payload Repository
  * @author 		： <a href="https://github.com/vindell">vindell</a>

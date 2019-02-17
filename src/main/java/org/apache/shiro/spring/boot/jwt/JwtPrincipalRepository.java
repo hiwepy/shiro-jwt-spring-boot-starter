@@ -23,6 +23,7 @@ import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 
+import com.github.vindell.jwt.JwtPayload;
 import com.google.common.collect.Sets;
 
 /**
