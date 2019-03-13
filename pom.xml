@@ -13,7 +13,7 @@
 	<groupId>com.github.vindell</groupId>
 	<artifactId>spring-boot-starter-shiro-jwt</artifactId>
 	<description>Spring Boot Starter For Shiro With JWT</description>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.5.RELEASE</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>https://github.com/vindell/${project.artifactId}</url>
 	<packaging>jar</packaging>
@@ -365,9 +365,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-		<jjwt.version>0.9.1</jjwt.version>
  		<fastjson.version>1.2.55</fastjson.version>
- 		<guava.version>27.0.1-jre</guava.version>
+ 		<guava.version>27.1-jre</guava.version>
+ 		<jwt-issuer.version>1.0.0.RELEASE</jwt-issuer.version>
 		<maven.version>3.0</maven.version>
        	<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
@@ -375,7 +375,6 @@
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven-surefire-plugin.vertsion>2.21.0</maven-surefire-plugin.vertsion>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
-		<nimbus-jose-jwt.version>7.0</nimbus-jose-jwt.version>
 		<spring-boot-starter-shiro-biz.version>1.0.4.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
 	
@@ -438,33 +437,23 @@
 		    <artifactId>fastjson</artifactId>
 		    <version>${fastjson.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
-		<dependency>
-		    <groupId>com.nimbusds</groupId>
-		    <artifactId>nimbus-jose-jwt</artifactId>
-		    <version>${nimbus-jose-jwt.version}</version>
-		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
-		<dependency>
-		    <groupId>io.jsonwebtoken</groupId>
-		    <artifactId>jjwt</artifactId>
-		    <version>${jjwt.version}</version>
-		</dependency>
-		
 		<dependency>
 			<groupId>com.github.vindell</groupId>
-			<artifactId>jwt-issuer</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<artifactId>jwt-issuer-api</artifactId>
+			<version>${jwt-issuer.version}</version>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>
-		    <groupId>com.google.guava</groupId>
-		    <artifactId>guava</artifactId>
-		    <version>${guava.version}</version>
+			<groupId>com.github.vindell</groupId>
+			<artifactId>jwt-issuer-with-jjwt</artifactId>
+			<version>${jwt-issuer.version}</version>
+			<scope>provided</scope>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.github.vindell</groupId>
+			<artifactId>jwt-issuer-with-nimbus</artifactId>
+			<version>${jwt-issuer.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- https://github.com/vindell/spring-boot-starter-shiro-biz -->
 		<dependency>
 			<groupId>com.github.vindell</groupId>
