@@ -140,7 +140,7 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
 		String jwtToken = getAccessToken(request);
-		return new JwtToken(host, jwtToken);
+		return new JwtToken(host, jwtToken, false);
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {

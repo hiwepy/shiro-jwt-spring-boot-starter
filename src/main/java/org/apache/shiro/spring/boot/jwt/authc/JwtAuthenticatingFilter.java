@@ -213,7 +213,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
 		String jwtToken = getAccessToken(request);
-		return new JwtToken(host, jwtToken);
+		return new JwtToken(host, jwtToken, isRememberMe(request));
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {

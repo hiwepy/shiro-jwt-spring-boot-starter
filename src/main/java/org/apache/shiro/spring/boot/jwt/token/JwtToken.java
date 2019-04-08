@@ -28,10 +28,13 @@ public class JwtToken implements HostAuthenticationToken {
 	private String host;
 	// JSON Web Token (JWT) 令牌
 	private String token;
-	
-	public JwtToken(String host, String token) {
+
+    private final boolean isRememberMe;
+    
+	public JwtToken(String host, String token, boolean isRememberMe) {
 		this.host = host;
 		this.token = token;
+		this.isRememberMe = isRememberMe;
 	}
 
 	@Override
@@ -51,6 +54,10 @@ public class JwtToken implements HostAuthenticationToken {
 
 	public String getToken() {
 		return token;
+	}
+
+	public boolean isRememberMe() {
+		return isRememberMe;
 	}
 	
 }
