@@ -365,7 +365,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
- 		<fastjson.version>1.2.56</fastjson.version>
+ 		<fastjson.version>1.2.57</fastjson.version>
  		<guava.version>27.1-jre</guava.version>
  		<jwt-issuer.version>1.0.2-SNAPSHOT</jwt-issuer.version>
 		<maven.version>3.0</maven.version>
@@ -377,6 +377,40 @@
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
 		<spring-boot-starter-shiro-biz.version>1.0.4.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+			<dependency>
+			    <groupId>com.alibaba</groupId>
+			    <artifactId>fastjson</artifactId>
+			    <version>${fastjson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.vindell</groupId>
+				<artifactId>jwt-issuer-api</artifactId>
+				<version>${jwt-issuer.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.vindell</groupId>
+				<artifactId>jwt-issuer-with-jjwt</artifactId>
+				<version>${jwt-issuer.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.github.vindell</groupId>
+				<artifactId>jwt-issuer-with-nimbus</artifactId>
+				<version>${jwt-issuer.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<!-- https://github.com/vindell/spring-boot-starter-shiro-biz -->
+			<dependency>
+				<groupId>com.github.vindell</groupId>
+				<artifactId>spring-boot-starter-shiro-biz</artifactId>
+				<version>${spring-boot-starter-shiro-biz.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	
 	<dependencies>
 		
@@ -426,39 +460,30 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
 		<dependency>
 		    <groupId>com.alibaba</groupId>
 		    <artifactId>fastjson</artifactId>
-		    <version>${fastjson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.vindell</groupId>
 			<artifactId>jwt-issuer-api</artifactId>
-			<version>${jwt-issuer.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.vindell</groupId>
 			<artifactId>jwt-issuer-with-jjwt</artifactId>
-			<version>${jwt-issuer.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.vindell</groupId>
 			<artifactId>jwt-issuer-with-nimbus</artifactId>
-			<version>${jwt-issuer.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- https://github.com/vindell/spring-boot-starter-shiro-biz -->
 		<dependency>
 			<groupId>com.github.vindell</groupId>
 			<artifactId>spring-boot-starter-shiro-biz</artifactId>
-			<version>${spring-boot-starter-shiro-biz.version}</version>
 		</dependency>
 		
 	</dependencies>
