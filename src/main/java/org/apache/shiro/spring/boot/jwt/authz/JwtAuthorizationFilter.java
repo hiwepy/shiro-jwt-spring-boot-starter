@@ -36,7 +36,7 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	/**
      * HTTP Authorization header, equal to <code>Authorization</code>
      */
-    protected static final String AUTHORIZATION_HEADER = "Authorization";
+    protected static final String AUTHORIZATION_HEADER = "X-Authorization";
     
     private String authorizationHeaderName = AUTHORIZATION_HEADER;
     private String authorizationParamName = AUTHORIZATION_PARAM;
