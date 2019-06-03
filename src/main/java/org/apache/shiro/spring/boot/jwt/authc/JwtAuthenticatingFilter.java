@@ -15,27 +15,19 @@
  */
 package org.apache.shiro.spring.boot.jwt.authc;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authc.AuthcResponse;
-import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
-import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
-import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
-import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
@@ -112,6 +104,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				}
 				return executeLogin(request, response);
 			} else {
+				
 				String mString = "Authentication url [" + getLoginUrl() + "] Not Http Post request.";
 				if (LOG.isTraceEnabled()) {
 					LOG.trace(mString);
@@ -120,6 +113,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
 				response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
+				
 				return false;
 			}
 		}
@@ -132,87 +126,13 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				LOG.trace(mString);
 			}
 			
-			// 响应成功状态信息
-			Map<String, Object> data = new HashMap<String, Object>();
-			data.put("status", "fail");
-			data.put("message", mString);
-			// 响应
-			WebUtils.writeJSONString(response, data);
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
 			
 			return false;
 		}
 		
-		return false;
-	}
-
-	@Override
-	protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
-			ServletResponse response) throws Exception {
-
-		// 调用事件监听器
-		if (getLoginListeners() != null && getLoginListeners().size() > 0) {
-			for (LoginListener loginListener : getLoginListeners()) {
-				loginListener.onSuccess(token, subject, request, response);
-			}
-		}
-		
-		// JSON Web Token (JWT)
-		String jwt = getJwtPayloadRepository().issueJwt(token, subject, request, response);
-
-		// 响应成功状态信息
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", "success");
-		data.put("message", "Authentication Success.");
-		data.put("token", jwt);
-		
-		ShiroPrincipal principal = (ShiroPrincipal) subject.getPrincipal();
-		Map<String, Object> mapPrincipal =  new HashMap<>();
-		mapPrincipal.put("userid", principal.getUserid());
-		mapPrincipal.put("userkey", principal.getUserkey());
-		mapPrincipal.put("username", principal.getUsername());
-		mapPrincipal.put("perms", principal.getPerms());
-		mapPrincipal.put("roles", principal.getRoles());
-		data.put("principal", mapPrincipal);
-		
-		// 响应
-		WebUtils.writeJSONString(response, data);
-		
-		// we handled the success , prevent the chain from continuing:
-		return false;
-
-	}
-	
-	@Override
-	protected boolean onAccessFailure(AuthenticationToken token, Exception e, ServletRequest request,
-			ServletResponse response) {
-		
-		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
-		
-		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		// 响应异常状态信息
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", "fail");
-		
-		// Jwt错误
-		if (e instanceof IncorrectJwtException) {
-			data.put("message", "JWT is incorrect.");
-			data.put("token", "incorrect");
-		}
-		// Jwt无效
-		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value.");
-			data.put("token", "invalid");
-		}
-		// Jwt过期
-		else if (e instanceof ExpiredJwtException) {
-			data.put("message", "Expired JWT value. " );
-			data.put("token", "expiry");
-		} else {
-			String rootCause = ExceptionUtils.getRootCauseMessage(e);
-			data.put("message", StringUtils.hasText(rootCause) ? rootCause : ExceptionUtils.getMessage(e));
-		}
-		
-		WebUtils.writeJSONString(response, data);
 		return false;
 	}
 	

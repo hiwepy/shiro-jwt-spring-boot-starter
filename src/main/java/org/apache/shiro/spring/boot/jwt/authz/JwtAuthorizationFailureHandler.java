@@ -51,41 +51,37 @@ public class JwtAuthorizationFailureHandler implements AuthorizationFailureHandl
 	}
 
 	@Override
-	public void onAuthorizationFailure(ServletRequest request, ServletResponse response, AuthenticationException exception)  {
+	public boolean onAuthorizationFailure(Object mappedValue, AuthenticationException e, ServletRequest request,
+			ServletResponse response) throws IOException {
 		
-		try {
-			
-			//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			// 响应异常状态信息
-			Map<String, Object> data = new HashMap<String, Object>();
-			data.put("status", "fail");
-			// Jwt错误
-			if (exception instanceof IncorrectJwtException) {
-				data.put("message", "JWT is incorrect.");
-				data.put("token", "incorrect");
-			}
-			// Jwt无效
-			else if (exception instanceof InvalidJwtToken) {
-				data.put("message", "Invalid JWT value.");
-				data.put("token", "invalid");
-			}
-			// Jwt过期
-			else if (exception instanceof ExpiredJwtException) {
-				data.put("message", "Expired JWT value. " );
-				data.put("token", "expiry");
-			} else {
-				String rootCause = ExceptionUtils.getRootCauseMessage(exception);
-				data.put("message", StringUtils.hasText(rootCause) ? rootCause : ExceptionUtils.getMessage(exception));
-			}
-			
-			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
-			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error("Unauthentication."));
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		// 响应异常状态信息
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("status", "fail");
+		// Jwt错误
+		if (e instanceof IncorrectJwtException) {
+			data.put("message", "JWT is incorrect.");
+			data.put("token", "incorrect");
+		}
+		// Jwt无效
+		else if (e instanceof InvalidJwtToken) {
+			data.put("message", "Invalid JWT value.");
+			data.put("token", "invalid");
+		}
+		// Jwt过期
+		else if (e instanceof ExpiredJwtException) {
+			data.put("message", "Expired JWT value. " );
+			data.put("token", "expiry");
+		} else {
+			String rootCause = ExceptionUtils.getRootCauseMessage(e);
+			data.put("message", StringUtils.hasText(rootCause) ? rootCause : ExceptionUtils.getMessage(e));
 		}
 		
+		WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error("Unauthentication."));
+		
+		return false;
 	}
 
 }
