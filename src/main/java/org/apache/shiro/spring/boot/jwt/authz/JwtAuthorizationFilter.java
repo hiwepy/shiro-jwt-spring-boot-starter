@@ -1,28 +1,35 @@
 package org.apache.shiro.spring.boot.jwt.authz;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.biz.authc.AuthcResponse;
+import org.apache.shiro.biz.authc.AuthcResponseCode;
+import org.apache.shiro.biz.authz.AuthorizationFailureHandler;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authz.AbstracAuthorizationFilter;
+import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
-import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
-import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
+import org.apache.shiro.spring.boot.jwt.ShiroJwtMessageSource;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
 import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
+
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * Jwt授权 (authorization)过滤器
@@ -32,11 +39,14 @@ import org.slf4j.LoggerFactory;
 public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
-	protected static final String AUTHORIZATION_PARAM = "token";
+
+	protected MessageSourceAccessor messages = ShiroJwtMessageSource.getAccessor();
+	
 	/**
      * HTTP Authorization header, equal to <code>Authorization</code>
      */
     protected static final String AUTHORIZATION_HEADER = "X-Authorization";
+    protected static final String AUTHORIZATION_PARAM = "token";
     
     private String authorizationHeaderName = AUTHORIZATION_HEADER;
     private String authorizationParamName = AUTHORIZATION_PARAM;
@@ -44,6 +54,8 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	private JwtPayloadRepository jwtPayloadRepository;
 	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
+	/** Authentication Failure Handler */
+	private List<AuthorizationFailureHandler> failureHandlers;
 	
 	/**
 	 * TODO
@@ -90,12 +102,9 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 			LOG.trace(mString);
 		}
 		
-		// 响应成功状态信息
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", "fail");
-		data.put("message", mString);
-		// 响应
-		WebUtils.writeJSONString(response, data);
+		WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
 		
 		return false;
 	}
@@ -104,37 +113,48 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {
 		return false;
 	}
-
+	
 	@Override
-	protected boolean onAccessFailure(Object mappedValue, Exception e, ServletRequest request,
+	protected boolean onAccessFailure(Object mappedValue, AuthenticationException ex, ServletRequest request,
 			ServletResponse response) {
 
-		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), e.getMessage());
-
-		//WebUtils.getHttpResponse(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		// 响应异常状态信息
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("status", "fail");
-		// Jwt错误
-		if (e instanceof IncorrectJwtException) {
-			data.put("message", "JWT is incorrect.");
-			data.put("token", "incorrect");
-		}
-		// Jwt无效
-		else if (e instanceof InvalidJwtToken) {
-			data.put("message", "Invalid JWT value.");
-			data.put("token", "invalid");
-		}
-		// Jwt过期
-		else if (e instanceof ExpiredJwtException) {
-			data.put("message", "Expired JWT value. " );
-			data.put("token", "expiry");
+		LOG.error("Host {} JWT Authentication Failure : {}", getHost(request), ex.getMessage());
+		
+		if (CollectionUtils.isEmpty(failureHandlers)) {
+			this.writeFailureString(request, response, ex);
 		} else {
-			String rootCause = ExceptionUtils.getRootCauseMessage(e);
-			data.put("message", StringUtils.hasText(rootCause) ? rootCause : ExceptionUtils.getMessage(e));
+			boolean isMatched = false;
+			for (AuthorizationFailureHandler failureHandler : failureHandlers) {
+				if (failureHandler != null && failureHandler.supports(ex)) {
+					failureHandler.onAuthorizationFailure(request, response, ex);
+					isMatched = true;
+					break;
+				}
+			}
+			if (!isMatched) {
+				this.writeFailureString(request, response, ex);
+			}
 		}
-		WebUtils.writeJSONString(response, data);
+		
 		return false;
+	}
+	
+	protected void writeFailureString(ServletRequest request, ServletResponse response, AuthenticationException ex) {
+
+		try {
+			
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+			
+			// Response Authentication status information
+			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.success(messages.getMessage(AuthcResponseCode.SC_AUTHC_FAIL.getMsgKey())));
+			
+		} catch (NoSuchMessageException e1) {
+			throw new AuthenticationException(e1);
+		} catch (IOException e1) {
+			throw new AuthenticationException(e1);
+		}
+
 	}
 
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {

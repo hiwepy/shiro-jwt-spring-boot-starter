@@ -22,16 +22,17 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.biz.authc.AuthcResponse;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.filter.authc.listener.LoginListener;
+import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.exception.ExpiredJwtException;
 import org.apache.shiro.spring.boot.jwt.exception.IncorrectJwtException;
@@ -40,6 +41,9 @@ import org.apache.shiro.spring.boot.jwt.token.JwtToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+
+import com.alibaba.fastjson.JSONObject;
 
 
 /**
@@ -49,14 +53,13 @@ import org.slf4j.LoggerFactory;
 public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticatingFilter.class);
-	
-	protected static final String AUTHORIZATION_PARAM = "token";
 	 
 	/**
      * HTTP Authorization header, equal to <code>Authorization</code>
      */
     protected static final String AUTHORIZATION_HEADER = "Authorization";
-    
+	protected static final String AUTHORIZATION_PARAM = "token";
+	
     private String authorizationHeaderName = AUTHORIZATION_HEADER;
     private String authorizationParamName = AUTHORIZATION_PARAM;
 	private String authorizationCookieName = AUTHORIZATION_PARAM;
@@ -113,7 +116,10 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				if (LOG.isTraceEnabled()) {
 					LOG.trace(mString);
 				}
-				WebUtils.writeJSONString(response, HttpServletResponse.SC_BAD_REQUEST, mString);
+				
+				WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+				response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
 				return false;
 			}
 		}
