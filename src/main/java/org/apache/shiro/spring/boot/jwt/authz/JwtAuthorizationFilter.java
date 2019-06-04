@@ -38,7 +38,7 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	protected MessageSourceAccessor messages = ShiroJwtMessageSource.getAccessor();
 	
 	/**
-     * HTTP Authorization header, equal to <code>Authorization</code>
+     * HTTP Authorization header, equal to <code>X-Authorization</code>
      */
     protected static final String AUTHORIZATION_HEADER = "X-Authorization";
     protected static final String AUTHORIZATION_PARAM = "token";

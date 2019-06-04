@@ -48,9 +48,9 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticatingFilter.class);
 	 
 	/**
-     * HTTP Authorization header, equal to <code>Authorization</code>
+     * HTTP Authorization header, equal to <code>X-Authorization</code>
      */
-    protected static final String AUTHORIZATION_HEADER = "Authorization";
+    protected static final String AUTHORIZATION_HEADER = "X-Authorization";
 	protected static final String AUTHORIZATION_PARAM = "token";
 	
     private String authorizationHeaderName = AUTHORIZATION_HEADER;
