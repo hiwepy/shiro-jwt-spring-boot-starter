@@ -29,7 +29,8 @@ import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtLoginToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,11 +136,27 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 		
 		return false;
 	}
-	
+    
+	@Override
+	protected AuthenticationToken createToken(String username, String password, ServletRequest request,
+			ServletResponse response) {
+
+		boolean rememberMe = isRememberMe(request);
+		
+		String host = getHost(request);
+		
+		// Determine if a verification code check is required
+		if (isCaptchaEnabled()) {
+			return new JwtLoginToken(username, password, getCaptcha(request), rememberMe, host);
+		}
+		
+		return new JwtLoginToken(username, password, rememberMe, host);
+	}
+    
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
 		String jwtToken = getAccessToken(request);
-		return new JwtToken(host, jwtToken, isRememberMe(request));
+		return new JwtAccessToken(host, jwtToken, isRememberMe(request));
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {

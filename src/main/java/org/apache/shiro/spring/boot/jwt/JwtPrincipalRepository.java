@@ -21,7 +21,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
 import org.apache.shiro.biz.utils.StringUtils;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 
 import com.github.vindell.jwt.JwtPayload;
 import com.google.common.collect.Sets;
@@ -45,7 +45,7 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		
-		JwtToken jwtToken = (JwtToken) token;
+		JwtAccessToken jwtToken = (JwtAccessToken) token;
 		
 		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
 		

@@ -4,7 +4,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.biz.realm.AbstractAuthorizingRealm;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadPrincipal;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.apache.shiro.subject.PrincipalCollection;
 
 /**
@@ -15,7 +15,7 @@ public class JwtStatelessAuthorizingRealm extends AbstractAuthorizingRealm {
 
 	@Override
 	public Class<?> getAuthenticationTokenClass() {
-		return JwtToken.class;// 此Realm只支持JwtToken
+		return JwtAccessToken.class;// 此Realm只支持JwtToken
 	}
 	
 	/*

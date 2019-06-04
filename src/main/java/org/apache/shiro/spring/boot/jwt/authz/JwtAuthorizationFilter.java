@@ -17,7 +17,7 @@ import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.ShiroJwtMessageSource;
 import org.apache.shiro.spring.boot.jwt.exception.InvalidJwtToken;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +95,7 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 	protected AuthenticationToken createJwtToken(ServletRequest request, ServletResponse response) {
 		String host = WebUtils.getRemoteAddr(request);
 		String jwtToken = getAccessToken(request);
-		return new JwtToken(host, jwtToken, false);
+		return new JwtAccessToken(host, jwtToken, false);
 	}
 
     protected boolean isJwtSubmission(ServletRequest request, ServletResponse response) {

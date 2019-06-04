@@ -15,7 +15,7 @@
  */
 package org.apache.shiro.spring.boot;
 
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(ShiroJwtProperties.PREFIX)
@@ -56,7 +56,7 @@ public class ShiroJwtProperties {
 	private boolean checkExpiry;
 
 	/**
-	 * {@link JwtToken} will expire after this time.
+	 * {@link JwtAccessToken} will expire after this time.
 	 */
 	private Long tokenExpirationTime;
 
@@ -66,12 +66,12 @@ public class ShiroJwtProperties {
 	private String tokenIssuer;
 
 	/**
-	 * Key is used to sign {@link JwtToken}.
+	 * Key is used to sign {@link JwtAccessToken}.
 	 */
 	private String tokenSigningKey;
 
 	/**
-	 * {@link JwtToken} can be refreshed during this timeframe.
+	 * {@link JwtAccessToken} can be refreshed during this timeframe.
 	 */
 	private Integer refreshTokenExpTime;
 

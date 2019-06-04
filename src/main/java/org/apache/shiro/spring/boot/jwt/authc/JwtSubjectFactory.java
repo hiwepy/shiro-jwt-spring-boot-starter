@@ -17,7 +17,7 @@ package org.apache.shiro.spring.boot.jwt.authc;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.web.mgt.SessionCreationEnabledSubjectFactory;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.SubjectContext;
 
@@ -39,8 +39,8 @@ public class JwtSubjectFactory extends SessionCreationEnabledSubjectFactory {
 
 	            AuthenticationToken token = context.getAuthenticationToken();
 
-	            if (token != null && token instanceof JwtToken) {
-	                final JwtToken clientToken = (JwtToken) token;
+	            if (token != null && token instanceof JwtAccessToken) {
+	                final JwtAccessToken clientToken = (JwtAccessToken) token;
 	                if (clientToken.isRememberMe()) {
 	                    context.setAuthenticated(false);
 	                }

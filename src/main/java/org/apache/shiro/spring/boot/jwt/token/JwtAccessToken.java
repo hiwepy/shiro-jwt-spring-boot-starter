@@ -22,7 +22,7 @@ import org.apache.shiro.authc.HostAuthenticationToken;
  * @author 		： <a href="https://github.com/vindell">vindell</a>
  */
 @SuppressWarnings("serial")
-public class JwtToken implements HostAuthenticationToken {
+public class JwtAccessToken implements HostAuthenticationToken {
 
 	// 客户端IP
 	private String host;
@@ -31,7 +31,7 @@ public class JwtToken implements HostAuthenticationToken {
 
     private final boolean isRememberMe;
     
-	public JwtToken(String host, String token, boolean isRememberMe) {
+	public JwtAccessToken(String host, String token, boolean isRememberMe) {
 		this.host = host;
 		this.token = token;
 		this.isRememberMe = isRememberMe;

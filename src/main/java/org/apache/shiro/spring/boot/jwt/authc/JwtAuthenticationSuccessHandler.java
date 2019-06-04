@@ -29,7 +29,7 @@ import org.apache.shiro.biz.utils.SubjectUtils;
 import org.apache.shiro.biz.utils.WebUtils;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtLoginToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.http.MediaType;
 
@@ -53,7 +53,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
 	@Override
 	public boolean supports(AuthenticationToken token) {
-		return SubjectUtils.supports(token.getClass(), JwtToken.class);
+		return SubjectUtils.supports(token.getClass(), JwtLoginToken.class);
 	}
 
 	@Override

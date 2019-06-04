@@ -20,7 +20,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.spring.boot.jwt.token.JwtToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.apache.shiro.subject.Subject;
 
 import com.github.vindell.jwt.JwtPayload;
@@ -36,6 +36,6 @@ public abstract class JwtPayloadRepository {
     
 	public abstract boolean verify(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response, boolean checkExpiry) throws AuthenticationException;
     
-	public abstract JwtPayload getPayload(JwtToken token, boolean checkExpiry);
+	public abstract JwtPayload getPayload(JwtAccessToken token, boolean checkExpiry);
 
 }
