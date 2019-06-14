@@ -28,7 +28,7 @@ public class ShiroJwtMessageSource extends ResourceBundleMessageSource {
 	// ===================================================================================================
 
 	public ShiroJwtMessageSource() {
-		setBasename("org.apache.shiro.spring.boot.jwt");
+		setBasename("org.apache.shiro.spring.boot.jwt.messages");
 	}
 
 	// ~ Methods
