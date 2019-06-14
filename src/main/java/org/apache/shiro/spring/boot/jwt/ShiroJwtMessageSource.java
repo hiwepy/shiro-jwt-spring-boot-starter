@@ -29,6 +29,7 @@ public class ShiroJwtMessageSource extends ResourceBundleMessageSource {
 
 	public ShiroJwtMessageSource() {
 		setBasename("org.apache.shiro.spring.boot.jwt.messages");
+		setDefaultEncoding("UTF-8");
 	}
 
 	// ~ Methods
