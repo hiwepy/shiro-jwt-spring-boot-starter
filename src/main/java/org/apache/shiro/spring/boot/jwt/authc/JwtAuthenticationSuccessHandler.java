@@ -53,7 +53,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 
 	@Override
 	public boolean supports(AuthenticationToken token) {
-		return SubjectUtils.supports(token.getClass(), JwtLoginToken.class);
+		return SubjectUtils.isAssignableFrom(token.getClass(), JwtLoginToken.class);
 	}
 
 	@Override

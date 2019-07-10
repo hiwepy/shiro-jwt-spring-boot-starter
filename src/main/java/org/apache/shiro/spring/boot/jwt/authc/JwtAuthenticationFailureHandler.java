@@ -49,8 +49,8 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 	
 	@Override
 	public boolean supports(AuthenticationException ex) {
-		return SubjectUtils.supports(ex.getClass(), ExpiredJwtException.class, IncorrectJwtException.class,
-				InvalidJwtToken.class, NotObtainedJwtException.class);
+		return SubjectUtils.isAssignableFrom(ex.getClass(), ExpiredJwtException.class,
+				IncorrectJwtException.class, InvalidJwtToken.class, NotObtainedJwtException.class);
 	}
 	
 	@Override
@@ -60,11 +60,12 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 		if(LOG.isDebugEnabled()) {
 			LOG.debug(ExceptionUtils.getRootCauseMessage(ex));
 		}
-
-		WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
-		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 		
 		try {
+			
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+
 			// Jwt过期
 			if (ex instanceof ExpiredJwtException) {
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
@@ -79,6 +80,11 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 			else if (ex instanceof InvalidJwtToken) {
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getMsgKey(), ex.getMessage())));
+			}
+			// Jwt缺失
+			else if (ex instanceof NotObtainedJwtException) {
+				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
+						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getMsgKey(), ex.getMessage())));
 			} else {
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHC_FAIL.getMsgKey())));
