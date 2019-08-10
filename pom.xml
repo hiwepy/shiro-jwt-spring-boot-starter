@@ -367,7 +367,7 @@
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
  		<fastjson.version>1.2.58</fastjson.version>
  		<guava.version>27.1-jre</guava.version>
- 		<jwt-issuer.version>1.0.2-SNAPSHOT</jwt-issuer.version>
+ 		<jwt-issuer.version>1.0.2.RELEASE</jwt-issuer.version>
 		<maven.version>3.0</maven.version>
        	<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
@@ -375,7 +375,7 @@
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven-surefire-plugin.vertsion>2.22.1</maven-surefire-plugin.vertsion>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
-		<spring-boot-starter-shiro-biz.version>1.0.5-SNAPSHOT</spring-boot-starter-shiro-biz.version>
+		<spring-boot-starter-shiro-biz.version>1.0.5.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
 	
 	<dependencyManagement>
