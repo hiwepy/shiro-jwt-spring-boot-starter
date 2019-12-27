@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, vindell (https://github.com/vindell).
+ * Copyright (c) 2018, hiwepy (https://github.com/hiwepy).
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,12 +23,12 @@ import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 
-import com.github.vindell.jwt.JwtPayload;
+import com.github.hiwepy.jwt.JwtPayload;
 import com.google.common.collect.Sets;
 
 /**
  * JSON Web Token (JWT) Principal Repository
- * @author 		： <a href="https://github.com/vindell">vindell</a>
+ * @author 		： <a href="https://github.com/hiwepy">hiwepy</a>
  */
 public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 

@@ -7,7 +7,7 @@ import org.apache.shiro.subject.Subject;
 
 /**
  * Jwt有效期检查过滤器
- * @author ： <a href="https://github.com/vindell">vindell</a>
+ * @author ： <a href="https://github.com/hiwepy">hiwepy</a>
  */
 public class JwtWithinExpiryFilter extends JwtAuthorizationFilter {
 	
