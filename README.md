@@ -1,4 +1,4 @@
-# spring-boot-starter-shiro-jwt
+# shiro-jwt-spring-boot-starter
 shiro jwt starter for spring boot
 
 ### 说明
@@ -12,7 +12,7 @@ shiro jwt starter for spring boot
 ``` xml
 <dependency>
 	<groupId>${project.groupId}</groupId>
-	<artifactId>spring-boot-starter-shiro-jwt</artifactId>
+	<artifactId>shiro-jwt-spring-boot-starter</artifactId>
 	<version>${project.version}</version>
 </dependency>
 ```
