@@ -53,7 +53,7 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 		
 		principal.setUserid(payload.getClientId());
 		principal.setUserkey(payload.getClientId());
-		principal.setRoles(Sets.newHashSet(payload.getRoles()));
+		//principal.setRoles(Sets.newHashSet(payload.getRoles()));
 		principal.setPerms(Sets.newHashSet(payload.getPerms()));
 		
 		return new SimpleAuthenticationInfo(principal, jwtToken.getCredentials(), "JWT");
