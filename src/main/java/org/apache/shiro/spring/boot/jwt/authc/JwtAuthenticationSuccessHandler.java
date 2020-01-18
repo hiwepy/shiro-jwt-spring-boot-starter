@@ -16,13 +16,16 @@
 package org.apache.shiro.spring.boot.jwt.authc;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.biz.authc.AuthcResponseCode;
 import org.apache.shiro.biz.authc.AuthenticationSuccessHandler;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.biz.utils.SubjectUtils;
@@ -32,6 +35,7 @@ import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.token.JwtLoginToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -41,7 +45,8 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 	private JwtPayloadRepository jwtPayloadRepository;
 	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
-
+	private final String EMPTY = "null";
+	
 	public JwtAuthenticationSuccessHandler() {
 	}
 	
@@ -64,29 +69,52 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			
 			Map<String, Object> tokenMap = new HashMap<String, Object>();
 			
-			tokenMap.put("code", "0");
+			tokenMap.put("code", AuthcResponseCode.SC_AUTHC_SUCCESS.getCode());
 			tokenMap.put("message", "Authentication Success.");
 			tokenMap.put("status", "success");
 
-			Map<String, Object> principalMap = new HashMap<>();
-
-			ShiroPrincipal principal = (ShiroPrincipal) subject.getPrincipal();
+			Object principal = subject.getPrincipal();
+			
 			// 账号首次登陆标记
-			principalMap.put("initial", ((ShiroPrincipal) subject.getPrincipal()).isInitial());
-			// JSON Web Token (JWT)
-			String jwt = getJwtPayloadRepository().issueJwt(token, subject, request, response);
-			principalMap.put("token", jwt);
-			principalMap.put("userid", principal.getUserid());
-			principalMap.put("userkey", principal.getUserkey());
-			principalMap.put("username", principal.getUsername());
-			principalMap.put("perms", principal.getPerms());
-			principalMap.put("roles", principal.getRoles());
-
-			tokenMap.put("principal", principalMap);
+			if(ShiroPrincipal.class.isAssignableFrom(principal.getClass())) {
+				ShiroPrincipal securityPrincipal = (ShiroPrincipal) principal;
+				// 账号首次登陆标记
+				tokenMap.put("initial", securityPrincipal.isInitial());
+				tokenMap.put("alias", StringUtils.defaultString(securityPrincipal.getAlias(), EMPTY));
+				tokenMap.put("userid", securityPrincipal.getUserid());
+				tokenMap.put("userkey", StringUtils.defaultString(securityPrincipal.getUserkey(), EMPTY));
+				tokenMap.put("usercode", StringUtils.defaultString(securityPrincipal.getUsercode(), EMPTY));
+				tokenMap.put("username", securityPrincipal.getUsername());
+				tokenMap.put("userid", StringUtils.defaultString(securityPrincipal.getUserid(), EMPTY));
+				tokenMap.put("roleid", StringUtils.defaultString(securityPrincipal.getRoleid(), EMPTY ));
+				tokenMap.put("role", StringUtils.defaultString(securityPrincipal.getRole(), EMPTY));
+				tokenMap.put("roles", CollectionUtils.isEmpty(securityPrincipal.getRoles()) ? new ArrayList<>() : securityPrincipal.getRoles() );
+				tokenMap.put("perms", CollectionUtils.isEmpty(securityPrincipal.getPerms()) ? new ArrayList<>() : securityPrincipal.getPerms());
+				tokenMap.put("profile", CollectionUtils.isEmpty(securityPrincipal.getProfile()) ? new HashMap<>() : securityPrincipal.getProfile() );
+				tokenMap.put("faced", securityPrincipal.isFace());
+				tokenMap.put("faceId", StringUtils.defaultString(securityPrincipal.getFaceId(), EMPTY ));
+				// JSON Web Token (JWT)
+				tokenMap.put("token", getJwtPayloadRepository().issueJwt(token, subject, request, response));
+			} else {
+				tokenMap.put("initial", false);
+				tokenMap.put("alias", "匿名账户");
+				tokenMap.put("userid", EMPTY);
+				tokenMap.put("userkey", EMPTY);
+				tokenMap.put("usercode", EMPTY);
+				tokenMap.put("username", EMPTY);
+				tokenMap.put("perms", new ArrayList<>());
+				tokenMap.put("roleid", EMPTY);
+				tokenMap.put("role", EMPTY);
+				tokenMap.put("roles", new ArrayList<>());
+				tokenMap.put("restricted", false);
+				tokenMap.put("profile", new HashMap<>());
+				tokenMap.put("faced", false);
+				tokenMap.put("faceId", EMPTY);
+				tokenMap.put("token", EMPTY);
+			}
 
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
-			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-			// 响应成功状态信息
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			JSONObject.writeJSONString(response.getWriter(), tokenMap);
 			
 		} catch (IOException e) {

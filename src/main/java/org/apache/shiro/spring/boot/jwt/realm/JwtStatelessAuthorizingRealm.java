@@ -1,11 +1,18 @@
 package org.apache.shiro.spring.boot.jwt.realm;
 
+import java.util.List;
+import java.util.Set;
+
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.biz.realm.AbstractAuthorizingRealm;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadPrincipal;
 import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.springframework.util.CollectionUtils;
+
+import com.github.hiwepy.jwt.JwtPayload.RolePair;
+import com.google.common.collect.Sets;
 
 /**
  * JSON Web Token (JWT) Stateless AuthorizingRealm
@@ -27,8 +34,15 @@ public class JwtStatelessAuthorizingRealm extends AbstractAuthorizingRealm {
 		JwtPayloadPrincipal principal = (JwtPayloadPrincipal) principals.getPrimaryPrincipal();
 		
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+		Set<String> sets = Sets.newHashSet();
+		List<RolePair> roles = principal.getRoles();
+		if(!CollectionUtils.isEmpty(roles)) {
+			for (RolePair role : roles) {
+				sets.add(role.getKey());
+			}
+		}
 		// 解析角色并设置
-		info.setRoles(principal.getRoles());
+		info.setRoles(sets);
 		// 解析权限并设置
 		info.setStringPermissions(principal.getPerms());
 		return info;
