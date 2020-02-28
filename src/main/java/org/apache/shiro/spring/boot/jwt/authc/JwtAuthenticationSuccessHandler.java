@@ -114,7 +114,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			}
 
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
-			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 			JSONObject.writeJSONString(response.getWriter(), tokenMap);
 			
 		} catch (IOException e) {
