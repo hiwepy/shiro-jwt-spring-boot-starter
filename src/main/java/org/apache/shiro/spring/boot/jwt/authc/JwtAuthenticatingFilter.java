@@ -15,6 +15,8 @@
  */
 package org.apache.shiro.spring.boot.jwt.authc;
 
+import java.io.IOException;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -59,6 +62,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	private JwtPayloadRepository jwtPayloadRepository;
 	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
+	private ObjectMapper objectMapper = new ObjectMapper();
 	
 	public JwtAuthenticatingFilter() {
 		super();
@@ -138,9 +142,34 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 	}
     
 	@Override
+	protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
+		// Post && JSON
+		if(WebUtils.isObjectRequest(request)) {
+			
+			try {
+				
+				JwtLoginRequest loginRequest = objectMapper.readValue(request.getReader(), JwtLoginRequest.class);
+				
+				String host = getHost(request);
+				
+				// Determine if a verification code check is required
+				if (isCaptchaEnabled()) {
+					return new JwtLoginToken(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getCaptcha(), loginRequest.isRememberMe(), host);
+				}
+				
+				return new JwtLoginToken(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.isRememberMe(), host);
+				
+			} catch (IOException e) {
+			}
+		
+		}
+		return super.createToken(request, response);
+	}
+	
+	@Override
 	protected AuthenticationToken createToken(String username, String password, ServletRequest request,
 			ServletResponse response) {
-
+		
 		boolean rememberMe = isRememberMe(request);
 		
 		String host = getHost(request);
