@@ -27,6 +27,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authc.AuthcResponse;
 import org.apache.shiro.biz.utils.StringUtils;
 import org.apache.shiro.biz.utils.WebUtils;
+import org.apache.shiro.biz.web.filter.authc.PostLoginRequest;
 import org.apache.shiro.biz.web.filter.authc.TrustableRestAuthenticatingFilter;
 import org.apache.shiro.biz.web.servlet.http.HttpStatus;
 import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
@@ -148,7 +149,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			
 			try {
 				
-				JwtLoginRequest loginRequest = objectMapper.readValue(request.getReader(), JwtLoginRequest.class);
+				PostLoginRequest loginRequest = objectMapper.readValue(request.getReader(), PostLoginRequest.class);
 				
 				String host = getHost(request);
 				
