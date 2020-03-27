@@ -63,7 +63,7 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 		
 		try {
 			
-			WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
 			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
 
 			// Jwt过期
