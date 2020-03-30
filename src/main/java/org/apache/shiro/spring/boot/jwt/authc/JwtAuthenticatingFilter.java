@@ -117,7 +117,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				}
 				
 				WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
-				response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+				response.setCharacterEncoding("UTF-8");
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
 				
 				return false;
@@ -133,7 +134,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			}
 			
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
-			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.setCharacterEncoding("UTF-8");
 			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
 			
 			return false;
