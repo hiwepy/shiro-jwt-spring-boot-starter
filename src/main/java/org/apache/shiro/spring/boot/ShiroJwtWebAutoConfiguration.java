@@ -1,6 +1,9 @@
 package org.apache.shiro.spring.boot;
 
 import org.apache.shiro.mgt.SubjectFactory;
+import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
+import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticationFailureHandler;
+import org.apache.shiro.spring.boot.jwt.authc.JwtAuthenticationSuccessHandler;
 import org.apache.shiro.spring.boot.jwt.authc.JwtSubjectFactory;
 import org.apache.shiro.spring.web.config.AbstractShiroWebConfiguration;
 import org.springframework.beans.BeansException;
@@ -28,6 +31,18 @@ public class ShiroJwtWebAutoConfiguration extends AbstractShiroWebConfiguration 
 	@Autowired
 	private ShiroBizProperties bizProperties;
 
+	@Bean
+	protected JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler(
+			JwtPayloadRepository jwtPayloadRepository,
+			ShiroJwtProperties jwtProperties) {
+		return new JwtAuthenticationSuccessHandler(jwtPayloadRepository, jwtProperties.isCheckExpiry());
+	}
+
+	@Bean
+	protected JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler() {
+		return new JwtAuthenticationFailureHandler();
+	}
+	
 	@Bean
 	@Override
 	protected SubjectFactory subjectFactory() {
