@@ -1,6 +1,7 @@
 package org.apache.shiro.spring.boot.jwt.authz;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -81,7 +82,8 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		}
 		
 		WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
-		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
 		
 		return false;
