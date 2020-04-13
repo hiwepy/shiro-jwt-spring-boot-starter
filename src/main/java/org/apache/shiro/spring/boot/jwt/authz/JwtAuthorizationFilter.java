@@ -62,10 +62,12 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 				//Step 2、委托给Realm进行登录  
 				Subject subject = getSubject(request, response);
 				subject.login(token);
-				// Step 3、委托给JwtPayloadRepository进行Token验证
-				boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, request, response, isCheckExpiry());
-				if (!accessAllowed) {
-					throw new InvalidJwtToken("Invalid JWT value.");
+				if(checkExpiry) {
+					// Step 3、委托给JwtPayloadRepository进行Token验证
+					boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, request, response, isCheckExpiry());
+					if (!accessAllowed) {
+						throw new InvalidJwtToken("Invalid JWT value.");
+					}
 				}
 				//Step 3、执行授权成功后的函数
 				return onAccessSuccess(mappedValue, subject, request, response);
