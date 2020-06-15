@@ -403,7 +403,7 @@
 				<version>${jwt-issuer.version}</version>
 				<scope>provided</scope>
 			</dependency>
-			<!-- https://github.com/hiwepy/spring-boot-starter-shiro-biz -->
+			<!-- https://github.com/hiwepy/shiro-biz-spring-boot-starter -->
 			<dependency>
 				<groupId>com.github.hiwepy</groupId>
 				<artifactId>shiro-biz-spring-boot-starter</artifactId>
@@ -480,7 +480,7 @@
 			<artifactId>jwt-issuer-with-nimbus</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- https://github.com/hiwepy/spring-boot-starter-shiro-biz -->
+		<!-- https://github.com/hiwepy/shiro-biz-spring-boot-starter -->
 		<dependency>
 			<groupId>com.github.hiwepy</groupId>
 			<artifactId>shiro-biz-spring-boot-starter</artifactId>
