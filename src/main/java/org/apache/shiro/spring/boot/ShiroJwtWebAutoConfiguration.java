@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @AutoConfigureBefore( name = {
 	"org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration",  // shiro-spring-boot-web-starter
-	"org.apache.shiro.spring.boot.ShiroBizWebAutoConfiguration" // spring-boot-starter-shiro-biz
+	"org.apache.shiro.spring.boot.ShiroBizWebAutoConfiguration" // shiro-biz-spring-boot-starter
 })
 @ConditionalOnProperty(prefix = ShiroJwtProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ ShiroBizProperties.class, ShiroJwtProperties.class })
