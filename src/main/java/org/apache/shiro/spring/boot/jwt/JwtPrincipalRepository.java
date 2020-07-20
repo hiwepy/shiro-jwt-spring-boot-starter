@@ -23,7 +23,6 @@ import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
 import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 
 import com.github.hiwepy.jwt.JwtPayload;
-import com.google.common.collect.Sets;
 
 /**
  * JSON Web Token (JWT) Principal Repository
@@ -53,7 +52,7 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 		principal.setUserid(payload.getClientId());
 		principal.setUserkey(payload.getClientId());
 		principal.setRoles(payload.getRoles());
-		principal.setPerms(Sets.newHashSet(payload.getPerms()));
+		principal.setPerms(payload.getPerms());
 		
 		return new SimpleAuthenticationInfo(principal, jwtToken.getCredentials(), "JWT");
 	}
