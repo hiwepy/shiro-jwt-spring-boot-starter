@@ -378,40 +378,6 @@
 		<spring-boot-starter-shiro-biz.version>1.0.7.RELEASE</spring-boot-starter-shiro-biz.version>
 	</properties>
 	
-	<dependencyManagement>
-		<dependencies>
-			<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
-			<dependency>
-			    <groupId>com.alibaba</groupId>
-			    <artifactId>fastjson</artifactId>
-			    <version>${fastjson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.github.hiwepy</groupId>
-				<artifactId>jwt-issuer-api</artifactId>
-				<version>${jwt-issuer.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.github.hiwepy</groupId>
-				<artifactId>jwt-issuer-with-jjwt</artifactId>
-				<version>${jwt-issuer.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.github.hiwepy</groupId>
-				<artifactId>jwt-issuer-with-nimbus</artifactId>
-				<version>${jwt-issuer.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<!-- https://github.com/hiwepy/shiro-biz-spring-boot-starter -->
-			<dependency>
-				<groupId>com.github.hiwepy</groupId>
-				<artifactId>shiro-biz-spring-boot-starter</artifactId>
-				<version>${spring-boot-starter-shiro-biz.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-	
 	<dependencies>
 		
 		<!-- Java Servlet API -->
@@ -465,25 +431,30 @@
 		<dependency>
 		    <groupId>com.alibaba</groupId>
 		    <artifactId>fastjson</artifactId>
+		    <version>${fastjson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.hiwepy</groupId>
 			<artifactId>jwt-issuer-api</artifactId>
+			<version>${jwt-issuer.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.hiwepy</groupId>
 			<artifactId>jwt-issuer-with-jjwt</artifactId>
+			<version>${jwt-issuer.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.hiwepy</groupId>
 			<artifactId>jwt-issuer-with-nimbus</artifactId>
+			<version>${jwt-issuer.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- https://github.com/hiwepy/shiro-biz-spring-boot-starter -->
 		<dependency>
 			<groupId>com.github.hiwepy</groupId>
 			<artifactId>shiro-biz-spring-boot-starter</artifactId>
+			<version>${spring-boot-starter-shiro-biz.version}</version>
 		</dependency>
 		
 	</dependencies>
