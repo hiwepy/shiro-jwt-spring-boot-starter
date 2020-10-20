@@ -49,7 +49,7 @@ public class SubjectJwtUtils extends SubjectUtils {
 			ShiroPrincipal shiroPrincipal = (ShiroPrincipal) principal;
 			// 账号首次登陆标记
 			tokenMap.put("initial", shiroPrincipal.isInitial());
-			tokenMap.put("alias", StringUtils.defaultString(shiroPrincipal.getAlias(), EMPTY));
+			tokenMap.put("nickname", StringUtils.defaultString(shiroPrincipal.getNickname(), EMPTY));
 			tokenMap.put("userid", shiroPrincipal.getUserid());
 			tokenMap.put("userkey", StringUtils.defaultString(shiroPrincipal.getUserkey(), EMPTY));
 			tokenMap.put("usercode", StringUtils.defaultString(shiroPrincipal.getUsercode(), EMPTY));
@@ -66,7 +66,7 @@ public class SubjectJwtUtils extends SubjectUtils {
 			tokenMap.put("token", token);
 		} else {
 			tokenMap.put("initial", false);
-			tokenMap.put("alias", "匿名账户");
+			tokenMap.put("nickname", "匿名账户");
 			tokenMap.put("userid", EMPTY);
 			tokenMap.put("userkey", EMPTY);
 			tokenMap.put("usercode", EMPTY);
