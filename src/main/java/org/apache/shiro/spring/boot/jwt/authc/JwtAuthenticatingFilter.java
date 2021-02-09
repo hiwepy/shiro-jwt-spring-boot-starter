@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt.authc;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -118,10 +119,10 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 					LOG.trace(mString);
 				}
 				
-				WebUtils.toHttp(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+				WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-				response.setCharacterEncoding("UTF-8");
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
+				response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(HttpStatus.SC_BAD_REQUEST, mString));
 				
 				return false;
 			}
@@ -135,10 +136,10 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				LOG.trace(mString);
 			}
 			
-			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			response.setCharacterEncoding("UTF-8");
-			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
+			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(HttpStatus.SC_UNAUTHORIZED, mString));
 			
 			return false;
 		}

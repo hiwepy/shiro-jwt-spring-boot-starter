@@ -67,7 +67,7 @@ public class JwtAuthorizationFailureHandler implements AuthorizationFailureHandl
 		
 		try {
 			
-			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 

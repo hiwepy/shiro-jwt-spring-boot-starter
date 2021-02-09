@@ -82,11 +82,10 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		if (LOG.isTraceEnabled()) { 
 			LOG.trace(mString);
 		}
-		
-		WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+		WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(mString));
+		JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(HttpStatus.SC_UNAUTHORIZED, mString));
 		
 		return false;
 	}

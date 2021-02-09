@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt.authc;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -73,7 +74,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			response.setCharacterEncoding("UTF-8");
+			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 			JSONObject.writeJSONString(response.getWriter(), tokenMap);
 			
 		} catch (IOException e) {

@@ -16,6 +16,7 @@
 package org.apache.shiro.spring.boot.jwt.authc;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -63,9 +64,9 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 		
 		try {
 			
-			WebUtils.toHttp(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			response.setCharacterEncoding("UTF-8");
+			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 
 			// Jwt过期
 			if (ex instanceof ExpiredJwtException) {
