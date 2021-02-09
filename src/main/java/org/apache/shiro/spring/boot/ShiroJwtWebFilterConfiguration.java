@@ -1,5 +1,6 @@
 package org.apache.shiro.spring.boot;
 
+import org.apache.shiro.biz.spring.ShiroFilterProxyFactoryBean;
 import org.apache.shiro.spring.boot.biz.ShiroBizFilterFactoryBean;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.AbstractShiroWebFilterConfiguration;
@@ -24,18 +25,20 @@ import org.springframework.context.annotation.Configuration;
 public class ShiroJwtWebFilterConfiguration extends AbstractShiroWebFilterConfiguration {
 	
 	@Autowired
-	private ShiroBizProperties properties;
+	private ShiroBizProperties bizProperties;
 
 	@Bean
     @ConditionalOnMissingBean
     @Override
     protected ShiroFilterFactoryBean shiroFilterFactoryBean() {
+
+		ShiroFilterProxyFactoryBean filterFactoryBean = new ShiroBizFilterFactoryBean();
+		filterFactoryBean.setStaticSecurityManagerEnabled(bizProperties.isStaticSecurityManagerEnabled());
 		
-		ShiroFilterFactoryBean filterFactoryBean = new ShiroBizFilterFactoryBean();
 		//系统主页：登录成功后跳转路径
-        filterFactoryBean.setSuccessUrl(properties.getSuccessUrl());
+        filterFactoryBean.setSuccessUrl(bizProperties.getSuccessUrl());
         //异常页面：无权限时的跳转路径
-        filterFactoryBean.setUnauthorizedUrl(properties.getUnauthorizedUrl());
+        filterFactoryBean.setUnauthorizedUrl(bizProperties.getUnauthorizedUrl());
         
         //必须设置 SecurityManager
    		filterFactoryBean.setSecurityManager(securityManager);
