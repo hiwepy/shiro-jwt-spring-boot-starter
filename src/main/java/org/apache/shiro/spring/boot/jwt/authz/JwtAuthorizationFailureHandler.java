@@ -101,5 +101,10 @@ public class JwtAuthorizationFailureHandler implements AuthorizationFailureHandl
 		
 		return false;
 	}
-
+	
+	@Override
+	public int getOrder() {
+		return Integer.MAX_VALUE - 1;
+	}
+	
 }

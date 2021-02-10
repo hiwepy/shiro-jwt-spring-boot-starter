@@ -82,7 +82,12 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 		}
 
 	}
-
+	
+	@Override
+	public int getOrder() {
+		return Integer.MAX_VALUE - 1;
+	}
+	
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
 	}

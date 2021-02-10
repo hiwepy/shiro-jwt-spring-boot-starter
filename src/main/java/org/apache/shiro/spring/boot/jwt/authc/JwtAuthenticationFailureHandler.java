@@ -99,4 +99,9 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 		
 	}
 
+	@Override
+	public int getOrder() {
+		return Integer.MAX_VALUE - 1;
+	}
+
 }
