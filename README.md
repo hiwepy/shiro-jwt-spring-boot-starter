@@ -13,7 +13,7 @@ shiro jwt starter for spring boot
 <dependency>
 	<groupId>com.github.hiwepy</groupId>
 	<artifactId>shiro-jwt-spring-boot-starter</artifactId>
-	<version>${project.version}</version>
+	<version>1.1.3.RELEASE</version>
 </dependency>
 ```
 
