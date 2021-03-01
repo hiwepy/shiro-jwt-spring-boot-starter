@@ -49,8 +49,8 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 		
 		JwtPayloadPrincipal principal = new JwtPayloadPrincipal(payload);
 		
-		principal.setUserid(payload.getClientId());
-		principal.setUserkey(payload.getClientId());
+		principal.setUserid(payload.getSubject());
+		principal.setUserkey(payload.getUkey());
 		principal.setRoles(payload.getRoles());
 		principal.setPerms(payload.getPerms());
 		
