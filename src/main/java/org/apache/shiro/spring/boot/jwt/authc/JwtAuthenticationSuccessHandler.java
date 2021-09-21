@@ -32,20 +32,21 @@ import org.apache.shiro.spring.boot.jwt.JwtPayloadRepository;
 import org.apache.shiro.spring.boot.jwt.token.JwtLoginToken;
 import org.apache.shiro.spring.boot.utils.SubjectJwtUtils;
 import org.apache.shiro.subject.Subject;
+import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 
 import com.alibaba.fastjson.JSONObject;
 
 
-public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler, Ordered {
 
 	private JwtPayloadRepository jwtPayloadRepository;
 	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
-	
+
 	public JwtAuthenticationSuccessHandler() {
 	}
-	
+
 	public JwtAuthenticationSuccessHandler(JwtPayloadRepository jwtPayloadRepository, boolean checkExpiry) {
 		super();
 		this.jwtPayloadRepository = jwtPayloadRepository;
@@ -62,32 +63,32 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			Subject subject) {
 
 		try {
-			
+
 			String tokenString = "";
 			// 账号首次登陆标记
 			if(ShiroPrincipal.class.isAssignableFrom(subject.getPrincipal().getClass())) {
 				// JSON Web Token (JWT)
 				tokenString = getJwtPayloadRepository().issueJwt(token, subject);
-			} 
-			
+			}
+
 			Map<String, Object> tokenMap = SubjectJwtUtils.tokenMap(subject, tokenString);
-			
+
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 			JSONObject.writeJSONString(response.getWriter(), tokenMap);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return Integer.MAX_VALUE - 1;
 	}
-	
+
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
 	}

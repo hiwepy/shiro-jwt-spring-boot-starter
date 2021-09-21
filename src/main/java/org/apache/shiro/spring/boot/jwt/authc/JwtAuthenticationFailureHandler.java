@@ -39,31 +39,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler, Ordered {
 
 	protected MessageSourceAccessor messages = ShiroJwtMessageSource.getAccessor();
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationFailureHandler.class);
-	
+
 	@Override
 	public boolean supports(AuthenticationException ex) {
 		return SubjectUtils.isAssignableFrom(ex.getClass(), ExpiredJwtException.class,
 				IncorrectJwtException.class, InvalidJwtToken.class, NotObtainedJwtException.class);
 	}
-	
+
 	@Override
 	public void onAuthenticationFailure(AuthenticationToken token, ServletRequest request, ServletResponse response,
 			AuthenticationException ex) {
-		
+
 		if(LOG.isDebugEnabled()) {
 			LOG.debug(ExceptionUtils.getRootCauseMessage(ex));
 		}
-		
+
 		try {
-			
+
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
@@ -72,12 +73,12 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 			if (ex instanceof ExpiredJwtException) {
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getMsgKey(), ex.getMessage())));
-			} 
+			}
 			// Jwt错误
 			else if (ex instanceof IncorrectJwtException) {
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getMsgKey(), ex.getMessage())));
-			} 
+			}
 			// Jwt无效
 			else if (ex instanceof InvalidJwtToken) {
 				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
@@ -96,7 +97,7 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
-		
+
 	}
 
 	@Override
