@@ -84,7 +84,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 					subject.login(token);
 					if(checkExpiry) {
 						// Step 3、委托给JwtPayloadRepository进行Token验证
-						boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, request, response, isCheckExpiry());
+						boolean accessAllowed = getJwtPayloadRepository().verify(token, subject, isCheckExpiry());
 						if (!accessAllowed) {
 							throw new InvalidJwtToken("Invalid JWT value.");
 						}

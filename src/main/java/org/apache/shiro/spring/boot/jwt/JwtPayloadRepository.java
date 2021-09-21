@@ -15,11 +15,11 @@
  */
 package org.apache.shiro.spring.boot.jwt;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import java.util.Map;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
 import org.apache.shiro.subject.Subject;
 
@@ -29,13 +29,38 @@ import com.github.hiwepy.jwt.JwtPayload;
  * Abstract JSON Web Token (JWT) Payload Repository
  * @author 		： <a href="https://github.com/hiwepy">hiwepy</a>
  */
-public abstract class JwtPayloadRepository {
+public interface JwtPayloadRepository {
 
-    public abstract String issueJwt(AuthenticationToken token, Subject subject, ServletRequest request,
-			ServletResponse response);
-    
-	public abstract boolean verify(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response, boolean checkExpiry) throws AuthenticationException;
-    
-	public abstract JwtPayload getPayload(JwtAccessToken token, boolean checkExpiry);
+	default String issueJwt(AuthenticationToken token, Subject subject) { 
+		if(subject.getPrincipal() instanceof ShiroPrincipal) {
+			ShiroPrincipal principal = (ShiroPrincipal) subject.getPrincipal();
+			return this.issueJwt(principal);
+		}
+		return "";
+	};
+	
+	default String issueJwt(ShiroPrincipal principal) { 
+		return this.issueJwt(principal.getUserid(), principal.getProfile());
+	};
+	
+	default String issueJwt(String userId, Map<String, Object> profile) { 
+		return "";
+	};
+	
+	default boolean verify(AuthenticationToken token, Subject subject, boolean checkExpiry) throws AuthenticationException{
+		return false;
+	}
+	
+	default boolean verify(String token, boolean checkExpiry) throws AuthenticationException{
+		return false;
+	};
+	
+	default JwtPayload getPayload(JwtAccessToken token, boolean checkExpiry){
+		return null;
+	};
+	
+	default JwtPayload getPayload(String token, boolean checkExpiry){
+		return null;
+	};
 
 }

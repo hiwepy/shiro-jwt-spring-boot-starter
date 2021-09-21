@@ -67,7 +67,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			// 账号首次登陆标记
 			if(ShiroPrincipal.class.isAssignableFrom(subject.getPrincipal().getClass())) {
 				// JSON Web Token (JWT)
-				tokenString = getJwtPayloadRepository().issueJwt(token, subject, request, response);
+				tokenString = getJwtPayloadRepository().issueJwt(token, subject);
 			} 
 			
 			Map<String, Object> tokenMap = SubjectJwtUtils.tokenMap(subject, tokenString);
