@@ -35,32 +35,38 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
      * If Check JWT Validity.
      */
     private boolean checkExpiry = false;
-    
+
     public JwtPrincipalRepository(JwtPayloadRepository jwtPayloadRepository) {
     	this.jwtPayloadRepository = jwtPayloadRepository;
     }
-    
+
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-		
+
 		JwtAccessToken jwtToken = (JwtAccessToken) token;
-		
+
 		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
-		
+
 		JwtPayloadPrincipal principal = new JwtPayloadPrincipal(payload);
-		
+
+		principal.setPerms(payload.getPerms());
+		principal.setRole(payload.getRkey());
+		principal.setRoles(payload.getRoles());
+		principal.setRoleid(payload.getRid());
 		principal.setUserid(payload.getSubject());
 		principal.setUserkey(payload.getUkey());
-		principal.setRoles(payload.getRoles());
-		principal.setPerms(payload.getPerms());
-		
+		principal.setUsercode(payload.getUcode());
+		principal.setInitial(payload.isInitial());
+		principal.setProfile(payload.getProfile());
+
+
 		return new SimpleAuthenticationInfo(principal, jwtToken.getCredentials(), "JWT");
 	}
-	
+
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
 	}
-	
+
 	public boolean isCheckExpiry() {
 		return checkExpiry;
 	}
@@ -69,5 +75,5 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 		this.checkExpiry = checkExpiry;
 	}
 
-	
+
 }
