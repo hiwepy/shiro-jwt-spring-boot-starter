@@ -13,7 +13,7 @@
 	<groupId>com.github.hiwepy</groupId>
 	<artifactId>shiro-jwt-spring-boot-starter</artifactId>
 	<description>Spring Boot Starter For Shiro With JWT</description>
-	<version>1.1.5-SNAPSHOT</version>
+	<version>1.1.5.RELEASE</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>https://github.com/hiwepy/${project.artifactId}</url>
 	<packaging>jar</packaging>
@@ -44,17 +44,16 @@
 	</developers>
 
 	<distributionManagement>
-		<repository>
-			<id>nexus-releases</id>
-			<name>Nexus Release Repository</name>
-			<url>http://192.168.1.100:8081/repository/maven-releases/</url>
-		</repository>
 		<snapshotRepository>
-			<id>nexus-snapshots</id>
-			<name>Nexus Snapshot Repository</name>
-			<url>http://192.168.1.100:8081/repository/maven-snapshots/</url>
-			<uniqueVersion>true</uniqueVersion>
+			<id>ossrh</id>
+			<name>Maven Snapshots Repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<name>Maven Central Staging Repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
 	</distributionManagement>
 
 	<build>
