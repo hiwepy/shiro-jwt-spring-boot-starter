@@ -16,7 +16,7 @@ http://jinnianshilongnian.iteye.com/blog/2018398
 <dependency>
 	<groupId>com.github.hiwepy</groupId>
 	<artifactId>shiro-jwt-spring-boot-starter</artifactId>
-	<version>${project.version}</version>
+	<version>1.1.5.RELEASE</version>
 </dependency>
 ```
 
