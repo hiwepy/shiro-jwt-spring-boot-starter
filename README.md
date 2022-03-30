@@ -1,13 +1,16 @@
 # shiro-jwt-spring-boot-starter
 shiro jwt starter for spring boot
+  
+### 组件简介
 
-### 说明
+> 基于 Shiro + Jwt 的 Spring Boot Starter 实现
 
+http://shiro.apache.org/documentation.html
+http://jinnianshilongnian.iteye.com/blog/2018398
 
- > 基于 Shiro + Jwt 的 Spring Boot Starter 实现
+### 使用说明
 
-
-### Maven
+##### 1、Spring Boot 项目添加 Maven 依赖
 
 ``` xml
 <dependency>
@@ -17,24 +20,19 @@ shiro jwt starter for spring boot
 </dependency>
 ```
 
-### Sample
+##### 2、在`application.yml`文件中增加如下配置
 
-[https://github.com/vindell/spring-boot-starter-samples/tree/master/spring-boot-sample-shiro-biz](https://github.com/vindell/spring-boot-starter-samples/tree/master/spring-boot-sample-shiro-biz "spring-boot-sample-shiro-biz")
-
-### 配置参考
-
- > application.yml
-
+```yaml
 ################################################################################################################  
 ###Shiro 权限控制基本配置：  
 ################################################################################################################
 shiro:
-  annotations: 
+  annotations:
     enabled: true
     proxy-target-class: true
   authentication-caching-enabled: false
   authentication-cache-name: SHIRO-AUTHC
-  authorization-caching-enabled: false 
+  authorization-caching-enabled: false
   authorization-cache-name: SHIRO-AUTHZ
   caching-enabled: false
   cache:
@@ -60,9 +58,9 @@ shiro:
   session-timeout: 1800000
   unauthorized-url: /error
   user-native-session-manager: false
-  web: 
+  web:
     enabled: true
-  filter-chain-definition-map: 
+  filter-chain-definition-map:
     '[/]' : anon
     '[/**/favicon.ico]' : anon
     '[/webjars/**]' : anon
@@ -86,11 +84,20 @@ shiro:
     '[/authz/login/slogin]' : cros,authc
     '[/logout]' : logout
     '[/**]' : cros,authc
+```
 
+##### 3、使用示例
 
-### 参考资料
+```
+ ShiroPrincipal principal = SubjectUtils.getPrincipal(ShiroPrincipal.class);
+```
 
-http://shiro.apache.org/documentation.html
+## Jeebiz 技术社区
 
-http://jinnianshilongnian.iteye.com/blog/2018398
+Jeebiz 技术社区 **微信公共号**、**小程序**，欢迎关注反馈意见和一起交流，关注公众号回复「Jeebiz」拉你入群。
+
+|公共号|小程序|
+|---|---|
+| ![](https://raw.githubusercontent.com/hiwepy/static/main/images/qrcode_for_gh_1d965ea2dfd1_344.jpg)| ![](https://raw.githubusercontent.com/hiwepy/static/main/images/gh_09d7d00da63e_344.jpg)|
+
 
