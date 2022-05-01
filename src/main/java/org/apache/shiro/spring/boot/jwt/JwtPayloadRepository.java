@@ -20,7 +20,7 @@ import java.util.Map;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
-import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAuthorizationToken;
 import org.apache.shiro.subject.Subject;
 
 import com.github.hiwepy.jwt.JwtPayload;
@@ -31,34 +31,34 @@ import com.github.hiwepy.jwt.JwtPayload;
  */
 public interface JwtPayloadRepository {
 
-	default String issueJwt(AuthenticationToken token, Subject subject) { 
+	default String issueJwt(AuthenticationToken token, Subject subject) {
 		if(subject.getPrincipal() instanceof ShiroPrincipal) {
 			ShiroPrincipal principal = (ShiroPrincipal) subject.getPrincipal();
 			return this.issueJwt(principal);
 		}
 		return "";
 	};
-	
-	default String issueJwt(ShiroPrincipal principal) { 
+
+	default String issueJwt(ShiroPrincipal principal) {
 		return this.issueJwt(principal.getUserid(), principal.getProfile());
 	};
-	
-	default String issueJwt(String userId, Map<String, Object> profile) { 
+
+	default String issueJwt(String userId, Map<String, Object> profile) {
 		return "";
 	};
-	
+
 	default boolean verify(AuthenticationToken token, Subject subject, boolean checkExpiry) throws AuthenticationException{
 		return false;
 	}
-	
+
 	default boolean verify(String token, boolean checkExpiry) throws AuthenticationException{
 		return false;
 	};
-	
-	default JwtPayload getPayload(JwtAccessToken token, boolean checkExpiry){
+
+	default JwtPayload getPayload(JwtAuthorizationToken token, boolean checkExpiry){
 		return null;
 	};
-	
+
 	default JwtPayload getPayload(String token, boolean checkExpiry){
 		return null;
 	};

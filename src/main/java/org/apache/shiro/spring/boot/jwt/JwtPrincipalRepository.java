@@ -20,7 +20,7 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipalRepositoryImpl;
-import org.apache.shiro.spring.boot.jwt.token.JwtAccessToken;
+import org.apache.shiro.spring.boot.jwt.token.JwtAuthorizationToken;
 
 import com.github.hiwepy.jwt.JwtPayload;
 
@@ -43,7 +43,7 @@ public class JwtPrincipalRepository extends ShiroPrincipalRepositoryImpl {
 	@Override
 	public AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 
-		JwtAccessToken jwtToken = (JwtAccessToken) token;
+		JwtAuthorizationToken jwtToken = (JwtAuthorizationToken) token;
 
 		JwtPayload payload = getJwtPayloadRepository().getPayload(jwtToken, isCheckExpiry());
 
