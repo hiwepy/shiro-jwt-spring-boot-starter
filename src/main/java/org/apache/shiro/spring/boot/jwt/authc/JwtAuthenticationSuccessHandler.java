@@ -44,9 +44,6 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 	/** If Check JWT Validity. */
 	private boolean checkExpiry = false;
 
-	public JwtAuthenticationSuccessHandler() {
-	}
-
 	public JwtAuthenticationSuccessHandler(JwtPayloadRepository jwtPayloadRepository, boolean checkExpiry) {
 		super();
 		this.jwtPayloadRepository = jwtPayloadRepository;
@@ -76,7 +73,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-			JSONObject.writeJSONString(response.getWriter(), tokenMap);
+			JSONObject.writeJSONString(response.getOutputStream(), tokenMap);
 
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.biz.authc.AuthcResponse;
@@ -50,7 +51,7 @@ public class JwtAuthorizationFailureHandler implements AuthorizationFailureHandl
 
 	protected MessageSourceAccessor messages = ShiroJwtMessageSource.getAccessor();
 	private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationFailureHandler.class);
-	
+
 	@Override
 	public boolean supports(AuthenticationException ex) {
 		return SubjectUtils.isAssignableFrom(ex.getClass(), ExpiredJwtException.class,
@@ -60,51 +61,51 @@ public class JwtAuthorizationFailureHandler implements AuthorizationFailureHandl
 	@Override
 	public boolean onAuthorizationFailure(Object mappedValue, AuthenticationException ex, ServletRequest request,
 			ServletResponse response) throws IOException {
-		
+
 		if(LOG.isDebugEnabled()) {
 			LOG.debug(ExceptionUtils.getRootCauseMessage(ex));
 		}
-		
+
 		try {
-			
+
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
 			// Jwt过期
 			if (ex instanceof ExpiredJwtException) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
+				JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getMsgKey(), ex.getMessage())));
-			} 
+			}
 			// Jwt错误
 			else if (ex instanceof IncorrectJwtException) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
+				JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getMsgKey(), ex.getMessage())));
-			} 
+			}
 			// Jwt无效
 			else if (ex instanceof InvalidJwtToken) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
+				JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getMsgKey(), ex.getMessage())));
 			}
 			// Jwt缺失
 			else if (ex instanceof NotObtainedJwtException) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
+				JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getMsgKey(), ex.getMessage())));
 			} else {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
+				JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHC_FAIL.getMsgKey())));
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
-			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error("Unauthentication."));
+			JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.error("Unauthentication."));
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return Integer.MAX_VALUE - 1;
 	}
-	
+
 }

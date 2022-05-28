@@ -85,7 +85,7 @@ public class JwtAuthorizationFilter extends AbstracAuthorizationFilter {
 		WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(HttpStatus.SC_UNAUTHORIZED, mString));
+		JSONObject.writeJSONString(response.getOutputStream(), AuthcResponse.fail(HttpStatus.SC_UNAUTHORIZED, mString));
 
 		return false;
 	}
