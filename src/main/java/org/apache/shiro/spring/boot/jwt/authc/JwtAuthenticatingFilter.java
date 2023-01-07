@@ -23,6 +23,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authc.AuthcResponse;
@@ -40,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -122,7 +122,7 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 				WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 				response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(HttpStatus.SC_BAD_REQUEST, mString));
+				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.fail(HttpStatus.SC_BAD_REQUEST, mString));
 
 				return false;
 			}
@@ -139,7 +139,8 @@ public class JwtAuthenticatingFilter extends TrustableRestAuthenticatingFilter {
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-			JSONObject.writeJSONString(response.getWriter(), AuthcResponse.fail(HttpStatus.SC_UNAUTHORIZED, mString));
+
+			JSON.writeJSONString(response.getOutputStream(), AuthcResponse.fail(HttpStatus.SC_UNAUTHORIZED, mString));
 
 			return false;
 		}

@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authc.AuthenticationSuccessHandler;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
@@ -76,7 +77,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-			JSONObject.writeJSONString(response.getWriter(), tokenMap);
+			JSON.writeJSONString(response.getOutputStream(), tokenMap);
 
 		} catch (IOException e) {
 			e.printStackTrace();

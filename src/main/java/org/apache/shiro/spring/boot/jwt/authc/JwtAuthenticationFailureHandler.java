@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -71,25 +72,25 @@ public class JwtAuthenticationFailureHandler implements AuthenticationFailureHan
 
 			// Jwt过期
 			if (ex instanceof ExpiredJwtException) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
+				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getMsgKey(), ex.getMessage())));
 			}
 			// Jwt错误
 			else if (ex instanceof IncorrectJwtException) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
+				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getMsgKey(), ex.getMessage())));
 			}
 			// Jwt无效
 			else if (ex instanceof InvalidJwtToken) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
+				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getMsgKey(), ex.getMessage())));
 			}
 			// Jwt缺失
 			else if (ex instanceof NotObtainedJwtException) {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
+				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getMsgKey(), ex.getMessage())));
 			} else {
-				JSONObject.writeJSONString(response.getWriter(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
+				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHC_FAIL.getMsgKey())));
 			}
 		} catch (NoSuchMessageException e) {
