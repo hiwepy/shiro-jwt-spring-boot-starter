@@ -15,7 +15,7 @@
  */
 package org.apache.shiro.spring.boot.utils;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 public class JSONResult{
 	

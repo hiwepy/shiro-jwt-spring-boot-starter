@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.biz.authc.AuthcResponse;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.MediaType;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 /**
  * TODO
@@ -74,30 +74,30 @@ public class JwtAuthorizationFailureHandler implements AuthorizationFailureHandl
 
 			// Jwt过期
 			if (ex instanceof ExpiredJwtException) {
-				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
+				JSON.writeTo(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_EXPIRED.getMsgKey(), ex.getMessage())));
 			} 
 			// Jwt错误
 			else if (ex instanceof IncorrectJwtException) {
-				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
+				JSON.writeTo(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INCORRECT.getMsgKey(), ex.getMessage())));
 			} 
 			// Jwt无效
 			else if (ex instanceof InvalidJwtToken) {
-				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
+				JSON.writeTo(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_INVALID.getMsgKey(), ex.getMessage())));
 			}
 			// Jwt缺失
 			else if (ex instanceof NotObtainedJwtException) {
-				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
+				JSON.writeTo(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHZ_TOKEN_REQUIRED.getMsgKey(), ex.getMessage())));
 			} else {
-				JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
+				JSON.writeTo(response.getOutputStream(), AuthcResponse.error(AuthcResponseCode.SC_AUTHC_FAIL.getCode(),
 						messages.getMessage(AuthcResponseCode.SC_AUTHC_FAIL.getMsgKey())));
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage());
-			JSON.writeJSONString(response.getOutputStream(), AuthcResponse.error("Unauthentication."));
+			JSON.writeTo(response.getOutputStream(), AuthcResponse.error("Unauthentication."));
 		}
 		
 		return false;

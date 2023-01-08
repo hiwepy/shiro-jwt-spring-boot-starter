@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.biz.authc.AuthenticationSuccessHandler;
 import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
@@ -36,7 +36,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 
 public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler, Ordered {
@@ -77,7 +77,7 @@ public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			WebUtils.toHttp(response).setStatus(HttpStatus.SC_OK);
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
-			JSON.writeJSONString(response.getOutputStream(), tokenMap);
+			JSON.writeTo(response.getOutputStream(), tokenMap);
 
 		} catch (IOException e) {
 			e.printStackTrace();
