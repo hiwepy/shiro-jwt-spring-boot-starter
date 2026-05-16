@@ -23,7 +23,7 @@ import org.apache.shiro.biz.authz.principal.ShiroPrincipal;
 import org.apache.shiro.spring.boot.jwt.token.JwtAuthorizationToken;
 import org.apache.shiro.subject.Subject;
 
-import com.github.hiwepy.jwt.JwtPayload;
+import io.github.hiwepy.jwt.JwtPayload;
 
 /**
  * Abstract JSON Web Token (JWT) Payload Repository

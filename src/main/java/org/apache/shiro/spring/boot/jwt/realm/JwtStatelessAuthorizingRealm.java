@@ -11,7 +11,7 @@ import org.apache.shiro.spring.boot.jwt.token.JwtAuthorizationToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.util.CollectionUtils;
 
-import com.github.hiwepy.jwt.JwtPayload.RolePair;
+import io.github.hiwepy.jwt.JwtPayload.RolePair;
 import com.google.common.collect.Sets;
 
 /**

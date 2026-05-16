@@ -14,7 +14,7 @@ http://jinnianshilongnian.iteye.com/blog/2018398
 
 ``` xml
 <dependency>
-	<groupId>com.github.hiwepy</groupId>
+	<groupId>io.github.hiwepy</groupId>
 	<artifactId>shiro-jwt-spring-boot-starter</artifactId>
 	<version>${project.version}</version>
 </dependency>
