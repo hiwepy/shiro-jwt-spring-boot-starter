@@ -1,7 +1,7 @@
 package org.apache.shiro.spring.boot.jwt.authz;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.apache.shiro.subject.Subject;
 
